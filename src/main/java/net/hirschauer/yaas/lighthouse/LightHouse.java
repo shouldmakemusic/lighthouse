@@ -1,7 +1,7 @@
 package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
-import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.SocketAddress;
 
 import javax.jmdns.JmDNS;
@@ -42,15 +42,25 @@ public class LightHouse {
 		logger.debug("LightHouse created");
 
 		try {
-			jmdns = JmDNS.create();
-			String type = "_http._tcp.local.";
+			String ip = InetAddress.getLocalHost().getHostAddress();
+			InetAddress bindingAddress = InetAddress.getByName(ip);
+			logger.debug("at " + ip);
+			
+			InetAddress in  = InetAddress.getLocalHost();  
+			InetAddress[] all = InetAddress.getAllByName(in.getHostName());  
+			for (int i=0; i<all.length; i++) {  
+				logger.debug("  address = " + all[i]);  
+			}
+			
+			jmdns = JmDNS.create(bindingAddress);
+			String type = "_yaas._tcp.local.";
 			jmdns.addServiceListener(type, new YaasServiceListener());
 			logger.info("Service Listener startet");
 		} catch (IOException e) {
 			logger.error("Could not start service discovery", e);
 		}
 		
-		serviceInfo = ServiceInfo.create("_http._tcp.local.",
+		serviceInfo = ServiceInfo.create("_yaas._tcp.local.",
                 "LightHouse", 0x5455,
                 "Yaas OSC Server");
 		try {
@@ -63,20 +73,20 @@ public class LightHouse {
 
 		final OSCServer c;
 		try {
-			// create TCP server on loopback port 0x5454
-			c = OSCServer.newUsing(OSCServer.TCP, 0x5454, true);
-			logger.info("OSC Server started TCP 9050");
+			// create UDP server on port 9050
+			c = OSCServer.newUsing(OSCServer.UDP, 9050, false);
+			logger.info("OSC Server started UDP 9050");
 		} catch (IOException e1) {
 			logger.error("Could not start osc server", e1);
 			return;
 		}
+		c.dumpOSC(OSCServer.kDumpBoth, System.err);
 		try {
 			c.start();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace(); 
 		}
-		c.dumpOSC(OSCServer.kDumpBoth, System.err);
 
 		// now add a listener for incoming messages from
 		// any of the active connections
