@@ -3,6 +3,11 @@ package net.hirschauer.yaas.lighthouse;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import net.hirschauer.yaas.lighthouse.model.LogEntry;
+import net.hirschauer.yaas.lighthouse.model.SensorValue;
+import net.hirschauer.yaas.lighthouse.visual.LogController;
+import net.hirschauer.yaas.lighthouse.visual.SensorController;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +22,10 @@ public class LightHouseOSCServer {
 
 	private final Object sync = new Object();
 	private OSCServer c = null;
+	
+	private SensorController sensorController;
+	private LogController logController;
+	private SensorValue sensorData = new SensorValue();
 
 	public LightHouseOSCServer() {
 		try {
@@ -46,9 +55,6 @@ public class LightHouseOSCServer {
 					args += m.getArg(i) + " ";
 				}
 
-				logger.debug("Received message: " + m.getName() + " " + args + " from "
-						+ addr);
-
 				// first of all, send a reply message (just a demo)
 				try {
 					c.send(new OSCMessage("/done", new Object[] { m.getName() }),
@@ -72,6 +78,17 @@ public class LightHouseOSCServer {
 				} else if (m.getName().equals("/dumpOSC")) {
 					// change dumping behaviour
 					c.dumpOSC(((Number) m.getArg(0)).intValue(), System.err);
+					
+				} else if (m.getName().equals("/yaas/sensor")) {
+					// show sensor values in barChart
+					if (sensorController != null) {
+						sensorData.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+						sensorController.setSensorData(sensorData);
+					}
+				} else {
+					logger.debug("Received message: " + m.getName() + " " + args + " from "
+						+ addr);
+					logController.log(m);
 				}
 			}
 		});
@@ -112,5 +129,13 @@ public class LightHouseOSCServer {
 			logger.error("Could not stop osc", e);
 			this.c = null;
 		}
+	}
+	
+	public void setSensorController(SensorController sc) {
+		this.sensorController = sc;
+		this.sensorController.setSensorData(this.sensorData);
+	}
+	public void setLogController(LogController lc) {
+		this.logController = lc;
 	}
 }
