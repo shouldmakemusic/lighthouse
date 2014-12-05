@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+	AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+	fx:controller="net.hirschauer.yaas.lighthouse.visual.LogController">
+	<children>
+		<TableView fx:id="logEntryTable" AnchorPane.bottomAnchor="0.0"
+			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+			AnchorPane.topAnchor="0.0">
+			<columns>
+				<TableColumn fx:id="messageColumn" prefWidth="400.0"
+					text="Message" />
+				<TableColumn fx:id="arg0Column" prefWidth="75.0" text="Arg0" />
+				<TableColumn fx:id="arg1Column" prefWidth="75.0" text="Arg1" />
+				<TableColumn fx:id="arg2Column" prefWidth="75.0" text="Arg2" />
+			</columns>
+		</TableView>
+	</children>
+</AnchorPane>
