@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="250.0" style="-fx-pref-width: 200; -fx-pref-height: 150;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.SensorController">
+	<children>
+		<BarChart fx:id="barChart" layoutX="-8.0" layoutY="-17.0" prefHeight="100.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+			<xAxis>
+				<CategoryAxis fx:id="xAxis" side="BOTTOM" />
+			</xAxis>
+			<yAxis>
+				<NumberAxis autoRanging="false" lowerBound="-10.0" side="LEFT" upperBound="10.0" />
+			</yAxis>
+		</BarChart>
+	</children>
+</AnchorPane>
