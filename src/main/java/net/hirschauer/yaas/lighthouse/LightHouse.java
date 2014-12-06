@@ -59,6 +59,7 @@ public class LightHouse extends Application {
 		
 		logger.debug("start");		
 
+		new LightHouseMidi();
 		if (oscServer == null) {
 			oscServer = new LightHouseOSCServer();
 		}
