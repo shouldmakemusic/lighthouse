@@ -2,18 +2,13 @@ package net.hirschauer.yaas.lighthouse.visual;
 
 import java.util.Arrays;
 
-import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import net.hirschauer.yaas.lighthouse.model.SensorValue;
 
 public class SensorController {
 	
