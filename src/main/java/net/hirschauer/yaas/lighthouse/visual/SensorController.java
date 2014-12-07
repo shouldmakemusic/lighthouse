@@ -2,15 +2,24 @@ package net.hirschauer.yaas.lighthouse.visual;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.sciss.net.OSCServer;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
+import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 
-public class SensorController {
+public class SensorController implements ChangeListener {
+	
+	private Logger logger = LoggerFactory.getLogger(SensorController.class);
 	
     @FXML
     private BarChart<String, Integer> barChart;
@@ -19,6 +28,8 @@ public class SensorController {
     private CategoryAxis xAxis;
 
     private ObservableList<String> sensorNames = FXCollections.observableArrayList();
+    private XYChart.Series<String, Integer> lastSeries;
+    private LightHouseOSCServer oscServer;
    
     /**
      * Initializes the controller class. This method is automatically called
@@ -40,12 +51,18 @@ public class SensorController {
      */
     public void setSensorData(SensorValue value) {
         float[] values = new float[9];
-        values[0] = value.getX();
-        values[1] = value.getY();
-        values[2] = value.getZ();
+        values[0] = value.getXNormalized();
+        values[1] = value.getYNormalized();
+        values[2] = value.getZNormalized();
 
         XYChart.Series<String, Integer> series = createValueDataSeries(values);
-        barChart.getData().add(series);
+        if (!series.equals(lastSeries)) {
+            if (barChart.getData().size() > 0) {
+            	barChart.getData().clear();
+            }
+            barChart.getData().add(series);
+        }
+    	lastSeries = series;
     }
 
     /**
@@ -66,4 +83,17 @@ public class SensorController {
 
         return series;
     }
+
+	public void setOscServer(LightHouseOSCServer oscServer) {
+		this.oscServer = oscServer;
+		oscServer.valueProperty().addListener(this);
+		logger.debug("oscServer set and listener added");
+	}
+
+	@Override
+	public void changed(ObservableValue observable, Object oldValue,
+			Object newValue) {
+//		logger.debug("sensor changed " + newValue);
+		setSensorData((SensorValue) newValue);
+	}
 }

@@ -2,7 +2,12 @@ package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
@@ -15,7 +20,7 @@ import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
 
-public class LightHouseOSCServer {
+public class LightHouseOSCServer extends Task<SensorValue> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OSCServer.class);
 	private boolean pause = false; // (must be an instance or static field to be
@@ -23,18 +28,38 @@ public class LightHouseOSCServer {
 	private final Object sync = new Object();
 	private OSCServer c = null;
 	
-	private SensorController sensorController;
-	private LogController logController;
-	private SensorValue sensorData = new SensorValue();
-
+	private LogController logController;	
+	
+	private SensorValue sensorDataAndroid = new SensorValue(4, 6);
+	private int counter = 0;
+	
 	public LightHouseOSCServer() {
+
+	}
+	
+	public void stop() {
+		try {
+			this.c.stop();
+		} catch (IOException e) {
+			logger.error("Could not stop osc", e);
+			this.c = null;
+		}
+	}
+	
+	public void setLogController(LogController lc) {
+		this.logController = lc;
+	}
+
+	@Override
+	protected SensorValue call() throws Exception {
+		logger.debug("call()");
 		try {
 			// create UDP server on port 9050
 			c = OSCServer.newUsing(OSCServer.UDP, 9050, false);
 			logger.info("OSC Server started UDP 9050");
 		} catch (IOException e1) {
 			logger.error("Could not start osc server", e1);
-			return;
+			return null;
 		}
 		//c.dumpOSC(OSCServer.kDumpBoth, System.err);
 		try {
@@ -81,14 +106,35 @@ public class LightHouseOSCServer {
 					
 				} else if (m.getName().equals("/yaas/sensor")) {
 					// show sensor values in barChart
-					if (sensorController != null) {
-						sensorData.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
-						sensorController.setSensorData(sensorData);
+					getSensorData().setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+					
+				} else if (m.getName().equals("/wii/1/accel/xyz")) {
+
+					// show sensor values in barChart
+					sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+					if (counter == 10) {
+						try {
+							updateValue(sensorDataAndroid.clone());
+							counter = 0;
+						} catch (CloneNotSupportedException e) {
+							logger.error("Could not update android sensor values");
+						}
+					} else {
+						counter++;
+					}
+					
+				} else if (m.getName().equals("/wii/1/accel/pry")) {
+
+				} else if (m.getName().startsWith("/wii")) {
+					if (logController != null) {
+						logController.log(m);
 					}
 				} else {
 					logger.debug("Received message: " + m.getName() + " " + args + " from "
 						+ addr);
-					logController.log(m);
+					if (logController != null) {
+						logController.log(m);
+					}
 				}
 			}
 		});
@@ -120,22 +166,14 @@ public class LightHouseOSCServer {
 		// e1.printStackTrace();
 		// }
 
+		return null;
 	}
-	
-	public void stop() {
-		try {
-			this.c.stop();
-		} catch (IOException e) {
-			logger.error("Could not stop osc", e);
-			this.c = null;
-		}
+
+	public SensorValue getSensorData() {
+		return sensorDataAndroid;
 	}
-	
-	public void setSensorController(SensorController sc) {
-		this.sensorController = sc;
-		this.sensorController.setSensorData(this.sensorData);
-	}
-	public void setLogController(LogController lc) {
-		this.logController = lc;
+
+	public void setSensorData(SensorValue sensorData) {
+		this.sensorDataAndroid = sensorData;
 	}
 }

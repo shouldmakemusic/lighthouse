@@ -2,7 +2,11 @@ package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
 
+import javax.swing.event.ChangeEvent;
+
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,6 +21,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
+import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
 
@@ -35,6 +40,8 @@ public class LightHouse extends Application {
 	
 	private Stage primaryStage;
     private AnchorPane rootLayout;
+    
+	private SensorController sensorController;
     
     @FXML
     AnchorPane logTablePane;
@@ -62,6 +69,7 @@ public class LightHouse extends Application {
 		new LightHouseMidi();
 		if (oscServer == null) {
 			oscServer = new LightHouseOSCServer();
+			new Thread(oscServer).start();
 		}
 		
 		this.primaryStage = primaryStage;
@@ -96,15 +104,16 @@ public class LightHouse extends Application {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/SensorBarChart.fxml"));	    
 		AnchorPane page = (AnchorPane) loader.load();				
 		
-		SensorController sc = loader.getController();
-		oscServer.setSensorController(sc);
-	    
+		sensorController = loader.getController();	 
 		controlPane.getChildren().add(page);
+		sensorController.setOscServer(oscServer);
     }
 	
 	@Override
 	public void stop() throws Exception {		
 		super.stop();
-		this.oscServer.stop();
+		if (oscServer != null) {
+			oscServer.stop();
+		}
 	}
 }
