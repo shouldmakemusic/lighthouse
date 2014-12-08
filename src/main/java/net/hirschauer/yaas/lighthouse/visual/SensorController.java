@@ -42,6 +42,8 @@ public class SensorController implements ChangeListener {
         // Convert it to a list and add it to our ObservableList of months.
         sensorNames.addAll(Arrays.asList(shownValue));
         xAxis.setCategories(sensorNames);
+        XYChart.Series<String, Integer> series = createValueDataSeries(null);
+        barChart.getData().add(series);
     }
 
     /**
@@ -76,11 +78,19 @@ public class SensorController implements ChangeListener {
     	
         XYChart.Series<String,Integer> series = new XYChart.Series<String,Integer>();
 
-        for (int i = 0; i < values.length; i++) {
-            XYChart.Data<String, Integer> data = new XYChart.Data<String,Integer>(sensorNames.get(i), Math.round(values[i]));
-            series.getData().add(data);
-        }
+        if (values == null) {
+        	for (int i = 0; i < 9; i++) {
+                XYChart.Data<String, Integer> data = new XYChart.Data<String,Integer>(sensorNames.get(i), i);
+                series.getData().add(data);
+            }
 
+    	} else {
+
+	        for (int i = 0; i < values.length; i++) {
+	            XYChart.Data<String, Integer> data = new XYChart.Data<String,Integer>(sensorNames.get(i), Math.round(values[i]));
+	            series.getData().add(data);
+	        }
+    	}
         return series;
     }
 
