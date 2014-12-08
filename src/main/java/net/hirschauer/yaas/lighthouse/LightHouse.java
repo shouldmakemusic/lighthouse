@@ -30,8 +30,6 @@ import net.hirschauer.yaas.lighthouse.visual.SensorController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.sciss.net.OSCMessage;
-
 public class LightHouse extends Application {
 
 	private static final Logger logger = LoggerFactory
@@ -44,6 +42,8 @@ public class LightHouse extends Application {
     private AnchorPane rootLayout;
     
 	private SensorController sensorController;
+	
+	private Thread oscThread;
     
     @FXML
     AnchorPane logTablePane;
@@ -73,7 +73,8 @@ public class LightHouse extends Application {
 		new LightHouseMidi();
 		if (oscServer == null) {
 			oscServer = new LightHouseOSCServer();
-			new Thread(oscServer).start();
+			oscThread = new Thread(oscServer);
+			oscThread.start();
 		}
 		
 		this.primaryStage = primaryStage;
@@ -119,5 +120,11 @@ public class LightHouse extends Application {
 		if (oscServer != null) {
 			oscServer.stop();
 		}
+		try {
+			service.finalize();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		oscThread.stop();
 	}
 }

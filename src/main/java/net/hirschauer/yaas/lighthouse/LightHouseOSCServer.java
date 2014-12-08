@@ -20,7 +20,7 @@ import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
 
-public class LightHouseOSCServer extends Task<SensorValue> {
+public class LightHouseOSCServer extends Task<SensorValue> implements OSCListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OSCServer.class);
 	private boolean pause = false; // (must be an instance or static field to be
@@ -31,18 +31,17 @@ public class LightHouseOSCServer extends Task<SensorValue> {
 	private LogController logController;	
 	
 	private SensorValue sensorDataAndroid = new SensorValue(4, 6);
-	private int counter = 0;
 	
 	public LightHouseOSCServer() {
 
 	}
 	
 	public void stop() {
+		c.removeOSCListener(this);
 		try {
-			this.c.stop();
+			c.stop();
 		} catch (IOException e) {
-			logger.error("Could not stop osc", e);
-			this.c = null;
+			c = null;
 		}
 	}
 	
@@ -65,110 +64,106 @@ public class LightHouseOSCServer extends Task<SensorValue> {
 		try {
 			c.start();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not start osc server", e);
 		}
 
 		// now add a listener for incoming messages from
 		// any of the active connections
-		c.addOSCListener(new OSCListener() {
-			public void messageReceived(OSCMessage m, SocketAddress addr,
-					long time) {
-				
-				String args = "";
-				for (int i=0; i < m.getArgCount(); i++) {
-					args += m.getArg(i) + " ";
-				}
-
-				// first of all, send a reply message (just a demo)
-				try {
-					c.send(new OSCMessage("/done", new Object[] { m.getName() }),
-							addr);
-				} catch (IOException e1) {
-					logger.error("Could not send reply");
-				}
-
-				if (m.getName().equals("/pause")) {
-					// tell the main thread to pause the server,
-					// wake up the main thread
-					pause = true;
-					synchronized (sync) {
-						sync.notifyAll();
-					}
-				} else if (m.getName().equals("/quit")) {
-					// wake up the main thread
-					synchronized (sync) {
-						sync.notifyAll();
-					}
-				} else if (m.getName().equals("/dumpOSC")) {
-					// change dumping behaviour
-					c.dumpOSC(((Number) m.getArg(0)).intValue(), System.err);
-					
-				} else if (m.getName().equals("/yaas/sensor")) {
-					// show sensor values in barChart
-					getSensorData().setValues(m.getArg(0), m.getArg(1), m.getArg(2));
-					
-				} else if (m.getName().equals("/wii/1/accel/xyz")) {
-
-					// show sensor values in barChart
-					sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
-					if (counter == 10) {
-						try {
-							updateValue(sensorDataAndroid.clone());
-							counter = 0;
-
-						} catch (CloneNotSupportedException e) {
-							logger.error("Could not update android sensor values");
-						}
-					} else {
-						counter++;
-					}
-					
-				} else if (m.getName().equals("/wii/1/accel/pry")) {
-
-				} else if (m.getName().startsWith("/wii")) {
-					if (logController != null) {
-						logController.log(m);
-					}
-				} else {
-					logger.debug("Received message: " + m.getName() + " " + args + " from "
-						+ addr);
-					if (logController != null) {
-						logController.log(m);
-					}
-				}
-			}
-		});
-		// try {
-		// do {
-		// if (pause) {
-		// System.out.println("  waiting four seconds...");
-		// try {
-		// Thread.sleep(4000);
-		// } catch (InterruptedException e1) {
-		// }
-		// pause = false;
-		// }
-		// System.out.println("  start()");
-		// // start the server (make it attentive for incoming connection
-		// // requests)
-		// c.start();
-		// try {
-		// synchronized (sync) {
-		// sync.wait();
-		// }
-		// } catch (InterruptedException e1) {
-		// }
-		//
-		// System.out.println("  stop()");
-		// c.stop();
-		// } while (pause);
-		// } catch (IOException e1) {
-		// e1.printStackTrace();
-		// }
+		c.addOSCListener(this);
 
 		return null;
 	}
+		
+	public void messageReceived(OSCMessage m, SocketAddress addr,
+			long time) {
+		
+		String args = "";
+		for (int i=0; i < m.getArgCount(); i++) {
+			args += m.getArg(i) + " ";
+		}
+
+		// first of all, send a reply message (just a demo)
+		try {
+			c.send(new OSCMessage("/done", new Object[] { m.getName() }),
+					addr);
+		} catch (IOException e1) {
+			logger.error("Could not send reply");
+		}
+
+		if (m.getName().equals("/pause")) {
+			// tell the main thread to pause the server,
+			// wake up the main thread
+			pause = true;
+			synchronized (sync) {
+				sync.notifyAll();
+			}
+		} else if (m.getName().equals("/quit")) {
+			// wake up the main thread
+			synchronized (sync) {
+				sync.notifyAll();
+			}
+		} else if (m.getName().equals("/dumpOSC")) {
+			// change dumping behaviour
+			c.dumpOSC(((Number) m.getArg(0)).intValue(), System.err);
+			
+		} else if (m.getName().equals("/yaas/sensor")) {
+			// show sensor values in barChart
+			getSensorData().setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+			
+		} else if (m.getName().equals("/wii/1/accel/xyz")) {
+
+			// show sensor values in barChart
+			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+			try {
+				updateValue(sensorDataAndroid.clone());
+
+			} catch (CloneNotSupportedException e) {
+				logger.error("Could not update android sensor values");
+			}
+			
+		} else if (m.getName().equals("/wii/1/accel/pry")) {
+			
+			sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
+
+		} else if (m.getName().startsWith("/wii")) {
+			if (logController != null) {
+				logController.log(m);
+			}
+		} else {
+			logger.debug("Received message: " + m.getName() + " " + args + " from "
+				+ addr);
+			if (logController != null) {
+				logController.log(m);
+			}
+		}
+	}
+	// try {
+	// do {
+	// if (pause) {
+	// System.out.println("  waiting four seconds...");
+	// try {
+	// Thread.sleep(4000);
+	// } catch (InterruptedException e1) {
+	// }
+	// pause = false;
+	// }
+	// System.out.println("  start()");
+	// // start the server (make it attentive for incoming connection
+	// // requests)
+	// c.start();
+	// try {
+	// synchronized (sync) {
+	// sync.wait();
+	// }
+	// } catch (InterruptedException e1) {
+	// }
+	//
+	// System.out.println("  stop()");
+	// c.stop();
+	// } while (pause);
+	// } catch (IOException e1) {
+	// e1.printStackTrace();
+	// }
 
 	public SensorValue getSensorData() {
 		return sensorDataAndroid;

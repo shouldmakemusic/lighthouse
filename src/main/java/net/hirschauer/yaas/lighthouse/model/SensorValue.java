@@ -1,13 +1,5 @@
 package net.hirschauer.yaas.lighthouse.model;
 
-import java.util.ArrayList;
-
-import javafx.beans.InvalidationListener;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +10,11 @@ public class SensorValue {
 	protected float x = 0;
 	protected float y = 0;
 	protected float z = 0;
+	
+	private float pitch = 0;
+	private float roll = 0;
+	private float yaw = 0;
+	private float accel = 0;
 	
 	// Filtering constant
 	private final float mAlpha = 0.8f;
@@ -75,8 +72,8 @@ public class SensorValue {
 	}	
 
 	public void setZ(float z) {
-		mGravity[2] = lowPass(z, mGravity[2]);
 		mAccel[2] = highPass(z, mGravity[2]);
+		mGravity[2] = lowPass(z, mGravity[2]);
 		this.z = z;
 	}
 	
@@ -91,8 +88,8 @@ public class SensorValue {
 	
 	public void setX(float x) {
 		this.x = x;
-		mGravity[0] = lowPass(x, mGravity[0]);
 		mAccel[0] = highPass(x, mGravity[0]);
+		mGravity[0] = lowPass(x, mGravity[0]);
 	}
 
 	public float getY() {
@@ -104,8 +101,8 @@ public class SensorValue {
 	}
 	
 	public void setY(float y) {
-		mGravity[1] = lowPass(y, mGravity[1]);
 		mAccel[1] = highPass(y, mGravity[1]);
+		mGravity[1] = lowPass(y, mGravity[1]);
 		this.y = y;
 	}
 
@@ -156,6 +153,10 @@ public class SensorValue {
 		v.mGravity = mGravity;
 		v.min = min;
 		v.max = max;
+		v.pitch = pitch;
+		v.roll = roll;
+		v.yaw = yaw;
+		v.accel = accel;
 		return v;
 	}
 	
@@ -181,6 +182,50 @@ public class SensorValue {
 
 	public float getZAccel() {
 		return this.mAccel[2];
+	}
+
+	public void setPryValues(Object pitch, Object roll, Object yaw, Object accel) {
+		Float floatPitch = (Float) pitch * 10;
+		Float floatRoll = (Float) roll * 10;
+		Float floatYaw = (Float) yaw * 10;
+		Float floatAccel = (Float) accel * 10;
+		setPitch(floatPitch.floatValue());
+		setRoll(floatRoll.floatValue());
+		setYaw(floatYaw.floatValue());	
+		setAccel(floatAccel.floatValue());
+		logger.debug("setPry " + pitch + ", " + roll + ", " + yaw + ", " + getAccel());
+	}
+
+	public float getPitch() {
+		return pitch;
+	}
+
+	protected void setPitch(float pryX) {
+		this.pitch = pryX;
+	}
+
+	public float getRoll() {
+		return roll;
+	}
+
+	protected void setRoll(float roll) {
+		this.roll = roll;
+	}
+
+	public float getYaw() {
+		return yaw;
+	}
+
+	protected void setYaw(float yaw) {
+		this.yaw = yaw;
+	}
+
+	public float getAccel() {
+		return accel;
+	}
+
+	protected void setAccel(float accel) {
+		this.accel = accel;
 	}
 
 }
