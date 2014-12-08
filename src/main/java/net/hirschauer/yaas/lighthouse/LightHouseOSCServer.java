@@ -116,6 +116,7 @@ public class LightHouseOSCServer extends Task<SensorValue> {
 						try {
 							updateValue(sensorDataAndroid.clone());
 							counter = 0;
+
 						} catch (CloneNotSupportedException e) {
 							logger.error("Could not update android sensor values");
 						}

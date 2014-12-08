@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 
@@ -42,7 +43,11 @@ public class SensorController implements ChangeListener {
         // Convert it to a list and add it to our ObservableList of months.
         sensorNames.addAll(Arrays.asList(shownValue));
         xAxis.setCategories(sensorNames);
-        XYChart.Series<String, Integer> series = createValueDataSeries(null);
+        XYChart.Series<String,Integer> series = new XYChart.Series<String,Integer>();
+    	for (int i = 0; i < 9; i++) {
+            XYChart.Data<String, Integer> data = new XYChart.Data<String,Integer>(sensorNames.get(i), i);
+            series.getData().add(data);
+        }
         barChart.getData().add(series);
     }
 
@@ -56,42 +61,20 @@ public class SensorController implements ChangeListener {
         values[0] = value.getXNormalized();
         values[1] = value.getYNormalized();
         values[2] = value.getZNormalized();
+        values[3] = value.getXGravity();
+        values[4] = value.getYGravity();
+        values[5] = value.getZGravity();
+        values[6] = value.getXAccel();
+        values[7] = value.getYAccel();
+        values[8] = value.getZAccel();
 
-        XYChart.Series<String, Integer> series = createValueDataSeries(values);
-        if (!series.equals(lastSeries)) {
-            if (barChart.getData().size() > 0) {
-            	barChart.getData().clear();
-            }
-            barChart.getData().add(series);
+        ObservableList<Series<String, Integer>> series = barChart.getData();
+        Series<String, Integer> serie = series.get(0);
+        
+		for (int i=0; i<serie.getData().size(); i++) {
+			XYChart.Data<String,Integer> data = serie.getData().get(i);
+            data.setYValue(Math.round(values[i]));
         }
-    	lastSeries = series;
-    }
-
-    /**
-     * Creates a XYChart.Data object for each month. All month data is then
-     * returned as a series.
-     * 
-     * @param monthCounter Array with a number for each month. Must be of length 12!
-     * @return
-     */
-    private XYChart.Series<String, Integer> createValueDataSeries(float[] values) {
-    	
-        XYChart.Series<String,Integer> series = new XYChart.Series<String,Integer>();
-
-        if (values == null) {
-        	for (int i = 0; i < 9; i++) {
-                XYChart.Data<String, Integer> data = new XYChart.Data<String,Integer>(sensorNames.get(i), i);
-                series.getData().add(data);
-            }
-
-    	} else {
-
-	        for (int i = 0; i < values.length; i++) {
-	            XYChart.Data<String, Integer> data = new XYChart.Data<String,Integer>(sensorNames.get(i), Math.round(values[i]));
-	            series.getData().add(data);
-	        }
-    	}
-        return series;
     }
 
 	public void setOscServer(LightHouseOSCServer oscServer) {

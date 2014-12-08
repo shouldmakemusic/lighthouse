@@ -85,7 +85,7 @@ public class SensorValue {
 	}
 	
 	public float getXNormalized() {
-		logger.debug("X normalized: " + getTargetValue(x));
+//		logger.debug("X normalized: " + getTargetValue(x));
 		return getTargetValue(x);
 	}
 	
@@ -158,4 +158,29 @@ public class SensorValue {
 		v.max = max;
 		return v;
 	}
+	
+	public float getXGravity() {
+		return this.mGravity[0];
+	}
+	
+	public float getYGravity() {
+		return this.mGravity[1];
+	}
+
+	public float getZGravity() {
+		return this.mGravity[2];
+	}
+	
+	public float getXAccel() {
+		return this.mAccel[0];
+	}
+
+	public float getYAccel() {
+		return this.mAccel[1];
+	}
+
+	public float getZAccel() {
+		return this.mAccel[2];
+	}
+
 }
