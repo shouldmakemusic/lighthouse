@@ -2,6 +2,7 @@ package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
 
+import javax.bluetooth.DiscoveryListener;
 import javax.swing.event.ChangeEvent;
 
 import javafx.application.Application;
@@ -20,6 +21,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import net.hirschauer.yaas.lighthouse.bluetooth.RemoteDeviceDiscovery;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
@@ -64,7 +66,9 @@ public class LightHouse extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		logger.debug("start");		
+		logger.debug("start");	
+		
+//		new RemoteDeviceDiscovery();
 
 		new LightHouseMidi();
 		if (oscServer == null) {
