@@ -18,7 +18,7 @@
                <content>
                   <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
                     <items>
-                        <HBox prefHeight="100.0" prefWidth="200.0" fx:id="topBox" />
+                        <HBox fx:id="topBox" prefHeight="100.0" prefWidth="200.0" />
                       <AnchorPane fx:id="logTablePane" minHeight="0.0" minWidth="0.0" prefHeight="221.0" prefWidth="700.0" />
                     </items>
                   </SplitPane>
@@ -26,7 +26,7 @@
           </Tab>
           <Tab text="Log from YAAS">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane fx:id="yaasLogTablePane" />
             </content>
           </Tab>
         </tabs>

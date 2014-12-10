@@ -1,49 +1,54 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import de.sciss.net.OSCMessage;
 
-public class LogController {
+public class YaasLogController {
 	
 	   	@FXML
-	    private TableView<LogEntry> logEntryTable;
+	    private TableView<LogEntry> yaasLogEntryTable;
 	    @FXML
 	    private TableColumn<LogEntry, String> messageColumn;
 	    @FXML
-	    private TableColumn<LogEntry, String> arg0Column;
+	    private TableColumn<LogEntry, String> levelColumn;
 	    @FXML
-	    private TableColumn<LogEntry, String> arg1Column;
-	    @FXML
-	    private TableColumn<LogEntry, String> arg2Column;
+	    private ComboBox<String> levelCombobox;
 
 
 	    private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
 
-	    public LogController() {
+	    public YaasLogController() {
 	    }
 
 	    @FXML
 	    private void initialize() {
+	    	levelColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("level"));
 	    	messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
-	        arg0Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg0"));
-	        arg1Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg1"));
-	        arg2Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg2"));
 
 			logEntries.add(new LogEntry(new OSCMessage("LogController initialized", new Object[] {})));
-	        logEntryTable.setItems(logEntries);
+			yaasLogEntryTable.setItems(logEntries);
+			
+			levelCombobox.valueProperty().addListener(new ChangeListener<String>() {
+
+				@Override
+				public void changed(
+						ObservableValue<? extends String> observable,
+						String oldValue, String newValue) {
+					
+					logEntries.add(new LogEntry(new OSCMessage("Loglevel changed to " + newValue, new Object[] {})));
+				}
+			});
 	    }
 
-	    /**
-	     * Is called by the main application to give a reference back to itself.
-	     * 
-	     * @param mainApp
-	     */
 	    public void log(OSCMessage m) {
 	        
 	    	logEntries.add(new LogEntry(m));

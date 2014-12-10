@@ -28,6 +28,7 @@ import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
+import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,19 +39,22 @@ public class LightHouse extends Application {
 			.getLogger(LightHouse.class);
 	
 	private static LightHouseOSCServer oscServer;
-	private static final LightHouseService service = new LightHouseService();
+	private static LightHouseService service;
+	private Thread oscThread;
+	private Thread serviceThread;
 	
 	private Stage primaryStage;
     private AnchorPane rootLayout;
     
 	private SensorController sensorController;
 	
-	private Thread oscThread;
     
     @FXML
     AnchorPane logTablePane;
     @FXML
     HBox topBox;
+    @FXML
+    AnchorPane yaasLogTablePane;
 
 	/**
 	 * @param args
@@ -70,34 +74,55 @@ public class LightHouse extends Application {
 		
 		logger.debug("start");	
 		
-//		new RemoteDeviceDiscovery();
-
-		new LightHouseMidi();
 		if (oscServer == null) {
 			oscServer = new LightHouseOSCServer();
 			oscThread = new Thread(oscServer);
 			oscThread.start();
 		}
 		
+//		new RemoteDeviceDiscovery();
+
+		new LightHouseMidi();
+		
+		if (service == null) {
+			service = new LightHouseService();
+			serviceThread = new Thread(service);
+			serviceThread.start();
+		}
+		
 		this.primaryStage = primaryStage;
         this.primaryStage.setTitle("LightHouse - Service Discovery and OSC Client/Server");
         
         // Load the root layout from the fxml file
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/LightHouseSurface.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LightHouseSurface.fxml"));
         loader.setController(this);
         rootLayout = (AnchorPane) loader.load();
         
         Scene scene = new Scene(rootLayout);
-        scene.getStylesheets().add("view/stylesheet.css");
+        scene.getStylesheets().add("/view/stylesheet.css");
         primaryStage.setScene(scene);
         primaryStage.show();               
         
         showBarCharts();
-        showLogTable();
+        showOSCLogTable();
+        showYaasLogTable();
+
+
 	}
 	
-	private void showLogTable() throws IOException {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/LogTable.fxml"));
+	private void showYaasLogTable() throws IOException {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/YaasLogTable.fxml"));
+		AnchorPane childLogTable = (AnchorPane) loader.load();
+
+        // Give the controller access to the main app
+        YaasLogController controller = loader.getController();
+        oscServer.setYaasLogController(controller);
+        
+        yaasLogTablePane.getChildren().add(childLogTable);
+	}
+
+	private void showOSCLogTable() throws IOException {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
 		AnchorPane childLogTable = (AnchorPane) loader.load();
 
         // Give the controller access to the main app
@@ -109,17 +134,19 @@ public class LightHouse extends Application {
 	
     public void showBarCharts() throws IOException {
     	
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/SensorBarChart.fxml"));	    
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SensorBarChart.fxml"));	    
 		AnchorPane page = (AnchorPane) loader.load();				
 		sensorController = loader.getController();	 
-		sensorController.listenTo(oscServer, SensorType.ANDROID);
 		topBox.getChildren().add(page);
+		sensorController.listenTo(oscServer, SensorType.ANDROID);
+		topBox.getChildren().get(0).getStyleClass().add("series-android");
 		
-		loader = new FXMLLoader(getClass().getResource("/SensorBarChart.fxml"));	   
+		loader = new FXMLLoader(getClass().getResource("/view/SensorBarChart.fxml"));	   
 		page = (AnchorPane) loader.load();			
 		sensorController = loader.getController();	 
-		sensorController.listenTo(oscServer, SensorType.WII);
 		topBox.getChildren().add(page);	
+		sensorController.listenTo(oscServer, SensorType.WII);
+		topBox.getChildren().get(1).getStyleClass().add("series-wii");
     }
 	
 	@Override

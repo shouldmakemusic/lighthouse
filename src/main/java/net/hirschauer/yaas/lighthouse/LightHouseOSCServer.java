@@ -7,6 +7,7 @@ import javafx.concurrent.Task;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
+import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	private OSCServer c = null;
 	
 	private LogController logController;	
+	private YaasLogController yaasLogController;
 	
 	private SensorValue sensorDataAndroid = new SensorValue(SensorType.ANDROID, -10, 10);
 	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
@@ -105,6 +107,14 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		} else if (m.getName().equals("/yaas/sensor")) {
 			// show sensor values in barChart
 			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+			try {
+				// this is for the visual feedback
+				// in another thread
+				updateValue(sensorDataWii.clone());
+
+			} catch (CloneNotSupportedException e) {
+				logger.error("Could not update android sensor values");
+			}
 			
 		} else if (m.getName().equals("/wii/1/accel/xyz")) {
 
@@ -116,7 +126,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 				updateValue(sensorDataWii.clone());
 
 			} catch (CloneNotSupportedException e) {
-				logger.error("Could not update android sensor values");
+				logger.error("Could not update wii sensor values");
 			}
 			
 		} else if (m.getName().equals("/wii/1/accel/pry")) {
@@ -177,6 +187,10 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 
 	public void setSensorDataWii(SensorValue sensorDataWii) {
 		this.sensorDataWii = sensorDataWii;
+	}
+
+	public void setYaasLogController(YaasLogController controller) {
+		this.yaasLogController = controller;
 	}
 
 }

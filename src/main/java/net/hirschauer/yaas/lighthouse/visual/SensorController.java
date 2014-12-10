@@ -49,8 +49,6 @@ public class SensorController implements ChangeListener<SensorValue> {
             XYChart.Data<String, Integer> data = new XYChart.Data<String,Integer>(sensorNames.get(i), i);
             series.getData().add(data);
         }
-    	// TODO: find a way to use different colors
-		//series.getNode().getStyleClass().add("series-" + type.toString().toLowerCase());
         barChart.getData().add(series);
         barChart.animatedProperty().set(false);
     }
@@ -92,6 +90,9 @@ public class SensorController implements ChangeListener<SensorValue> {
 		logger.debug("oscServer set and listener for " + type + " added");
 		this.type = type;		
 		barChart.getData().get(0).setName(type.toString());
+    	// TODO: find a way to use different colors
+//		barChart.getData().get(0).getNode().getStyleClass().add("series-" + type.toString().toLowerCase());
+
 	}
 	
 	@Override
