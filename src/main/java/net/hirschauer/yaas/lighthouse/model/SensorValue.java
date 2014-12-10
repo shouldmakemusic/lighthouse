@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 public class SensorValue {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SensorValue.class);
+	public static final int TYPE_ANDROID = 0;
+	public static final int TYPE_WII = 1;
 	
 	protected float x = 0;
 	protected float y = 0;
@@ -41,6 +43,7 @@ public class SensorValue {
 //        
 //        factor = self.get_factor()
 //        return (source_value * factor) + abs(factor * self.source_min_value) - abs(self.target_min_value)
+	private int type;
 
 	private float getFactor() {
 		float range1 = target_max - target_min;
@@ -54,10 +57,8 @@ public class SensorValue {
 		return (value * factor) - Math.abs(factor * min) - Math.abs(target_min);
 	}
 	
-	public SensorValue() {
-	}
-	
-	public SensorValue(float min, float max) {
+	public SensorValue(int type, float min, float max) {
+		this.type = type;
 		this.max = max;
 		this.min = min;
 		logger.debug("Created sensor value with min " + min + " and max " + max);
@@ -145,7 +146,7 @@ public class SensorValue {
 	@Override
 	public SensorValue clone() throws CloneNotSupportedException {
 		
-		SensorValue v = new SensorValue();
+		SensorValue v = new SensorValue(type, min, max);
 		v.x = x;
 		v.y = y;
 		v.z = z;

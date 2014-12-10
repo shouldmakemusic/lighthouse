@@ -30,7 +30,8 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	
 	private LogController logController;	
 	
-	private SensorValue sensorDataAndroid = new SensorValue(4, 6);
+	private SensorValue sensorDataAndroid = new SensorValue(SensorValue.TYPE_ANDROID, -10, 10);
+	private SensorValue sensorDataWii = new SensorValue(SensorValue.TYPE_WII, 4, 6);
 	
 	public LightHouseOSCServer() {
 
@@ -108,14 +109,16 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			
 		} else if (m.getName().equals("/yaas/sensor")) {
 			// show sensor values in barChart
-			getSensorData().setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
 			
 		} else if (m.getName().equals("/wii/1/accel/xyz")) {
 
 			// show sensor values in barChart
-			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+			sensorDataWii.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
 			try {
-				updateValue(sensorDataAndroid.clone());
+				// this is for the visual feedback
+				// in another thread
+				updateValue(sensorDataWii.clone());
 
 			} catch (CloneNotSupportedException e) {
 				logger.error("Could not update android sensor values");
@@ -123,7 +126,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			
 		} else if (m.getName().equals("/wii/1/accel/pry")) {
 			
-			sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
+			//sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
 
 		} else if (m.getName().startsWith("/wii")) {
 			if (logController != null) {
@@ -165,11 +168,20 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	// e1.printStackTrace();
 	// }
 
-	public SensorValue getSensorData() {
+	public SensorValue getSensorDataAndroid() {
 		return sensorDataAndroid;
 	}
 
-	public void setSensorData(SensorValue sensorData) {
-		this.sensorDataAndroid = sensorData;
+	public void setSensorDataAndroid(SensorValue sensorDataAndroid) {
+		this.sensorDataAndroid = sensorDataAndroid;
 	}
+
+	public SensorValue getSensorDataWii() {
+		return sensorDataWii;
+	}
+
+	public void setSensorDataWii(SensorValue sensorDataWii) {
+		this.sensorDataWii = sensorDataWii;
+	}
+
 }

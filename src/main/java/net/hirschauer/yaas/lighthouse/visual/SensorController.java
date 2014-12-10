@@ -47,6 +47,7 @@ public class SensorController implements ChangeListener<SensorValue> {
             series.getData().add(data);
         }
         barChart.getData().add(series);
+        barChart.animatedProperty().set(false);
     }
 
     /**
@@ -77,6 +78,7 @@ public class SensorController implements ChangeListener<SensorValue> {
 			XYChart.Data<String,Integer> data = serie.getData().get(i);
             data.setYValue(Math.round(values[i]));
         }
+//		logger.debug("accel: " + values[12]);
     }
 
 	public void setOscServer(LightHouseOSCServer oscServer) {
