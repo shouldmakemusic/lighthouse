@@ -61,7 +61,6 @@ public class SensorValue {
 		this.type = type;
 		this.max = max;
 		this.min = min;
-		logger.debug("Created sensor value with min " + min + " and max " + max);
 	}
 	
 	public float getZ() {
