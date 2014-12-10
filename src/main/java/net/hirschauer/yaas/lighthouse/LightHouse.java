@@ -119,12 +119,15 @@ public class LightHouse extends Application {
 		super.stop();
 		if (oscServer != null) {
 			oscServer.stop();
+			oscServer = null;
 		}
 		try {
 			service.finalize();
+			
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 		oscThread.stop();
+		oscThread = null;
 	}
 }
