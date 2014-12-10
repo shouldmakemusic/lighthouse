@@ -51,6 +51,15 @@ public class YaasLogController {
 
 	    public void log(OSCMessage m) {
 	        
-	    	logEntries.add(new LogEntry(m));
+	    	LogEntry logEntry = new LogEntry();
+	    	if (m.getName().endsWith("info")) {
+	    		logEntry.setLevel("info");
+	    	} else if (m.getName().endsWith("debug")) {
+	    		logEntry.setLevel("debug");
+	    	} else if (m.getName().endsWith("error")) {
+	    		logEntry.setLevel("error");
+	    	}	    	
+	    	logEntry.setMessage(m.getArg(0).toString());
+	    	logEntries.add(logEntry);
 	    }
 }

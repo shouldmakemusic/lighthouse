@@ -104,39 +104,12 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			// change dumping behaviour
 			c.dumpOSC(((Number) m.getArg(0)).intValue(), System.err);
 			
-		} else if (m.getName().equals("/yaas/sensor")) {
-			// show sensor values in barChart
-			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
-			try {
-				// this is for the visual feedback
-				// in another thread
-				updateValue(sensorDataWii.clone());
-
-			} catch (CloneNotSupportedException e) {
-				logger.error("Could not update android sensor values");
-			}
-			
-		} else if (m.getName().equals("/wii/1/accel/xyz")) {
-
-			// show sensor values in barChart
-			sensorDataWii.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
-			try {
-				// this is for the visual feedback
-				// in another thread
-				updateValue(sensorDataWii.clone());
-
-			} catch (CloneNotSupportedException e) {
-				logger.error("Could not update wii sensor values");
-			}
-			
-		} else if (m.getName().equals("/wii/1/accel/pry")) {
-			
-			//sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
-
 		} else if (m.getName().startsWith("/wii")) {
-			if (logController != null) {
-				logController.log(m);
-			}
+			
+			handleWiiMessages(m);
+		} else if (m.getName().startsWith("/yaas")) {
+			
+			handleYaasMessages(m);
 		} else {
 			logger.debug("Received message: " + m.getName() + " " + args + " from "
 				+ addr);
@@ -173,6 +146,49 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	// e1.printStackTrace();
 	// }
 
+	private void handleYaasMessages(OSCMessage m) {
+		if (m.getName().equals("/yaas/sensor")) {
+			// show sensor values in barChart
+			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+			try {
+				// this is for the visual feedback
+				// in another thread
+				updateValue(sensorDataWii.clone());
+
+			} catch (CloneNotSupportedException e) {
+				logger.error("Could not update android sensor values");
+			}
+			
+		} else if (m.getName().startsWith("/yaas/log")) {
+			yaasLogController.log(m); 
+		} else {
+			logController.log(m);
+		}
+	}
+
+	private void handleWiiMessages(OSCMessage m) {
+		if (m.getName().equals("/wii/1/accel/xyz")) {
+
+			// show sensor values in barChart
+			sensorDataWii.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+			try {
+				// this is for the visual feedback
+				// in another thread
+				updateValue(sensorDataWii.clone());
+
+			} catch (CloneNotSupportedException e) {
+				logger.error("Could not update wii sensor values");
+			}
+			
+		} else if (m.getName().equals("/wii/1/accel/pry")) {
+			
+			//sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
+		} else {
+			if (logController != null) {
+				logController.log(m);
+			}
+		}
+	}
 	public SensorValue getSensorDataAndroid() {
 		return sensorDataAndroid;
 	}

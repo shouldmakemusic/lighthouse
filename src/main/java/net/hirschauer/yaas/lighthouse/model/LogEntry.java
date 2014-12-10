@@ -8,6 +8,9 @@ public class LogEntry {
 	private Object arg0;
 	private Object arg1;
 	private Object arg2;
+	private String level;
+	
+	public LogEntry() {}
 	
 	public LogEntry(OSCMessage m) {
 		setMessage(m.getName());
@@ -53,5 +56,13 @@ public class LogEntry {
 
 	public void setArg2(Object arg2) {
 		this.arg2 = arg2;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
 	}
 }
