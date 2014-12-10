@@ -17,6 +17,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
+import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 
 public class SensorController implements ChangeListener<SensorValue> {
 	
@@ -29,6 +30,8 @@ public class SensorController implements ChangeListener<SensorValue> {
     private CategoryAxis xAxis;
 
     private ObservableList<String> sensorNames = FXCollections.observableArrayList();
+
+	private SensorType type;
    
     /**
      * Initializes the controller class. This method is automatically called
@@ -46,6 +49,8 @@ public class SensorController implements ChangeListener<SensorValue> {
             XYChart.Data<String, Integer> data = new XYChart.Data<String,Integer>(sensorNames.get(i), i);
             series.getData().add(data);
         }
+    	// TODO: find a way to use different colors
+		//series.getNode().getStyleClass().add("series-" + type.toString().toLowerCase());
         barChart.getData().add(series);
         barChart.animatedProperty().set(false);
     }
@@ -78,17 +83,23 @@ public class SensorController implements ChangeListener<SensorValue> {
 			XYChart.Data<String,Integer> data = serie.getData().get(i);
             data.setYValue(Math.round(values[i]));
         }
+
 //		logger.debug("accel: " + values[12]);
     }
 
-	public void setOscServer(LightHouseOSCServer oscServer) {
+	public void listenTo(LightHouseOSCServer oscServer, SensorType type) {
 		oscServer.valueProperty().addListener(this);
-		logger.debug("oscServer set and listener added");
+		logger.debug("oscServer set and listener for " + type + " added");
+		this.type = type;		
+		barChart.getData().get(0).setName(type.toString());
 	}
 	
 	@Override
 	public void changed(ObservableValue<? extends SensorValue> observable,
 			SensorValue oldValue, SensorValue newValue) {
-		setSensorData((SensorValue) newValue);
+		SensorValue value = (SensorValue) newValue;
+		if (value.getType().equals(this.type)) {
+			setSensorData(value);
+		}
 	}
 }

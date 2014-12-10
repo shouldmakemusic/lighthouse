@@ -16,15 +16,15 @@
         <tabs>
           <Tab text="OSC Server (UDP) with incoming port 9050">
                <content>
-                  <SplitPane dividerPositions="0.11171662125340599" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+                  <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
                     <items>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" fx:id="controlPane" />
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" fx:id="logTablePane" />
+                        <HBox prefHeight="100.0" prefWidth="200.0" fx:id="topBox" />
+                      <AnchorPane fx:id="logTablePane" minHeight="0.0" minWidth="0.0" prefHeight="221.0" prefWidth="700.0" />
                     </items>
                   </SplitPane>
                </content>
           </Tab>
-          <Tab text="Untitled Tab 2">
+          <Tab text="Log from YAAS">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
             </content>

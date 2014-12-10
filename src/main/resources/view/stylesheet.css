@@ -1,0 +1,7 @@
+.series-android *.chart-series-area-fill {
+    -fx-fill: #aab597; 
+}
+
+.series-wii *.chart-series-area-fill {
+    -fx-fill: #000000; 
+}

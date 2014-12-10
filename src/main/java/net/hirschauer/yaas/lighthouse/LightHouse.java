@@ -18,12 +18,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.bluetooth.RemoteDeviceDiscovery;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
+import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
 
@@ -48,7 +50,7 @@ public class LightHouse extends Application {
     @FXML
     AnchorPane logTablePane;
     @FXML
-    AnchorPane controlPane;
+    HBox topBox;
 
 	/**
 	 * @param args
@@ -86,10 +88,11 @@ public class LightHouse extends Application {
         rootLayout = (AnchorPane) loader.load();
         
         Scene scene = new Scene(rootLayout);
+        scene.getStylesheets().add("view/stylesheet.css");
         primaryStage.setScene(scene);
         primaryStage.show();               
         
-        showBarChart();
+        showBarCharts();
         showLogTable();
 	}
 	
@@ -104,14 +107,19 @@ public class LightHouse extends Application {
         logTablePane.getChildren().add(childLogTable);
 	}
 	
-    public void showBarChart() throws IOException {
+    public void showBarCharts() throws IOException {
     	
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/SensorBarChart.fxml"));	    
 		AnchorPane page = (AnchorPane) loader.load();				
-		
 		sensorController = loader.getController();	 
-		controlPane.getChildren().add(page);
-		sensorController.setOscServer(oscServer);
+		sensorController.listenTo(oscServer, SensorType.ANDROID);
+		topBox.getChildren().add(page);
+		
+		loader = new FXMLLoader(getClass().getResource("/SensorBarChart.fxml"));	   
+		page = (AnchorPane) loader.load();			
+		sensorController = loader.getController();	 
+		sensorController.listenTo(oscServer, SensorType.WII);
+		topBox.getChildren().add(page);	
     }
 	
 	@Override

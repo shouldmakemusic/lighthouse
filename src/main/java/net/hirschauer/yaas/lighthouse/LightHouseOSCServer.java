@@ -2,16 +2,11 @@ package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.util.ArrayList;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
-import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
+import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
-import net.hirschauer.yaas.lighthouse.visual.SensorController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +25,8 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	
 	private LogController logController;	
 	
-	private SensorValue sensorDataAndroid = new SensorValue(SensorValue.TYPE_ANDROID, -10, 10);
-	private SensorValue sensorDataWii = new SensorValue(SensorValue.TYPE_WII, 4, 6);
+	private SensorValue sensorDataAndroid = new SensorValue(SensorType.ANDROID, -10, 10);
+	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
 	
 	public LightHouseOSCServer() {
 
