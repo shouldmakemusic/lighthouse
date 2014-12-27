@@ -1,5 +1,7 @@
 package net.hirschauer.yaas.lighthouse;
 
+import java.util.Date;
+
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiDevice.Info;
@@ -20,6 +22,7 @@ public class LightHouseMidi {
 	private Receiver yaasReceiver;
 
 	public LightHouseMidi() {
+		
 		for (Info info : MidiSystem.getMidiDeviceInfo()) {
 			logger.debug("Found device " + info.getName() + " - " + info.getDescription());
 			if (YAAS_BUS.equals(info.getName())) {
@@ -61,10 +64,15 @@ public class LightHouseMidi {
 		}
 	}
 	
-	private void sendMidiNote(int channel, int note, int value) throws InvalidMidiDataException {
+	public void sendMidiNote(int channel, int note, int value) throws InvalidMidiDataException {
 		ShortMessage message = new ShortMessage();
-		message.setMessage(ShortMessage.NOTE_ON, channel, 26, value);
-//		message.setMessage(ShortMessage.NOTE_OFF, channel, 26, value);
-		yaasReceiver.send(message, -1);
+		if (value < 0) value = 0;
+		message.setMessage(ShortMessage.NOTE_ON, channel, note, value);
+		yaasReceiver.send(message, new Date().getTime());
+//		message.setMessage(ShortMessage.NOTE_OFF, channel, note, value);
+//		yaasReceiver.send(message, new Date().getTime());
+	}
+	public void sendMidiNote(int note, int value) throws InvalidMidiDataException {
+		sendMidiNote(1, note, value);
 	}
 }
