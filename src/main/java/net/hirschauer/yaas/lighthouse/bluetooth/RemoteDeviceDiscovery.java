@@ -28,7 +28,7 @@ public class RemoteDeviceDiscovery {
                 logger.info("Device " + btDevice.getBluetoothAddress() + " found");
                 devicesDiscovered.addElement(btDevice);
                 try {
-                    System.out.println("     name " + btDevice.getFriendlyName(false));
+                    logger.info("     name " + btDevice.getFriendlyName(false));
                 } catch (IOException cantGetDeviceName) {
                 	logger.error("Can't get device name", cantGetDeviceName);
                 }
