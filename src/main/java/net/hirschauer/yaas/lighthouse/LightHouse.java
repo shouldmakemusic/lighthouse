@@ -2,29 +2,13 @@ package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
 
-import javax.bluetooth.DiscoveryListener;
-import javax.swing.event.ChangeEvent;
-
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import net.hirschauer.yaas.lighthouse.bluetooth.RemoteDeviceDiscovery;
-import net.hirschauer.yaas.lighthouse.model.LogEntry;
-import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
@@ -47,7 +31,7 @@ public class LightHouse extends Application {
     private AnchorPane rootLayout;
     
 	private SensorController sensorController;
-	
+	private LightHouseMidi midi;
     
     @FXML
     AnchorPane logTablePane;
@@ -74,15 +58,16 @@ public class LightHouse extends Application {
 		
 		logger.debug("start");	
 		
+		midi = new LightHouseMidi();
+
 		if (oscServer == null) {
-			oscServer = new LightHouseOSCServer();
+			oscServer = new LightHouseOSCServer(midi);
 			oscThread = new Thread(oscServer);
 			oscThread.start();
 		}
 		
 //		new RemoteDeviceDiscovery();
 
-		new LightHouseMidi();
 		
 		if (service == null) {
 			service = new LightHouseService();
