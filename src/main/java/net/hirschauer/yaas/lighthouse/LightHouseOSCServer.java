@@ -3,6 +3,8 @@ package net.hirschauer.yaas.lighthouse;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import javax.sound.midi.InvalidMidiDataException;
+
 import javafx.concurrent.Task;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
@@ -30,8 +32,10 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	private SensorValue sensorDataAndroid = new SensorValue(SensorType.ANDROID, -10, 10);
 	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
 	
-	public LightHouseOSCServer() {
-
+	private LightHouseMidi midi;
+	
+	public LightHouseOSCServer(LightHouseMidi midi) {
+		this.midi = midi;
 	}
 	
 	public void stop() {
@@ -109,7 +113,11 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			handleWiiMessages(m);
 		} else if (m.getName().startsWith("/yaas")) {
 			
+			try {
 			handleYaasMessages(m);
+			} catch (InvalidMidiDataException e) {
+				logger.error(e.getMessage(), e);
+			}
 		} else {
 			logger.debug("Received message: " + m.getName() + " " + args + " from "
 				+ addr);
@@ -146,18 +154,30 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	// e1.printStackTrace();
 	// }
 
-	private void handleYaasMessages(OSCMessage m) {
+	private void handleYaasMessages(OSCMessage m) throws InvalidMidiDataException {
 		if (m.getName().equals("/yaas/sensor")) {
-			// show sensor values in barChart
+			
 			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+
+			midi.sendMidiNote(2, sensorDataAndroid.getLiveXValue());
+			midi.sendMidiNote(3, sensorDataAndroid.getLiveYValue());
+			midi.sendMidiNote(4, sensorDataAndroid.getLiveZValue());
+			
 			try {
 				// this is for the visual feedback
 				// in another thread
-				updateValue(sensorDataWii.clone());
+				updateValue(sensorDataAndroid.clone());
 
 			} catch (CloneNotSupportedException e) {
 				logger.error("Could not update android sensor values");
 			}
+		} else if (m.getName().startsWith("/yaas/play")) {
+			logController.log(m);
+			midi.sendMidiNote(1, 1);
+			
+		} else if (m.getName().startsWith("/yaas/stop")) {
+			logController.log(m);
+			midi.sendMidiNote(1, 2);
 			
 		} else if (m.getName().startsWith("/yaas/log")) {
 			yaasLogController.log(m); 
