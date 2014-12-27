@@ -56,8 +56,12 @@ public class SensorValue {
 	
 	private float getTargetValue(float value) {
 		float factor = getFactor();
-//		logger.debug("factor " + factor + ", value " + value + ", min " + min + ", target_min " + target_min);
-		return (value * factor) - Math.abs(factor * min) - Math.abs(target_min);
+		float result = (value * factor) - Math.abs(factor * min) - Math.abs(target_min);
+		if (type.equals(SensorType.ANDROID)) {
+			return value;
+		}
+		logger.debug("factor " + factor + ", value " + value + ", min " + min + ", target_min " + target_min + " = " + result);
+		return result;
 	}
 	
 	public SensorValue(SensorType type, float min, float max) {
@@ -87,6 +91,18 @@ public class SensorValue {
 	public float getXNormalized() {
 //		logger.debug("X normalized: " + getTargetValue(x));
 		return getTargetValue(x);
+	}
+	
+	public int getLiveXValue() {
+		return Math.round((x + 10) * 5);
+	}
+	
+	public int getLiveYValue() {
+		return Math.round((y + 10) * 5);
+	}
+	
+	public int getLiveZValue() {
+		return Math.round((z + 10) * 5);
 	}
 	
 	public void setX(float x) {
@@ -124,9 +140,14 @@ public class SensorValue {
 	
 	public void setValues(Object x, Object y, Object z) {
 
-		Float floatX = (Float) x * 10;
-		Float floatY = (Float) y * 10;
-		Float floatZ = (Float) z * 10;
+		Float floatX = (Float) x;
+		Float floatY = (Float) y;
+		Float floatZ = (Float) z;
+		if (this.type.equals(SensorType.WII)) {
+			floatX *= 10;
+			floatY *= 10;
+			floatZ *= 10;
+		}
 		setX(floatX.floatValue());
 		setY(floatY.floatValue());
 		setZ(floatZ.floatValue());		
