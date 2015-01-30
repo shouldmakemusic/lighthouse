@@ -1,7 +1,14 @@
 package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import javafx.concurrent.Task;
 
@@ -33,6 +40,46 @@ public class LightHouseService extends Task<ServiceInfo> implements ServiceListe
 
 	public void serviceResolved(ServiceEvent event) {
 		logger.info("Service resolved: " + event.getInfo());
+		
+		// the normal way would be like this
+		// lighthouse is the service and all other devices are clients
+		// e.g. on android some networks don't work with jmdns 
+		// so this is the other way round
+		
+		if (event.getName().startsWith("LightHouse")) {
+//			this.event = event;
+			ServiceInfo serviceInfo = event.getInfo();
+			InetAddress[] adresses = serviceInfo.getInetAddresses();
+			for (InetAddress adress : adresses) {
+				int port = serviceInfo.getPort();
+				logger.info("Found " + adress.toString() + ":" + port);
+				
+			    String messageStr="Hello Android!";
+			    int server_port = 12345;
+				try {
+				    DatagramSocket s = new DatagramSocket();
+				    String ip = InetAddress.getLocalHost().getHostAddress();
+				    InetAddress local = InetAddress.getByName(ip);
+				    int msg_length=messageStr.length();
+				    byte[] message = messageStr.getBytes();
+				    DatagramPacket p = new DatagramPacket(message, msg_length,local,server_port);
+				    s.send(p);
+				    s.close();
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SocketException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+
+			}
+
+		}
 	}
 	
 	@Override
@@ -66,9 +113,10 @@ public class LightHouseService extends Task<ServiceInfo> implements ServiceListe
 			logger.error("Could not start service discovery", e);
 		}
 		
-		serviceInfo = ServiceInfo.create("_yaas._tcp.local.",
+		serviceInfo = ServiceInfo.create(SERVICE_TYPE,
                 "LightHouse", 9050,
                 "Yaas OSC Server");
+		
 		try {
 			jmdns.unregisterAllServices();
 			jmdns.registerService(serviceInfo);
