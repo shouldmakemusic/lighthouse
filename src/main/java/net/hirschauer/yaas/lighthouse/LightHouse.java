@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import net.hirschauer.yaas.lighthouse.bluetooth.RemoteDeviceDiscovery;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
@@ -65,10 +66,7 @@ public class LightHouse extends Application {
 			oscThread = new Thread(oscServer);
 			oscThread.start();
 		}
-		
-//		new RemoteDeviceDiscovery();
 
-		
 		if (service == null) {
 			service = new LightHouseService();
 			serviceThread = new Thread(service);
