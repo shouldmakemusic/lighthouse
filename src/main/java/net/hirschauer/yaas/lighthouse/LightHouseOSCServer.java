@@ -2,6 +2,7 @@ package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.Date;
 
 import javax.sound.midi.InvalidMidiDataException;
 
@@ -31,6 +32,8 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	
 	private SensorValue sensorDataAndroid = new SensorValue(SensorType.ANDROID, -10, 10);
 	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
+	
+	private long lastUpdateWii = 0;
 	
 	private LightHouseMidi midi;
 	
@@ -110,7 +113,12 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			
 		} else if (m.getName().startsWith("/wii")) {
 			
-			handleWiiMessages(m);
+			try {
+				handleWiiMessages(m);
+			} catch (InvalidMidiDataException e) {
+				logger.error(e.getMessage(), e);
+				logController.log(new OSCMessage("Error"));
+			}
 		} else if (m.getName().startsWith("/yaas")) {
 			
 			try {
@@ -162,7 +170,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			midi.sendMidiNote(2, sensorDataAndroid.getLiveXValue());
 			midi.sendMidiNote(3, sensorDataAndroid.getLiveYValue());
 			midi.sendMidiNote(4, sensorDataAndroid.getLiveZValue());
-			
+
 			try {
 				// this is for the visual feedback
 				// in another thread
@@ -186,11 +194,21 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		}
 	}
 
-	private void handleWiiMessages(OSCMessage m) {
+	private void handleWiiMessages(OSCMessage m) throws InvalidMidiDataException {
 		if (m.getName().equals("/wii/1/accel/xyz")) {
 
 			// show sensor values in barChart
 			sensorDataWii.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
+			
+			long currentTime = System.currentTimeMillis();
+			if (currentTime - lastUpdateWii > 500) {
+				lastUpdateWii = currentTime;
+				
+				midi.sendMidiNote(12, sensorDataWii.getLiveXValue());
+				midi.sendMidiNote(13, sensorDataWii.getLiveYValue());
+				midi.sendMidiNote(14, sensorDataWii.getLiveZValue());
+			}
+			
 			try {
 				// this is for the visual feedback
 				// in another thread
