@@ -39,13 +39,10 @@ public class YaasLogController {
 			
 			levelCombobox.valueProperty().addListener(new ChangeListener<String>() {
 
-				@Override
-				public void changed(
-						ObservableValue<? extends String> observable,
+				public void changed(ObservableValue<? extends String> observable,
 						String oldValue, String newValue) {
-					
-					logEntries.add(new LogEntry(new OSCMessage("Loglevel changed to " + newValue, new Object[] {})));
-				}
+			
+					logEntries.add(new LogEntry(new OSCMessage("Loglevel changed to " + newValue, new Object[] {})));}
 			});
 	    }
 

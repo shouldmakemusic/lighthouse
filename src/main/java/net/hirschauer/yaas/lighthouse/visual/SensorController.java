@@ -95,9 +95,9 @@ public class SensorController implements ChangeListener<SensorValue> {
 
 	}
 	
-	@Override
 	public void changed(ObservableValue<? extends SensorValue> observable,
 			SensorValue oldValue, SensorValue newValue) {
+		
 		SensorValue value = (SensorValue) newValue;
 		if (value.getType().equals(this.type)) {
 			setSensorData(value);
