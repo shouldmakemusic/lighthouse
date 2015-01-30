@@ -67,6 +67,7 @@ public class LightHouseMidi {
 	public void sendMidiNote(int channel, int note, int value) throws InvalidMidiDataException {
 		ShortMessage message = new ShortMessage();
 		if (value < 0) value = 0;
+		else if (value > 127) value = 127;
 		message.setMessage(ShortMessage.NOTE_ON, channel, note, value);
 		yaasReceiver.send(message, new Date().getTime());
 //		message.setMessage(ShortMessage.NOTE_OFF, channel, note, value);
