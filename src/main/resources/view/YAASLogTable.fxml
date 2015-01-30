@@ -8,11 +8,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.collections.FXCollections ?>
 
-<AnchorPane prefHeight="369.0" prefWidth="352.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.YaasLogController">
+<AnchorPane prefHeight="369.0" prefWidth="586.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.YaasLogController">
 	<children>
 		<BorderPane prefHeight="369.0" prefWidth="352.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<top>
-				<HBox prefHeight="34.0" prefWidth="352.0" BorderPane.alignment="CENTER">
+				<HBox prefHeight="30.0" prefWidth="391.0" BorderPane.alignment="CENTER">
 					<children>
 						<ComboBox fx:id="levelCombobox" prefHeight="33.0" prefWidth="100.0" promptText="Debug">
 							<items>
@@ -23,6 +23,8 @@
 								</FXCollections>
 							</items>
 						</ComboBox>
+                  <TextField fx:id="inputFilter" prefHeight="34.0" prefWidth="189.0" />
+                  <Button fx:id="btnClear" mnemonicParsing="false" prefHeight="31.0" prefWidth="51.0" text="Clear" />
 					</children>
 				</HBox>
 			</top>
@@ -31,8 +33,9 @@
 					<children>
 						<TableView fx:id="yaasLogEntryTable" editable="true" prefHeight="400.0" prefWidth="353.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
 							<columns>
+                        <TableColumn fx:id="timeColumn" prefWidth="110.0" text="Time" />
 								<TableColumn fx:id="levelColumn" prefWidth="110.0" text="Level" />
-								<TableColumn fx:id="messageColumn" prefWidth="241.0" text="Message" />
+								<TableColumn fx:id="messageColumn" prefWidth="441.0" text="Message" />
 							</columns>
 							<opaqueInsets>
 								<Insets />
