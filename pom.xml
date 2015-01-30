@@ -113,8 +113,6 @@
 			<!-- </goals> -->
 			<!-- <configuration> -->
 			<!-- exclude junit, we need runtime dependency only -->
-			<!-- <!-- <includeScope>runtime</includeScope> -->
-			-->
 			<!-- <outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory> -->
 			<!-- </configuration> -->
 			<!-- </execution> -->
