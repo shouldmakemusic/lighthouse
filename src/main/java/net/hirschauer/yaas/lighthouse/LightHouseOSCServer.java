@@ -188,7 +188,9 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			midi.sendMidiNote(1, 2);
 			
 		} else if (m.getName().startsWith("/yaas/log")) {
-			yaasLogController.log(m); 
+			if (yaasLogController != null) {
+				yaasLogController.log(m); 
+			}
 		} else {
 			logController.log(m);
 		}

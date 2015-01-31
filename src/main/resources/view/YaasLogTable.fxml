@@ -17,6 +17,7 @@
 						<ComboBox fx:id="levelCombobox" prefHeight="33.0" prefWidth="100.0" promptText="Debug">
 							<items>
 								<FXCollections fx:factory="observableArrayList">
+									<String fx:value="Verbose" />
 									<String fx:value="Debug" />
 									<String fx:value="Info" />
 									<String fx:value="Warn" />
