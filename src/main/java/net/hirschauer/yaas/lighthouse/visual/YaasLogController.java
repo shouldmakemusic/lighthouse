@@ -1,10 +1,15 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.List;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -16,13 +21,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.sciss.net.OSCMessage;
 
 public class YaasLogController {
-	
+
 	private static final String VERBOSE = "verbose";
 	private static final String DEBUG = "debug";
 	private static final String INFO = "info";
@@ -43,10 +49,9 @@ public class YaasLogController {
 	@FXML
 	private Button btnClear;
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(YaasLogController.class);
-	private ObservableList<LogEntry> logEntries = FXCollections
-			.observableArrayList();
+	private static final Logger logger = LoggerFactory.getLogger(YaasLogController.class);
+	private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
+	private String fileName;
 
 	public YaasLogController() {
 	}
@@ -72,7 +77,7 @@ public class YaasLogController {
 			public void changed(ObservableValue<? extends String> observable,
 					String oldValue, String newValue) {
 
-				//debug("Loglevel changed to " + newValue);
+				// debug("Loglevel changed to " + newValue);
 				leveledData.setPredicate(entry -> {
 					if (newValue.toLowerCase().equals(DEBUG)) {
 						if (entry.getLevel().equals(VERBOSE)) {
@@ -148,7 +153,7 @@ public class YaasLogController {
 		logEntry.setMessage(m.getArg(0).toString());
 		logEntries.add(logEntry);
 	}
-	
+
 	public void verbose(String m) {
 		log(VERBOSE, m);
 	}
@@ -175,4 +180,54 @@ public class YaasLogController {
 		logEntry.setMessage(m);
 		logEntries.add(logEntry);
 	}
+
+	public void setErrorFile(String fileName) {
+		logger.debug("setting error file to watch: " + fileName);
+		this.fileName = fileName;
+		new Thread(errorLogChangeListener).start();
+	}
+
+	Task<Void> errorLogChangeListener = new Task<Void>() {
+		@Override
+		protected Void call() throws Exception {
+
+			logger.debug("started file observer for " + fileName);
+			File errorLog = new File(fileName);
+			if (!errorLog.exists()) {
+				logger.warn("Error log is not available");
+				updateMessage("Cancelled");
+				return null;
+			}
+			long lastmodified = errorLog.lastModified();
+			logger.debug("lastmodified " + lastmodified);
+			List<String> lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
+			int lineCount = lines.size();
+
+			while (true) {
+				// Block the thread for a short time, but be sure
+				// to check the InterruptedException for cancellation
+				try {					
+					
+					if (lastmodified != errorLog.lastModified()) {
+						logger.debug("changed");
+						lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
+						for (int i = lineCount; i < lines.size(); i++) {
+							error(lines.get(i));
+						}
+						lineCount = lines.size();
+						lastmodified = errorLog.lastModified();
+					}
+					
+					Thread.sleep(2000);
+	
+				} catch (InterruptedException interrupted) {
+					if (isCancelled()) {
+						updateMessage("Cancelled");
+						break;
+					}
+				}
+			}
+			return null;
+		}
+	};
 }
