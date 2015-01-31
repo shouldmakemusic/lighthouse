@@ -2,10 +2,6 @@ package net.hirschauer.yaas.lighthouse.visual;
 
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.sciss.net.OSCServer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -18,6 +14,9 @@ import javafx.scene.chart.XYChart.Series;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SensorController implements ChangeListener<SensorValue> {
 	
