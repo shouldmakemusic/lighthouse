@@ -199,7 +199,7 @@ public class YaasLogController {
 				return null;
 			}
 			long lastmodified = errorLog.lastModified();
-			logger.debug("lastmodified " + lastmodified);
+			//logger.debug("lastmodified " + lastmodified);
 			List<String> lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
 			int lineCount = lines.size();
 
@@ -209,7 +209,7 @@ public class YaasLogController {
 				try {					
 					
 					if (lastmodified != errorLog.lastModified()) {
-						logger.debug("changed");
+						//logger.debug("changed");
 						lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
 						for (int i = lineCount; i < lines.size(); i++) {
 							error(lines.get(i));
