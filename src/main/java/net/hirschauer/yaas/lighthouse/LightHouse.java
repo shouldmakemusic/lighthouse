@@ -88,8 +88,6 @@ public class LightHouse extends Application {
         showBarCharts();
         showOSCLogTable();
         showYaasLogTable();
-
-
 	}
 	
 	private void showYaasLogTable() throws IOException {
@@ -146,5 +144,6 @@ public class LightHouse extends Application {
 		}
 		oscThread.stop();
 		oscThread = null;
+		YaasLogController.getInstance().finalize();
 	}
 }

@@ -87,8 +87,9 @@ public class LightHouseService extends Task<ServiceInfo> implements ServiceListe
 		super.finalize();
 		logger.info("finalize()");
 		if (jmdns != null) {
-			jmdns.unregisterService(serviceInfo);
+			jmdns.unregisterAllServices();
 			jmdns.close();
+			jmdns = null;
 		}
 	}
 

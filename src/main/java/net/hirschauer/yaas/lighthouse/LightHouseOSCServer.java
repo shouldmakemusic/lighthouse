@@ -38,12 +38,13 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	}
 	
 	public void stop() {
+		logger.debug("stop()");
 		c.removeOSCListener(this);
 		try {
 			c.stop();
-		} catch (IOException e) {
-			c = null;
+		} catch (IOException e) {			
 		}
+		c = null;
 	}
 
 	@Override
