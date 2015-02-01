@@ -2,15 +2,14 @@ package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.util.Date;
+
+import javafx.concurrent.Task;
 
 import javax.sound.midi.InvalidMidiDataException;
 
-import javafx.concurrent.Task;
+import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
-import net.hirschauer.yaas.lighthouse.visual.LogController;
-import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +25,6 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 
 	private final Object sync = new Object();
 	private OSCServer c = null;
-	
-	private LogController logController;	
-	private YaasLogController yaasLogController;
 	
 	private SensorValue sensorDataAndroid = new SensorValue(SensorType.ANDROID, -10, 10);
 	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
@@ -48,10 +44,6 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		} catch (IOException e) {
 			c = null;
 		}
-	}
-	
-	public void setLogController(LogController lc) {
-		this.logController = lc;
 	}
 
 	@Override
@@ -117,22 +109,22 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 				handleWiiMessages(m);
 			} catch (InvalidMidiDataException e) {
 				logger.error(e.getMessage(), e);
-				logController.log(new OSCMessage("Error"));
 			}
 		} else if (m.getName().startsWith("/yaas")) {
 			
 			try {
-			handleYaasMessages(m);
+				handleYaasMessages(m);
 			} catch (InvalidMidiDataException e) {
 				logger.error(e.getMessage(), e);
 			}
 		} else {
-			logger.debug("Received message: " + m.getName() + " " + args + " from "
-				+ addr);
-			if (logController != null) {
-				logController.log(m);
-			}
+			logger.debug("Received message: " + m.getName() + " " + args + " from " + addr);
+			updateMessage(m);
 		}
+	}
+	
+	private void updateMessage(OSCMessage m) {
+		updateMessage(new OSCMessageFromTask(m).toString());
 	}
 	// try {
 	// do {
@@ -180,22 +172,18 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 				logger.error("Could not update android sensor values");
 			}
 		} else if (m.getName().startsWith("/yaas/play")) {
-			logController.log(m);
+			updateMessage(m);
 			midi.sendMidiNote(1, 1);
 			
 		} else if (m.getName().startsWith("/yaas/stop")) {
-			logController.log(m);
+			updateMessage(m);
 			midi.sendMidiNote(1, 2);
 			
 		} else if (m.getName().startsWith("/yaas/log")) {
-			if (m.getName().equals("/yaas/log/errorfile")) {
-				yaasLogController.setErrorFile((String)m.getArg(0));
-			}
-			if (yaasLogController != null) {
-				yaasLogController.log(m); 
-			}
+			
+			updateMessage(m);
 		} else {
-			logController.log(m);
+			updateMessage(m);
 		}
 	}
 
@@ -227,9 +215,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			
 			//sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
 		} else {
-			if (logController != null) {
-				logController.log(m);
-			}
+			updateMessage(m);
 		}
 	}
 	public SensorValue getSensorDataAndroid() {
@@ -247,9 +233,4 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	public void setSensorDataWii(SensorValue sensorDataWii) {
 		this.sensorDataWii = sensorDataWii;
 	}
-
-	public void setYaasLogController(YaasLogController controller) {
-		this.yaasLogController = controller;
-	}
-
 }

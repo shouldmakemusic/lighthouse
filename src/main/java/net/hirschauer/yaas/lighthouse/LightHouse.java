@@ -9,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import net.hirschauer.yaas.lighthouse.bluetooth.RemoteDeviceDiscovery;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
@@ -99,7 +98,7 @@ public class LightHouse extends Application {
 
         // Give the controller access to the main app
         YaasLogController controller = loader.getController();
-        oscServer.setYaasLogController(controller);
+        controller.setOscServer(oscServer);
         
         yaasLogTablePane.getChildren().add(childLogTable);
 	}
@@ -110,7 +109,7 @@ public class LightHouse extends Application {
 
         // Give the controller access to the main app
         LogController controller = loader.getController();
-        oscServer.setLogController(controller);
+        controller.setOscServer(oscServer);
         
         logTablePane.getChildren().add(childLogTable);
 	}

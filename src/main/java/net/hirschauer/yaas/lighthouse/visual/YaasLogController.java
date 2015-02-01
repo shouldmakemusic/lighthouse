@@ -19,7 +19,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
+import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -52,8 +54,19 @@ public class YaasLogController {
 	private static final Logger logger = LoggerFactory.getLogger(YaasLogController.class);
 	private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
 	private String fileName;
+	
+	private static YaasLogController instance;
 
 	public YaasLogController() {
+		instance = this;
+		logger.debug("initialize yaas log controller");
+	}
+	
+	public static YaasLogController getInstance() {
+		if (instance == null) {
+			instance = new YaasLogController();
+		}
+		return instance;
 	}
 
 	@FXML
@@ -154,6 +167,21 @@ public class YaasLogController {
 		logEntries.add(logEntry);
 	}
 
+	public void log(OSCMessageFromTask m) {
+
+		LogEntry logEntry = new LogEntry();
+		logEntry.setLevel(DEBUG);
+		if (m.getName().endsWith(VERBOSE)) {
+			logEntry.setLevel(VERBOSE);
+		} else if (m.getName().endsWith(INFO)) {
+			logEntry.setLevel(INFO);
+		} else if (m.getName().endsWith(ERROR)) {
+			logEntry.setLevel(ERROR);
+		}
+		logEntry.setMessage(m.getArgs());
+		logEntries.add(logEntry);
+	}
+
 	public void verbose(String m) {
 		log(VERBOSE, m);
 	}
@@ -185,6 +213,14 @@ public class YaasLogController {
 		logger.debug("setting error file to watch: " + fileName);
 		this.fileName = fileName;
 		new Thread(errorLogChangeListener).start();
+		errorLogChangeListener.messageProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				error(newValue);
+			}
+		});
 	}
 
 	Task<Void> errorLogChangeListener = new Task<Void>() {
@@ -212,7 +248,7 @@ public class YaasLogController {
 						//logger.debug("changed");
 						lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
 						for (int i = lineCount; i < lines.size(); i++) {
-							error(lines.get(i));
+							updateMessage(lines.get(i));
 						}
 						lineCount = lines.size();
 						lastmodified = errorLog.lastModified();
@@ -230,4 +266,23 @@ public class YaasLogController {
 			return null;
 		}
 	};
+
+	public void setOscServer(LightHouseOSCServer oscServer) {
+		oscServer.messageProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				
+				if (newValue.startsWith("/yaas/log")) {
+
+					OSCMessageFromTask m = new OSCMessageFromTask(newValue);	
+					if (m.getName().equals("/yaas/log/errorfile")) {
+						YaasLogController.getInstance().setErrorFile((String)m.getArgs());
+					}
+					log(m);
+				}
+			}
+		});
+	}
 }

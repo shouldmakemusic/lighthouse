@@ -1,12 +1,16 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
+import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import de.sciss.net.OSCMessage;
 
 public class LogController {
@@ -39,13 +43,29 @@ public class LogController {
 	        logEntryTable.setItems(logEntries);
 	    }
 
-	    /**
-	     * Is called by the main application to give a reference back to itself.
-	     * 
-	     * @param mainApp
-	     */
 	    public void log(OSCMessage m) {
 	        
 	    	logEntries.add(new LogEntry(m));
 	    }
+
+	    public void log(OSCMessageFromTask m) {
+	        
+	    	logEntries.add(new LogEntry(m));
+	    }
+
+		public void setOscServer(LightHouseOSCServer oscServer) {
+			oscServer.messageProperty().addListener(new ChangeListener<String>() {
+
+				@Override
+				public void changed(ObservableValue<? extends String> observable,
+						String oldValue, String newValue) {
+					
+					if (!newValue.startsWith("/yaas")) {
+
+						OSCMessageFromTask m = new OSCMessageFromTask(newValue);	
+						log(m);
+					}
+				}
+			});	
+		}
 }
