@@ -15,9 +15,11 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
@@ -80,6 +82,26 @@ public class YaasLogController {
 		messageColumn
 				.setCellValueFactory(new PropertyValueFactory<LogEntry, String>(
 						"message"));
+		messageColumn.setCellFactory
+		 (
+		   column ->
+		    {
+		      return new TableCell<LogEntry, String>()
+		       {
+		         @Override
+		         protected void updateItem(String item, boolean empty)
+		          {
+		             super.updateItem(item, empty);
+		             if (!empty) {
+			             setText( item );
+			             setTooltip(new Tooltip(item));
+		             } else {
+		            	 setText( null );
+		            	 setTooltip(null);
+		             }
+		          }
+		       };
+		    });
 
 		log("LogController initialized");
 
@@ -284,5 +306,17 @@ public class YaasLogController {
 				}
 			}
 		});
+	}
+	
+	@Override
+	public void finalize() throws Exception{
+		
+		try {
+			super.finalize();
+		} catch (Throwable e) {
+			throw new Exception(e);
+		}
+		errorLogChangeListener.cancel(true);
+		logger.debug("finalize");
 	}
 }

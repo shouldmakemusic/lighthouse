@@ -20,7 +20,7 @@
 									<String fx:value="Verbose" />
 									<String fx:value="Debug" />
 									<String fx:value="Info" />
-									<String fx:value="Warn" />
+									<String fx:value="Error" />
 								</FXCollections>
 							</items>
 						</ComboBox>
