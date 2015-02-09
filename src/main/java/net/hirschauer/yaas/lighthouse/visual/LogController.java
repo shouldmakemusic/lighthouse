@@ -1,10 +1,5 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.javafx.tools.packager.Log;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -16,6 +11,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.sciss.net.OSCMessage;
 
 public class LogController {
@@ -69,7 +68,7 @@ public class LogController {
 				
 				if (!newValue.startsWith("/yaas")) {
 
-					logger.debug("changed");
+					//logger.debug("changed");
 					OSCMessageFromTask m = new OSCMessageFromTask(newValue);								
 					log(m);
 					

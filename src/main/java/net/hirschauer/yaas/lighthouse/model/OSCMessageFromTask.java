@@ -42,7 +42,11 @@ public class OSCMessageFromTask {
 	@Override
 	public String toString() {
 		
-		return getName() + "|" + getArgs();
+		String output = getName();
+		if (this.argList != null && this.argList.size() > 0) {
+			output += "|" + getArgs();
+		}
+		return output;
 	}
 
 	public String getName() {

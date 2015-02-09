@@ -200,7 +200,7 @@ public class YaasLogController {
 		} else if (m.getName().endsWith(ERROR)) {
 			logEntry.setLevel(ERROR);
 		}
-		logEntry.setMessage(m.getArgs());
+		logEntry.setMessage(m.getArgList().get(m.getArgList().size() -1));
 		logEntries.add(logEntry);
 	}
 

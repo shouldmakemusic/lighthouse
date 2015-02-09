@@ -202,6 +202,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 				yaasCommands.get(className).add(methodName);
 			} else if (m.getName().endsWith("done")) {
 				logger.info("Got available commands from YAAS");
+				updateMessage(new OSCMessageFromTask("Got available commands from YAAS").toString());
 			}
 		} else {
 			updateMessage(m);

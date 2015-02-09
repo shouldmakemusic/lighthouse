@@ -39,15 +39,17 @@ public class LogEntry {
 
 	public LogEntry(OSCMessageFromTask m) {
 		setMessage(m.getName());
-		int count = m.getArgList().size();
-		if (count >= 1) {
-			setArg0(m.getArgList().get(0));
-		}
-		if (count >= 2) {
-			setArg1(m.getArgList().get(1));
-		}
-		if (count >= 3) {
-			setArg2(m.getArgList().get(2));
+		if (m.getArgList() != null) {
+			int count = m.getArgList().size();
+			if (count >= 1) {
+				setArg0(m.getArgList().get(0));
+			}
+			if (count >= 2) {
+				setArg1(m.getArgList().get(1));
+			}
+			if (count >= 3) {
+				setArg2(m.getArgList().get(2));
+			}
 		}
 		timestamp = System.currentTimeMillis();
 	}
