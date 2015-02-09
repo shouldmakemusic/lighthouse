@@ -11,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
+import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
 import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
@@ -39,6 +40,8 @@ public class LightHouse extends Application {
     HBox topBox;
     @FXML
     AnchorPane yaasLogTablePane;
+    @FXML
+    AnchorPane midiLogTablePane;
 
 	/**
 	 * @param args
@@ -88,6 +91,7 @@ public class LightHouse extends Application {
         showBarCharts();
         showOSCLogTable();
         showYaasLogTable();
+        showMidiLogTable();
 	}
 	
 	private void showYaasLogTable() throws IOException {
@@ -99,6 +103,17 @@ public class LightHouse extends Application {
         controller.setOscServer(oscServer);
         
         yaasLogTablePane.getChildren().add(childLogTable);
+	}
+
+	private void showMidiLogTable() throws IOException {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MidiLogTable.fxml"));
+		AnchorPane childLogTable = (AnchorPane) loader.load();
+
+        // Give the controller access to the main app
+        MidiLogController controller = loader.getController();
+        controller.setMidi(midi);
+        
+        midiLogTablePane.getChildren().add(childLogTable);
 	}
 
 	private void showOSCLogTable() throws IOException {

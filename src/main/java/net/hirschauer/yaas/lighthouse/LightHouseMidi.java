@@ -1,6 +1,7 @@
 package net.hirschauer.yaas.lighthouse;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
@@ -20,11 +21,15 @@ public class LightHouseMidi {
 	private Info yaasBus;
 	private MidiDevice yaasDevice;
 	private Receiver yaasReceiver;
+	private HashMap<String, Info> possibleMidiInfos = new HashMap<String, Info>();
 
 	public LightHouseMidi() {
 		
 		for (Info info : MidiSystem.getMidiDeviceInfo()) {
 			logger.debug("Found device " + info.getName() + " - " + info.getDescription());
+			
+			this.possibleMidiInfos.put(info.getName(), info);
+			
 			if (YAAS_BUS.equals(info.getName())) {
 				this.yaasBus = info;
 				logger.info("Using device " + info.getName());
@@ -33,7 +38,7 @@ public class LightHouseMidi {
 		
 		if (yaasBus != null) {
 			try {
-				yaasDevice = MidiSystem.getMidiDevice(this.yaasBus);
+				yaasDevice = getMidiDevice(this.yaasBus);
 			} catch (MidiUnavailableException e) {
 				logger.error("Couldn't initialize midi device", e);
 			}
@@ -64,6 +69,10 @@ public class LightHouseMidi {
 		}
 	}
 	
+	public MidiDevice getMidiDevice(Info info) throws MidiUnavailableException {
+		return MidiSystem.getMidiDevice(info);
+	}
+	
 	public void sendMidiNote(int channel, int note, int value) throws InvalidMidiDataException {
 		ShortMessage message = new ShortMessage();
 		if (value < 0) value = 0;
@@ -75,5 +84,13 @@ public class LightHouseMidi {
 	}
 	public void sendMidiNote(int note, int value) throws InvalidMidiDataException {
 		sendMidiNote(1, note, value);
+	}
+
+	public HashMap<String, Info> getPossibleMidiInfos() {
+		return possibleMidiInfos;
+	}
+
+	public void setPossibleMidiInfos(HashMap<String, Info> possibleMidiInfos) {
+		this.possibleMidiInfos = possibleMidiInfos;
 	}
 }

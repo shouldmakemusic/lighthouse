@@ -29,6 +29,11 @@
               <AnchorPane fx:id="yaasLogTablePane" />
             </content>
           </Tab>
+          <Tab text="Midi">
+            <content>
+              <AnchorPane fx:id="midiLogTablePane" />
+            </content>
+          </Tab>
         </tabs>
       </TabPane>
    </children>
