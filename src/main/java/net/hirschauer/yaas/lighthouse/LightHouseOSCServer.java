@@ -1,6 +1,7 @@
 package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	private SensorValue sensorDataAndroid = new SensorValue(SensorType.ANDROID, -10, 10);
 	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
 	
-	private static HashMap<String, List<String>> yaasCommands = new HashMap<String, List<String>>();
+	public static HashMap<String, List<String>> yaasCommands = new HashMap<String, List<String>>();
 	
 	private long lastUpdateWii = 0;
 	
@@ -76,6 +77,11 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		c.addOSCListener(this);
 
 		return null;
+	}
+	
+	public void sendToYaas(OSCMessage m) throws IOException {
+		c.send(m, new InetSocketAddress("localhost", 9190));
+		logger.debug("Sent message " + m.getName() + " to YAAS");
 	}
 		
 	public void messageReceived(OSCMessage m, SocketAddress addr,

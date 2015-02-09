@@ -3,13 +3,19 @@ package net.hirschauer.yaas.lighthouse;
 import java.io.IOException;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
+import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
@@ -17,6 +23,8 @@ import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.sciss.net.OSCMessage;
 
 public class LightHouse extends Application {
 
@@ -34,6 +42,8 @@ public class LightHouse extends Application {
 	private SensorController sensorController;
 	private LightHouseMidi midi;
     
+	@FXML
+	TabPane tabPane;
     @FXML
     AnchorPane logTablePane;
     @FXML
@@ -42,6 +52,8 @@ public class LightHouse extends Application {
     AnchorPane yaasLogTablePane;
     @FXML
     AnchorPane midiLogTablePane;
+    @FXML
+    AnchorPane configurationTablePane;
 
 	/**
 	 * @param args
@@ -92,6 +104,7 @@ public class LightHouse extends Application {
         showOSCLogTable();
         showYaasLogTable();
         showMidiLogTable();
+        showConfigurationEditor();
 	}
 	
 	private void showYaasLogTable() throws IOException {
@@ -104,7 +117,38 @@ public class LightHouse extends Application {
         
         yaasLogTablePane.getChildren().add(childLogTable);
 	}
+	
+	private void showConfigurationEditor() throws IOException {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ConfigurationEditor.fxml"));
+		AnchorPane childLogTable = (AnchorPane) loader.load();
 
+        // Give the controller access to the main app
+        ConfigurationController controller = loader.getController();
+        
+        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
+
+			@Override
+			public void changed(
+					ObservableValue<? extends Tab> observable,
+							Tab oldValue, Tab newValue) {
+
+				if (newValue.getText() != null && newValue.getText().equals("YAAS Config")) {
+					logger.debug("yaas config selected");
+					if (LightHouseOSCServer.yaasCommands.size() == 0) {
+						OSCMessage m = new OSCMessage("/yaas/controller/send/info");
+						try {
+							oscServer.sendToYaas(m);
+						} catch (IOException e) {
+							logger.error("Could not request controller info", e);
+						}
+					}
+					controller.updateController(LightHouseOSCServer.yaasCommands);
+				}				
+			}
+		});
+        configurationTablePane.getChildren().add(childLogTable);
+	}
+	
 	private void showMidiLogTable() throws IOException {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MidiLogTable.fxml"));
 		AnchorPane childLogTable = (AnchorPane) loader.load();
