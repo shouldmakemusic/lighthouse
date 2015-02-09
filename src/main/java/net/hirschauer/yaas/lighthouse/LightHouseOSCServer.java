@@ -2,6 +2,10 @@ package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import javafx.concurrent.Task;
 
@@ -28,6 +32,8 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	
 	private SensorValue sensorDataAndroid = new SensorValue(SensorType.ANDROID, -10, 10);
 	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
+	
+	private static HashMap<String, List<String>> yaasCommands = new HashMap<String, List<String>>();
 	
 	private long lastUpdateWii = 0;
 	
@@ -183,6 +189,20 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		} else if (m.getName().startsWith("/yaas/log")) {
 			
 			updateMessage(m);
+		} else if (m.getName().startsWith("/yaas/commands")) {
+			
+			if (m.getName().endsWith("clear")) {
+				yaasCommands = new HashMap<String, List<String>>();
+			} else if (m.getName().endsWith("list")) {
+				String className = (String) m.getArg(0);
+				String methodName = (String) m.getArg(1);
+				if (!yaasCommands.containsKey(className)) {
+					yaasCommands.put(className, new ArrayList<String>());
+				}
+				yaasCommands.get(className).add(methodName);
+			} else if (m.getName().endsWith("done")) {
+				logger.info("Got available commands from YAAS");
+			}
 		} else {
 			updateMessage(m);
 		}

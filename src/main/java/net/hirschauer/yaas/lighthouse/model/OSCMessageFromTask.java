@@ -35,7 +35,7 @@ public class OSCMessageFromTask {
 			for (int i = 1; i < components.length; i++) {
 				this.argList.add(components[i]);				
 			}
-			this.args = StringUtils.join(getArgList().toArray(), "|");
+			this.args = message;
 		}
 	}
 	

@@ -1,5 +1,10 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.javafx.tools.packager.Log;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -15,57 +20,61 @@ import de.sciss.net.OSCMessage;
 
 public class LogController {
 	
-	   	@FXML
-	    private TableView<LogEntry> logEntryTable;
-	    @FXML
-	    private TableColumn<LogEntry, String> messageColumn;
-	    @FXML
-	    private TableColumn<LogEntry, String> arg0Column;
-	    @FXML
-	    private TableColumn<LogEntry, String> arg1Column;
-	    @FXML
-	    private TableColumn<LogEntry, String> arg2Column;
+	Logger logger = LoggerFactory.getLogger(LogController.class);
+	
+   	@FXML
+    private TableView<LogEntry> logEntryTable;
+    @FXML
+    private TableColumn<LogEntry, String> messageColumn;
+    @FXML
+    private TableColumn<LogEntry, String> arg0Column;
+    @FXML
+    private TableColumn<LogEntry, String> arg1Column;
+    @FXML
+    private TableColumn<LogEntry, String> arg2Column;
 
 
-	    private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
+    private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
 
-	    public LogController() {
-	    }
+    public LogController() {
+    }
 
-	    @FXML
-	    private void initialize() {
-	    	messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
-	        arg0Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg0"));
-	        arg1Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg1"));
-	        arg2Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg2"));
+    @FXML
+    private void initialize() {
+    	messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
+        arg0Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg0"));
+        arg1Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg1"));
+        arg2Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg2"));
 
-			logEntries.add(new LogEntry(new OSCMessage("LogController initialized", new Object[] {})));
-	        logEntryTable.setItems(logEntries);
-	    }
+		logEntries.add(new LogEntry(new OSCMessage("LogController initialized", new Object[] {})));
+        logEntryTable.setItems(logEntries);
+    }
 
-	    public void log(OSCMessage m) {
-	        
-	    	logEntries.add(new LogEntry(m));
-	    }
+    protected void log(OSCMessage m) {
+        
+    	logEntries.add(new LogEntry(m));
+    }
 
-	    public void log(OSCMessageFromTask m) {
-	        
-	    	logEntries.add(new LogEntry(m));
-	    }
+    protected void log(OSCMessageFromTask m) {
+        
+    	logEntries.add(new LogEntry(m));
+    }
 
-		public void setOscServer(LightHouseOSCServer oscServer) {
-			oscServer.messageProperty().addListener(new ChangeListener<String>() {
+	public void setOscServer(LightHouseOSCServer oscServer) {
+		oscServer.messageProperty().addListener(new ChangeListener<String>() {
 
-				@Override
-				public void changed(ObservableValue<? extends String> observable,
-						String oldValue, String newValue) {
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				
+				if (!newValue.startsWith("/yaas")) {
+
+					logger.debug("changed");
+					OSCMessageFromTask m = new OSCMessageFromTask(newValue);								
+					log(m);
 					
-					if (!newValue.startsWith("/yaas")) {
-
-						OSCMessageFromTask m = new OSCMessageFromTask(newValue);	
-						log(m);
-					}
 				}
-			});	
-		}
+			}
+		});	
+	}
 }

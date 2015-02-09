@@ -44,10 +44,10 @@ public class LogEntry {
 			setArg0(m.getArgList().get(0));
 		}
 		if (count >= 2) {
-			setArg0(m.getArgList().get(1));
+			setArg1(m.getArgList().get(1));
 		}
 		if (count >= 3) {
-			setArg0(m.getArgList().get(2));
+			setArg2(m.getArgList().get(2));
 		}
 		timestamp = System.currentTimeMillis();
 	}
