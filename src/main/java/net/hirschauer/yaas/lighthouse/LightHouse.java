@@ -13,11 +13,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
@@ -28,6 +30,8 @@ import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.sciss.net.OSCMessage;
 
 public class LightHouse extends Application {
 
@@ -52,6 +56,10 @@ public class LightHouse extends Application {
     @FXML
     AnchorPane logTablePane;
     @FXML
+    AnchorPane logTableWii;
+    @FXML
+    AnchorPane logTableAndroid;
+    @FXML
     HBox topBox;
     @FXML
     AnchorPane yaasLogTablePane;
@@ -59,6 +67,13 @@ public class LightHouse extends Application {
     AnchorPane midiLogTablePane;
     @FXML
     AnchorPane configurationTablePane;
+    @FXML
+    MenuBar menuBar;
+    @FXML
+    AnchorPane paneAndroidChart;
+    @FXML
+    AnchorPane paneWiiChart;
+    
 
 	/**
 	 * @param args
@@ -99,12 +114,13 @@ public class LightHouse extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LightHouseSurface.fxml"));
         loader.setController(this);
         rootLayout = (AnchorPane) loader.load();
+		menuBar.setUseSystemMenuBar(true);
         
         Scene scene = new Scene(rootLayout);
         scene.getStylesheets().add("/view/stylesheet.css");
         primaryStage.setScene(scene);
         primaryStage.show();               
-        
+                
         showBarCharts();
         showOSCLogTable();
         showYaasLogTable();
@@ -137,7 +153,7 @@ public class LightHouse extends Application {
 					ObservableValue<? extends Tab> observable,
 							Tab oldValue, Tab newValue) {
 
-				if (newValue.getText() != null && newValue.getText().equals("YAAS Config")) {
+				if (newValue.getText() != null && newValue.getText().equals("YAAS config")) {
 					logger.debug("yaas config selected");
 					if (LightHouseOSCServer.yaasCommands.size() == 0) {
 						oscServer.fetchAvailableCommandsFromYaas();
@@ -162,28 +178,44 @@ public class LightHouse extends Application {
 
 	private void showOSCLogTable() throws IOException {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
+        LogController controller = new LogController(OSCMessageFromTask.TYPE_OSC);
+        loader.setController(controller);
 		AnchorPane childLogTable = (AnchorPane) loader.load();
 
         // Give the controller access to the main app
-        LogController controller = loader.getController();
         controller.setOscServer(oscServer);
-        
         logTablePane.getChildren().add(childLogTable);
-	}
+
+        loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
+        controller = new LogController(OSCMessageFromTask.TYPE_ANDROID);
+        loader.setController(controller);
+        childLogTable = (AnchorPane) loader.load();
+
+        controller.setOscServer(oscServer);
+        logTableAndroid.getChildren().add(childLogTable);
+
+        loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
+        controller = new LogController(OSCMessageFromTask.TYPE_WII);
+        loader.setController(controller);
+        childLogTable = (AnchorPane) loader.load();
+
+        controller.setOscServer(oscServer);
+        logTableWii.getChildren().add(childLogTable);
+}
 	
     public void showBarCharts() throws IOException {
     	
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SensorBarChart.fxml"));	    
 		AnchorPane page = (AnchorPane) loader.load();				
 		sensorController = loader.getController();	 
-		topBox.getChildren().add(page);
+		paneAndroidChart.getChildren().add(page);
 		sensorController.listenTo(oscServer, SensorType.ANDROID);
 		topBox.getChildren().get(0).getStyleClass().add("series-android");
 		
 		loader = new FXMLLoader(getClass().getResource("/view/SensorBarChart.fxml"));	   
 		page = (AnchorPane) loader.load();			
 		sensorController = loader.getController();	 
-		topBox.getChildren().add(page);	
+		paneWiiChart.getChildren().add(page);	
 		sensorController.listenTo(oscServer, SensorType.WII);
 		topBox.getChildren().get(1).getStyleClass().add("series-wii");
     }

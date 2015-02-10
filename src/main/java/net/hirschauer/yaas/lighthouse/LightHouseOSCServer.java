@@ -5,7 +5,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import javafx.concurrent.Task;
@@ -137,7 +136,13 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	}
 	
 	private void updateMessage(OSCMessage m) {
-		updateMessage(new OSCMessageFromTask(m).toString());
+		updateMessage(new OSCMessageFromTask(m));
+	}
+	private void updateMessage(OSCMessage m, String type) {
+		updateMessage(new OSCMessageFromTask(m, type));
+	}
+	private void updateMessage(OSCMessageFromTask m) {
+		updateMessage(m.toString());
 	}
 	// try {
 	// do {
@@ -189,6 +194,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 				logger.error("Could not update android sensor values");
 			}
 		} else if (m.getName().startsWith("/yaas/play")) {
+			
 			updateMessage(m);
 			midi.sendMidiNote(1, 1);
 			
@@ -198,7 +204,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			
 		} else if (m.getName().startsWith("/yaas/log")) {
 			
-			updateMessage(m);
+			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
 		} else if (m.getName().startsWith("/yaas/commands")) {
 			
 			if (m.getName().endsWith("clear")) {
@@ -214,7 +220,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 				logger.info("Got available commands from YAAS");
 				updateMessage(new OSCMessageFromTask("Got available commands from YAAS").toString());
 			}
-		} else {
+		} else {			
 			updateMessage(m);
 		}
 	}
@@ -247,7 +253,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			
 			//sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
 		} else {
-			updateMessage(m);
+			updateMessage(m, OSCMessageFromTask.TYPE_WII);
 		}
 	}
 	public SensorValue getSensorDataAndroid() {

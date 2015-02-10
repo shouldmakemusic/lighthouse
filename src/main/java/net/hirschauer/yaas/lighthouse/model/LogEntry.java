@@ -4,8 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import de.sciss.net.OSCMessage;
-
 public class LogEntry {
 
 	private static final DateFormat dateFormat = new SimpleDateFormat(
@@ -19,21 +17,6 @@ public class LogEntry {
 	private long timestamp;
 
 	public LogEntry() {
-		timestamp = System.currentTimeMillis();
-	}
-
-	public LogEntry(OSCMessage m) {
-		setMessage(m.getName());
-		int count = m.getArgCount();
-		if (count >= 1) {
-			setArg0(m.getArg(0));
-		}
-		if (count >= 2) {
-			setArg1(m.getArg(1));
-		}
-		if (count >= 3) {
-			setArg2(m.getArg(2));
-		}
 		timestamp = System.currentTimeMillis();
 	}
 

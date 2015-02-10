@@ -200,7 +200,7 @@ public class YaasLogController {
 		} else if (m.getName().endsWith(ERROR)) {
 			logEntry.setLevel(ERROR);
 		}
-		logEntry.setMessage(m.getArgList().get(m.getArgList().size() -1));
+		logEntry.setMessage(m.getArgList().get(0));
 		logEntries.add(logEntry);
 	}
 
@@ -296,13 +296,16 @@ public class YaasLogController {
 			public void changed(ObservableValue<? extends String> observable,
 					String oldValue, String newValue) {
 				
-				if (newValue.startsWith("/yaas/log")) {
+				if (newValue.startsWith(OSCMessageFromTask.TYPE_YAAS)) {
 
 					OSCMessageFromTask m = new OSCMessageFromTask(newValue);	
-					if (m.getName().equals("/yaas/log/errorfile")) {
-						YaasLogController.getInstance().setErrorFile((String)m.getArgs());
-					}
+//					logger.debug("name:" + m.getName());
+//					logger.debug("arg0:" + m.getArgList().get(0));
 					log(m);
+					if (m.getName().equals("/yaas/log/errorfile")) {
+						YaasLogController.getInstance().setErrorFile( m.getArgList().get(0));
+						debug("Error logging is enabled");						
+					}
 				}
 			}
 		});

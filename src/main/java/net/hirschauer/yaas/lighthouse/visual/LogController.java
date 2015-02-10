@@ -15,11 +15,11 @@ import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.sciss.net.OSCMessage;
-
 public class LogController {
 	
 	Logger logger = LoggerFactory.getLogger(LogController.class);
+	
+	private String type;
 	
    	@FXML
     private TableView<LogEntry> logEntryTable;
@@ -36,6 +36,11 @@ public class LogController {
     private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
 
     public LogController() {
+    	setType(OSCMessageFromTask.TYPE_OSC);
+    }
+    
+    public LogController(String type) {
+    	this.setType(type);
     }
 
     @FXML
@@ -45,13 +50,8 @@ public class LogController {
         arg1Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg1"));
         arg2Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg2"));
 
-		logEntries.add(new LogEntry(new OSCMessage("LogController initialized", new Object[] {})));
+		logEntries.add(new LogEntry(new OSCMessageFromTask("LogController initialized")));
         logEntryTable.setItems(logEntries);
-    }
-
-    protected void log(OSCMessage m) {
-        
-    	logEntries.add(new LogEntry(m));
     }
 
     protected void log(OSCMessageFromTask m) {
@@ -66,7 +66,7 @@ public class LogController {
 			public void changed(ObservableValue<? extends String> observable,
 					String oldValue, String newValue) {
 				
-				if (!newValue.startsWith("/yaas")) {
+				if (newValue.startsWith(getType())) {
 
 					//logger.debug("changed");
 					OSCMessageFromTask m = new OSCMessageFromTask(newValue);								
@@ -75,5 +75,13 @@ public class LogController {
 				}
 			}
 		});	
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

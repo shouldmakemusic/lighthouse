@@ -7,8 +7,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
 	AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-	AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-	fx:controller="net.hirschauer.yaas.lighthouse.visual.LogController">
+	AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 	<children>
 		<TableView fx:id="logEntryTable" AnchorPane.bottomAnchor="0.0"
 			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
