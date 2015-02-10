@@ -24,17 +24,17 @@
                   </SplitPane>
                </content>
           </Tab>
-          <Tab text="Log from YAAS">
+          <Tab text="YAAS log">
             <content>
               <AnchorPane fx:id="yaasLogTablePane" />
             </content>
           </Tab>
-          <Tab text="Midi">
+          <Tab text="Midi viewer">
             <content>
               <AnchorPane fx:id="midiLogTablePane" />
             </content>
           </Tab>
-          <Tab text="YAAS Config">
+          <Tab text="YAAS config">
             <content>
               <AnchorPane fx:id="configurationTablePane" />
             </content>
