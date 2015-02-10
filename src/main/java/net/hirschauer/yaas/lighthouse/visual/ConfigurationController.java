@@ -25,8 +25,6 @@ public class ConfigurationController {
 	
 	@FXML
 	private ComboBox<String> commandCombo;
-
-	private HashMap<String, List<String>> yaasCommands;	
 	
 	@FXML
 	private void initialize() {
@@ -34,8 +32,6 @@ public class ConfigurationController {
 	}
 
 	public void updateController(HashMap<String, List<String>> yaasCommands) {
-		
-		this.yaasCommands = yaasCommands;
 		
 		ObservableList<String> controllerNames = FXCollections.observableArrayList();
 		for (String name : yaasCommands.keySet()) {

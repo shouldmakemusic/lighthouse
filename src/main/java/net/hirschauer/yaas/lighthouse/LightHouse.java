@@ -135,12 +135,7 @@ public class LightHouse extends Application {
 				if (newValue.getText() != null && newValue.getText().equals("YAAS Config")) {
 					logger.debug("yaas config selected");
 					if (LightHouseOSCServer.yaasCommands.size() == 0) {
-						OSCMessage m = new OSCMessage("/yaas/controller/send/info");
-						try {
-							oscServer.sendToYaas(m);
-						} catch (IOException e) {
-							logger.error("Could not request controller info", e);
-						}
+						oscServer.fetchAvailableCommandsFromYaas();
 					}
 					controller.updateController(LightHouseOSCServer.yaasCommands);
 				}				

@@ -168,6 +168,10 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	// }
 
 	private void handleYaasMessages(OSCMessage m) throws InvalidMidiDataException {
+		
+		if (m.getName().equals("/yaas/oscserver/startup")) {
+			fetchAvailableCommandsFromYaas();
+		}
 		if (m.getName().equals("/yaas/sensor")) {
 			
 			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
@@ -260,5 +264,15 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 
 	public void setSensorDataWii(SensorValue sensorDataWii) {
 		this.sensorDataWii = sensorDataWii;
+	}
+	
+	public void fetchAvailableCommandsFromYaas() {
+		
+		OSCMessage m = new OSCMessage("/yaas/controller/send/info");
+		try {
+			sendToYaas(m);
+		} catch (IOException e) {
+			logger.error("Could not request controller info", e);
+		}
 	}
 }
