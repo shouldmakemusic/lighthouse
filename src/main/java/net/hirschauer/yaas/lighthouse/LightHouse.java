@@ -1,11 +1,6 @@
 package net.hirschauer.yaas.lighthouse;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Properties;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -21,17 +16,15 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
+import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
 import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
 import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.sciss.net.OSCMessage;
 
 public class LightHouse extends Application {
 
@@ -48,8 +41,6 @@ public class LightHouse extends Application {
     
 	private SensorController sensorController;
 	private LightHouseMidi midi;
-	private URL dir;
-	private Properties applicationProps;
     
 	@FXML
 	TabPane tabPane;
@@ -74,6 +65,9 @@ public class LightHouse extends Application {
     @FXML
     AnchorPane paneWiiChart;
     
+    private YaasLogController yaasLogController;
+    
+    private PropertiesHandler properties;
 
 	/**
 	 * @param args
@@ -85,7 +79,7 @@ public class LightHouse extends Application {
 	public LightHouse() {
 
 		logger.debug("LightHouse created");
-		initProperties();
+		properties = new PropertiesHandler();
 	}	
 
 	@Override
@@ -125,7 +119,9 @@ public class LightHouse extends Application {
         showOSCLogTable();
         showYaasLogTable();
         showMidiLogTable();
-        showConfigurationEditor();
+        showConfigurationEditor();        
+        
+        properties.setProperties(new Object[]{yaasLogController});
 	}
 	
 	private void showYaasLogTable() throws IOException {
@@ -133,8 +129,8 @@ public class LightHouse extends Application {
 		AnchorPane childLogTable = (AnchorPane) loader.load();
 
         // Give the controller access to the main app
-        YaasLogController controller = loader.getController();
-        controller.setOscServer(oscServer);
+		yaasLogController = loader.getController();
+		yaasLogController.setOscServer(oscServer);
         
         yaasLogTablePane.getChildren().add(childLogTable);
 	}
@@ -223,6 +219,9 @@ public class LightHouse extends Application {
 	@Override
 	public void stop() throws Exception {		
 		super.stop();
+
+		properties.store(yaasLogController);
+
 		if (oscServer != null) {
 			oscServer.stop();
 			oscServer = null;
@@ -236,46 +235,5 @@ public class LightHouse extends Application {
 		oscThread.stop();
 		oscThread = null;
 		YaasLogController.getInstance().finalize();
-	}
-	
-	protected void initProperties() {
-		dir = getClass().getProtectionDomain().getCodeSource().getLocation();
-		logger.debug("Dir: " + dir);
-		
-		Properties defaultProps = new Properties();
-		try {
-			InputStream in = getClass().getResourceAsStream("/default.properties");
-			if (in != null) {
-				defaultProps.load(in);
-				in.close();
-				logger.debug(defaultProps.getProperty("init", "did not load default properties"));
-			}
-		} catch (IOException e) {
-			logger.error("Could not load default properties", e);
-		}
-		applicationProps = new Properties(defaultProps);
-		try {
-			String propdir = dir.getFile();
-			if (propdir.endsWith(File.separator)) {
-				propdir = propdir.substring(0, propdir.length() - 1);
-			}
-			if (propdir.endsWith("classes")) {
-				propdir = propdir.substring(0, propdir.length() - 8);
-			}
-			if (propdir.endsWith("target")) {
-				propdir = propdir.substring(0, propdir.length() - 7);
-			}
-			logger.debug("Application properties: " + propdir + File.separator + "lighthouse.properties");
-			File propertiesFile = new File(propdir + File.separator + "lighthouse.properties");
-			if (!propertiesFile.exists()) {
-				propertiesFile.createNewFile();
-			}
-			
-			FileInputStream in = FileUtils.openInputStream(propertiesFile);			
-			applicationProps.load(in);
-			in.close();
-		} catch (IOException e) {
-			logger.error("Could not load properties", e);
-		}
 	}
 }
