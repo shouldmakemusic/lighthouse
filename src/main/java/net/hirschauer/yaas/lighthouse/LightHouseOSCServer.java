@@ -177,7 +177,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		if (m.getName().equals("/yaas/oscserver/startup")) {
 			fetchAvailableCommandsFromYaas();
 		}
-		if (m.getName().equals("/yaas/sensor")) {
+		if (m.getName().equals("/android/sensor")) {
 			
 			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
 
@@ -195,14 +195,17 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			}
 		} else if (m.getName().startsWith("/yaas/play")) {
 			
-			updateMessage(m);
+			updateMessage(m, OSCMessageFromTask.TYPE_ANDROID);
 			midi.sendMidiNote(1, 1);
 			
 		} else if (m.getName().startsWith("/yaas/stop")) {
-			updateMessage(m);
+			updateMessage(m, OSCMessageFromTask.TYPE_ANDROID);
 			midi.sendMidiNote(1, 2);
 			
 		} else if (m.getName().startsWith("/yaas/log")) {
+			
+			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
+		} else if (m.getName().startsWith("/yaas/config")) {
 			
 			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
 		} else if (m.getName().startsWith("/yaas/commands")) {
