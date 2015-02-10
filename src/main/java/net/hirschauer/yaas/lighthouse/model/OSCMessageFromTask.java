@@ -72,6 +72,13 @@ public class OSCMessageFromTask {
 	public ArrayList<String> getArgList() {
 		return argList;
 	}
+	
+	public String getFirstArg() {
+		if (argList.size() >= 1) {
+			return argList.get(0);
+		}
+		return "";
+	}
 
 	public void setArgList(ArrayList<String> argList) {
 		this.argList = argList;
