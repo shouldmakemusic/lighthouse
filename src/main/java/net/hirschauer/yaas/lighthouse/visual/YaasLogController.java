@@ -19,11 +19,14 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
+import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -52,10 +55,21 @@ public class YaasLogController {
 	private TextField inputFilter;
 	@FXML
 	private Button btnClear;
+	@FXML
+	private Button btnFile;
+	@FXML
+	private TextInputControl txtYaasPort;
+	@FXML
+	private TextInputControl txtYaasErrorLog;
 
 	private static final Logger logger = LoggerFactory.getLogger(YaasLogController.class);
 	private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
+	
+	@StoredProperty
 	private String fileName;
+	
+	@StoredProperty
+	private String port;
 	
 	private static YaasLogController instance;
 
@@ -73,15 +87,9 @@ public class YaasLogController {
 
 	@FXML
 	private void initialize() {
-		timeColumn
-				.setCellValueFactory(new PropertyValueFactory<LogEntry, String>(
-						"timeString"));
-		levelColumn
-				.setCellValueFactory(new PropertyValueFactory<LogEntry, String>(
-						"level"));
-		messageColumn
-				.setCellValueFactory(new PropertyValueFactory<LogEntry, String>(
-						"message"));
+		timeColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("timeString"));
+		levelColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("level"));
+		messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
 		messageColumn.setCellFactory
 		 (
 		   column ->
@@ -172,6 +180,32 @@ public class YaasLogController {
 				logEntries.clear();
 			}
 		});
+		
+		txtYaasErrorLog.setEditable(false);
+		btnFile.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				FileChooser fileChooser = new FileChooser();	
+				fileChooser.getExtensionFilters().addAll(
+		                new FileChooser.ExtensionFilter("Text", "stderr.txt")
+		            );
+				File file = fileChooser.showOpenDialog(null);
+                if (file != null) {
+                	setFileName(file.getAbsolutePath());
+                }
+			}
+		});
+		
+		txtYaasPort.textProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				port = newValue;
+				// TODO: initialize yaas port new
+			}
+		});
 	}
 
 	public void log(OSCMessage m) {
@@ -233,7 +267,7 @@ public class YaasLogController {
 
 	public void setErrorFile(String fileName) {
 		logger.debug("setting error file to watch: " + fileName);
-		this.fileName = fileName;
+		
 		new Thread(errorLogChangeListener).start();
 		errorLogChangeListener.messageProperty().addListener(new ChangeListener<String>() {
 
@@ -249,8 +283,8 @@ public class YaasLogController {
 		@Override
 		protected Void call() throws Exception {
 
-			logger.debug("started file observer for " + fileName);
-			File errorLog = new File(fileName);
+			logger.debug("started file observer for " + getFileName());
+			File errorLog = new File(getFileName());
 			if (!errorLog.exists()) {
 				logger.warn("Error log is not available");
 				updateMessage("Cancelled");
@@ -302,9 +336,13 @@ public class YaasLogController {
 //					logger.debug("name:" + m.getName());
 //					logger.debug("arg0:" + m.getArgList().get(0));
 					log(m);
-					if (m.getName().equals("/yaas/log/errorfile")) {
-						YaasLogController.getInstance().setErrorFile( m.getArgList().get(0));
+					if (m.getName().equals("/yaas/config/errorfile")) {
+						setFileName(m.getFirstArg());
 						debug("Error logging is enabled");						
+					}
+					if (m.getName().equals("/yaas/config/port")) {
+						txtYaasPort.setText(m.getFirstArg());		
+						setPort(m.getFirstArg());
 					}
 				}
 			}
@@ -321,5 +359,27 @@ public class YaasLogController {
 		}
 		errorLogChangeListener.cancel(true);
 		logger.debug("finalize");
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+		this.txtYaasPort.setText(port);
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		
+		if (!fileName.equals(this.fileName)) {
+			this.fileName = fileName;
+			this.txtYaasErrorLog.setText(fileName);
+			YaasLogController.getInstance().setErrorFile(fileName);
+		}
 	}
 }

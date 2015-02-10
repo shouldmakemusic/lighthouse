@@ -11,7 +11,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="400.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -104,7 +104,7 @@
                            <children>
                               <BorderPane prefHeight="338.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <top>
-                                    <AnchorPane fx:id="paneAndroidChart" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                                    <AnchorPane fx:id="paneAndroidChart" prefHeight="91.0" prefWidth="800.0" BorderPane.alignment="CENTER" />
                                  </top>
                                  <center>
                                     <AnchorPane fx:id="logTableAndroid" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
@@ -120,7 +120,7 @@
                            <children>
                               <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <top>
-                                    <AnchorPane fx:id="paneWiiChart" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                                    <AnchorPane fx:id="paneWiiChart" prefHeight="95.0" prefWidth="800.0" BorderPane.alignment="CENTER" />
                                  </top>
                                  <center>
                                     <AnchorPane fx:id="logTableWii" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />

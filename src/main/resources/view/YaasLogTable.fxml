@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.collections.FXCollections ?>
 
-<AnchorPane prefHeight="369.0" prefWidth="586.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.YaasLogController">
+<AnchorPane prefHeight="369.0" prefWidth="828.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.YaasLogController">
 	<children>
 		<BorderPane prefHeight="369.0" prefWidth="352.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<top>
@@ -31,7 +31,31 @@
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin></TextField>
-                  <Button fx:id="btnClear" mnemonicParsing="false" prefHeight="31.0" prefWidth="51.0" text="Clear" />
+                  <Button fx:id="btnClear" mnemonicParsing="false" prefHeight="30.0" prefWidth="58.0" text="Clear">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin></Button>
+                  <Label prefHeight="16.0" prefWidth="70.0" text="Yaas Port:">
+                     <HBox.margin>
+                        <Insets right="10.0" top="6.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField fx:id="txtYaasPort" prefHeight="26.0" prefWidth="58.0">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Label prefHeight="16.0" prefWidth="97.0" text="Yaas Error Log:">
+                     <HBox.margin>
+                        <Insets right="10.0" top="6.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField fx:id="txtYaasErrorLog" />
+                  <Button fx:id="btnFile" mnemonicParsing="false" text="...">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </Button>
 					</children>
                <BorderPane.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
