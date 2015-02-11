@@ -11,12 +11,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
+import net.hirschauer.yaas.lighthouse.util.TextAreaAppender;
 import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
@@ -64,6 +66,8 @@ public class LightHouse extends Application {
     AnchorPane paneAndroidChart;
     @FXML
     AnchorPane paneWiiChart;
+    @FXML
+    TextArea loggingView;
     
     private YaasLogController yaasLogController;
     
@@ -79,14 +83,22 @@ public class LightHouse extends Application {
 	public LightHouse() {
 
 		logger.debug("LightHouse created");
-		properties = new PropertiesHandler();
 	}	
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		logger.debug("start");	
+		logger.debug("start");
 		
+        // Load the root layout from the fxml file
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LightHouseSurface.fxml"));
+        loader.setController(this);
+        rootLayout = (AnchorPane) loader.load();
+		menuBar.setUseSystemMenuBar(true);
+		TextAreaAppender.setTextArea(loggingView);
+
+		properties = new PropertiesHandler();
+
 		midi = new LightHouseMidi();
 
 		if (oscServer == null) {
@@ -104,11 +116,6 @@ public class LightHouse extends Application {
 		this.primaryStage = primaryStage;
         this.primaryStage.setTitle("LightHouse - Service Discovery and OSC Client/Server");
         
-        // Load the root layout from the fxml file
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LightHouseSurface.fxml"));
-        loader.setController(this);
-        rootLayout = (AnchorPane) loader.load();
-		menuBar.setUseSystemMenuBar(true);
         
         Scene scene = new Scene(rootLayout);
         scene.getStylesheets().add("/view/stylesheet.css");
