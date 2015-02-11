@@ -34,6 +34,9 @@ public class ConfigurationController {
 
 	Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
 	
+	public static final String MIDI_NOTE = "Midi Note";
+	public static final String MIDI_CC = "Midi CC";
+	
 	@FXML
 	private ComboBox<String> midiCommandCombo;	
 	@FXML
@@ -149,6 +152,7 @@ public class ConfigurationController {
 							}
 							break;
 						case 1:
+						case 2:
 							if (line.equals("}")) {
 								mode = 0;
 								continue;
@@ -158,7 +162,10 @@ public class ConfigurationController {
 							}
 							ConfigEntry entry = getEntryFromString(line);
 							if (entry != null) {
-								entry.setMidiCommand("Midi Note");
+								entry.setMidiCommand(MIDI_NOTE);
+								if (mode == 2) {
+									entry.setMidiCommand(MIDI_CC);
+								}
 								entries.add(entry);
 							}
 							break;
@@ -178,6 +185,7 @@ public class ConfigurationController {
     
     protected ConfigEntry getEntryFromString(String line) {
     	
+    	// TODO: add error handling
     	ConfigEntry entry = new ConfigEntry();
     	String[] midiCommand = line.split(":");
     	entry.setMidiValue(midiCommand[0].trim());
@@ -225,13 +233,25 @@ public class ConfigurationController {
 			try {
 				fw = new FileWriter(file, false);
 				fw.write("from consts import *\n\n");
-				fw.write("midi_note_definitions = {\n");
-				
+
+				fw.write("midi_note_definitions = {\n");				
 				for (ConfigEntry entry : configEntries) {
-					fw.write("\t" + getStringForEntry(entry) + "\n");	        	
-				}
+					
+					if (entry.getMidiCommand().equals(MIDI_NOTE)) {
+						fw.write("\t" + getStringForEntry(entry) + "\n");
+					}
+				}				
+				fw.write("}\n\n");
+
+				fw.write("midi_cc_definitions = {\n");				
+				for (ConfigEntry entry : configEntries) {
+					
+					if (entry.getMidiCommand().equals(MIDI_CC)) {
+						fw.write("\t" + getStringForEntry(entry) + "\n");
+					}
+				}				
+				fw.write("}\n\n");
 				
-				fw.write("}\n");
 	        	fw.close();
 			} catch (IOException e) {
 				logger.error("Could not save to file " + file.getAbsolutePath(), e);
