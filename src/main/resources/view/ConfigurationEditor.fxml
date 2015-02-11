@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.collections.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -11,7 +12,7 @@
    <children>
       <BorderPane prefHeight="277.0" prefWidth="711.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
-            <TableView prefHeight="121.0" prefWidth="196.0" BorderPane.alignment="CENTER">
+            <TableView fx:id="configTable" prefHeight="121.0" prefWidth="196.0" BorderPane.alignment="CENTER">
               <columns>
                 <TableColumn fx:id="colMidiCommand" prefWidth="108.0" text="Command type" />
                 <TableColumn fx:id="colMidiValue" minWidth="2.0" prefWidth="103.0" text="Midi value" />

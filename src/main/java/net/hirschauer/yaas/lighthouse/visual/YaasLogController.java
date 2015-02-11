@@ -13,6 +13,7 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
@@ -23,6 +24,7 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
@@ -190,7 +192,8 @@ public class YaasLogController {
 				fileChooser.getExtensionFilters().addAll(
 		                new FileChooser.ExtensionFilter("Text", "stderr.txt")
 		            );
-				File file = fileChooser.showOpenDialog(null);
+				Window window = ((Node)event.getTarget()).getScene().getWindow();
+				File file = fileChooser.showOpenDialog(window);
                 if (file != null) {
                 	setFileName(file.getAbsolutePath());
                 }
