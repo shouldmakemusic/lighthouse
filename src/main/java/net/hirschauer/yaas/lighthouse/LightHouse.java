@@ -42,6 +42,7 @@ public class LightHouse extends Application {
     private AnchorPane rootLayout;
     
 	private SensorController sensorController;
+	private ConfigurationController configurationController;
 	private LightHouseMidi midi;
     
 	@FXML
@@ -128,7 +129,7 @@ public class LightHouse extends Application {
         showMidiLogTable();
         showConfigurationEditor();        
         
-        properties.setProperties(new Object[]{yaasLogController});
+        properties.setProperties(yaasLogController, configurationController);
 	}
 	
 	private void showYaasLogTable() throws IOException {
@@ -147,7 +148,7 @@ public class LightHouse extends Application {
 		AnchorPane childLogTable = (AnchorPane) loader.load();
 
         // Give the controller access to the main app
-        ConfigurationController controller = loader.getController();
+		configurationController = loader.getController();
         
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -161,7 +162,7 @@ public class LightHouse extends Application {
 					if (LightHouseOSCServer.yaasCommands.size() == 0) {
 						oscServer.fetchAvailableCommandsFromYaas();
 					}
-					controller.updateController(LightHouseOSCServer.yaasCommands);
+					configurationController.updateController(LightHouseOSCServer.yaasCommands);
 				}				
 			}
 		});
@@ -227,7 +228,7 @@ public class LightHouse extends Application {
 	public void stop() throws Exception {		
 		super.stop();
 
-		properties.store(yaasLogController);
+		properties.store(yaasLogController, configurationController);
 
 		if (oscServer != null) {
 			oscServer.stop();

@@ -38,9 +38,15 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	private long lastUpdateWii = 0;
 	
 	private LightHouseMidi midi;
+	private static LightHouseOSCServer instance;
 	
-	public LightHouseOSCServer(LightHouseMidi midi) {
+	protected LightHouseOSCServer(LightHouseMidi midi) {
 		this.midi = midi;
+		instance = this;
+	}
+	
+	public static LightHouseOSCServer getInstance() {
+		return instance;
 	}
 	
 	public void stop() {
