@@ -1,18 +1,16 @@
 package net.hirschauer.yaas.lighthouse.util;
 
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Properties;
+
+import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
+import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -32,71 +30,19 @@ public class PropertiesHandler {
 		loadProperties();
 	}
 	
-	public void store(Object... objects) throws IOException {
-		for (Object obj : objects) {
-			store(obj);
+	public void store(IStorable... objects) throws IOException {
+		for (IStorable obj : objects) {
+			obj.store(applicationProps);
 		}
-	}
-
-	public void store(Object classType) throws IOException {
-
-		for(Field field : classType.getClass().getDeclaredFields()){
-
-			  String name = field.getName();
-			  Annotation[] annotations = field.getDeclaredAnnotations();
-
-			  for (Annotation annotation : annotations) {
-				  
-				  if (annotation.annotationType().equals(StoredProperty.class)) {
-					  try {
-						  for (PropertyDescriptor pd : Introspector.getBeanInfo(classType.getClass()).getPropertyDescriptors()) {
-							  if (pd.getReadMethod() != null && !"class".equals(pd.getName()) && pd.getName().equals(name)) {
-								  String value = (String) pd.getReadMethod().invoke(classType);
-								  if (value == null) {
-									  value = "";
-								  }
-								  applicationProps.put(classType.getClass().getName() + "|" + 
-									  name, value);
-								  logger.debug("save " + name + "=" + value);
-							  }
-						  }
-					  } catch (Exception e) {
-						  logger.error("Could not save property " + name + " from " + classType.getClass().getSimpleName(), e);
-					  }
-				  }
-			  }
-		}
-	
 		logger.debug("Filename to save: " + fileName);
 		File f = new File(fileName);
-        OutputStream out = new FileOutputStream( f );
-        applicationProps.store(out, null);
+		OutputStream out = new FileOutputStream( f );
+		applicationProps.store(out, null);
 	}
 	
-	public void setProperties(Object... objects) {
-		HashMap<String, Object> objs = new HashMap<String, Object>();
-		for (Object obj : objects) {
-			objs.put(obj.getClass().getName(), obj);
-		}
-		
-		for (Object key : applicationProps.keySet()) {
-			String propertyName = key.toString();
-			if (propertyName.contains("|")) {
-				String[] classMethod = propertyName.split("\\|");
-				if (objs.containsKey(classMethod[0])) {
-					try {
-						for (PropertyDescriptor pd : Introspector.getBeanInfo(objs.get(classMethod[0]).getClass()).getPropertyDescriptors()) {
-							if (pd.getWriteMethod() != null && !"class".equals(pd.getName()) && pd.getName().equals(classMethod[1])) {
-								
-								pd.getWriteMethod().invoke(objs.get(classMethod[0]), applicationProps.get(key));
-								logger.debug("load " + classMethod[1] + "=" + applicationProps.get(key));
-							}
-						}
-					} catch (Exception e) {
-						logger.error(e.getMessage(), e);
-					}
-				}
-			}
+	public void load(IStorable... objects) {
+		for (IStorable obj : objects) {
+			obj.load(applicationProps);
 		}
 	}
 
@@ -143,4 +89,5 @@ public class PropertiesHandler {
 			logger.error("Could not load properties", e);
 		}
 	}
+
 }

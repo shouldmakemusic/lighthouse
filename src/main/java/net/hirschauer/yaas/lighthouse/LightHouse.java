@@ -129,7 +129,7 @@ public class LightHouse extends Application {
         showMidiLogTable();
         showConfigurationEditor();        
         
-        properties.setProperties(yaasLogController, configurationController);
+        properties.load(yaasLogController, configurationController);
 	}
 	
 	private void showYaasLogTable() throws IOException {

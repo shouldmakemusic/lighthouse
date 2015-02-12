@@ -1,6 +1,10 @@
 package net.hirschauer.yaas.lighthouse.model;
 
-public class ConfigEntry {
+import java.io.Serializable;
+
+public class ConfigEntry implements Serializable {
+
+	private static final long serialVersionUID = 8907267743815270553L;
 
 	private String midiCommand;
 	private String midiValue;
@@ -9,6 +13,9 @@ public class ConfigEntry {
 	private String value1;
 	private String value2;
 	private String value3;
+	
+	public ConfigEntry() {
+	}
 	
 	public String getMidiCommand() {
 		return midiCommand;

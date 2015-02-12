@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
+
+import javax.swing.plaf.basic.BasicColorChooserUI.PropertyHandler;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -27,6 +30,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
+import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
 import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 
@@ -35,9 +39,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
 import de.sciss.net.OSCMessage;
 
-public class ConfigurationController {
+public class ConfigurationController implements IStorable {
 
 	Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
 	
@@ -94,6 +100,8 @@ public class ConfigurationController {
     
     private static ConfigurationController instance;
     
+    Gson gson = new Gson();
+    
     public ConfigurationController() {
 		instance = this;
 	}
@@ -119,18 +127,7 @@ public class ConfigurationController {
 		midiCommandCombo.setValue(MIDI_NOTE);
 		
 		btnReceiveMidi.setDisable(true);
-		btnReceive.setOnAction(new EventHandler<ActionEvent>() {
-			
-			@Override
-			public void handle(ActionEvent event) {
-				PropertiesHandler ph = new PropertiesHandler();
-				try {
-					ph.store(this);
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		});
+		btnReceive.setDisable(true);
 		
 		btnSend.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -420,4 +417,31 @@ public class ConfigurationController {
 	public void setConfigEntries(ObservableList<ConfigEntry> configEntries) {
 		this.configEntries = configEntries;
 	}
+
+	@Override
+	public void store(Properties values) {
+		
+		String className = getClass().getName();
+		for (int i=0; i<configEntries.size(); i++) {
+			ConfigEntry entry = configEntries.get(i);
+			values.put(className + "|" + i, gson.toJson(entry));
+		}
+	}
+
+	@Override
+	public void load(Properties values) {
+		
+		String className = getClass().getName();
+		for (Object keyObj : values.keySet()) {
+			String key = keyObj.toString();
+			if (key.startsWith(className)) {
+				int i = Integer.parseInt(key.split("\\|")[1]);
+				logger.debug("loading " + i);
+				ConfigEntry entry = gson.fromJson((String) values.get(keyObj), ConfigEntry.class);
+				configEntries.add(entry);
+			}
+		}
+	}
+
+
 }

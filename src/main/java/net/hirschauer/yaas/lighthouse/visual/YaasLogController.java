@@ -3,6 +3,7 @@ package net.hirschauer.yaas.lighthouse.visual;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.Properties;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,6 +29,7 @@ import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
+import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 
 import org.apache.commons.io.IOUtils;
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import de.sciss.net.OSCMessage;
 
-public class YaasLogController {
+public class YaasLogController implements IStorable {
 
 	private static final String VERBOSE = "verbose";
 	private static final String DEBUG = "debug";
@@ -383,6 +385,28 @@ public class YaasLogController {
 			this.fileName = fileName;
 			this.txtYaasErrorLog.setText(fileName);
 			YaasLogController.getInstance().setErrorFile(fileName);
+		}
+	}
+
+	@Override
+	public void store(Properties values) {
+		values.put(getClass().getName() + "|" + port, port);
+		values.put(getClass().getName() + "|" + "fileName", fileName);
+	}
+
+	@Override
+	public void load(Properties values) {
+		String className = getClass().getName();
+		for (Object keyObj : values.keySet()) {
+			String key = keyObj.toString();
+			if (key.startsWith(className) && key.contains("|")) {
+				String name = key.split("|")[1];
+				if (name.equals("port")) {
+					port = values.getProperty(key);					
+				} else if (name.equals("fileName")) {
+					fileName = values.getProperty(key);
+				}
+			}
 		}
 	}
 }
