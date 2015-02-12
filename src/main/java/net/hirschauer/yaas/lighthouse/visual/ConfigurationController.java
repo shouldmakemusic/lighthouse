@@ -15,6 +15,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
@@ -23,12 +25,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
+import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
+import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.sciss.net.OSCMessage;
 
 public class ConfigurationController {
 
@@ -82,7 +89,18 @@ public class ConfigurationController {
     @FXML
     private Button btnSend;
     
+    @StoredProperty
 	private ObservableList<ConfigEntry> configEntries = FXCollections.observableArrayList();
+    
+    private static ConfigurationController instance;
+    
+    public ConfigurationController() {
+		instance = this;
+	}
+    
+    public static ConfigurationController getInstance() {
+    	return instance;
+    }
     
     @FXML
 	private void initialize() {
@@ -96,11 +114,31 @@ public class ConfigurationController {
 		colValue2.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value2"));
 		colValue3.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value3"));
 
-		configTable.setItems(configEntries);
+		configTable.setItems(getConfigEntries());
+		
+		midiCommandCombo.setValue(MIDI_NOTE);
 		
 		btnReceiveMidi.setDisable(true);
-		btnReceive.setDisable(true);
-		btnSend.setDisable(true);
+		btnReceive.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				PropertiesHandler ph = new PropertiesHandler();
+				try {
+					ph.store(this);
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		});
+		
+		btnSend.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				sendConfigurationToYaas(((Node)event.getTarget()).getScene().getWindow());
+			}
+		});
 		
 		btnAdd.setOnAction(new EventHandler<ActionEvent>() {
 			
@@ -175,12 +213,45 @@ public class ConfigurationController {
 				logger.error("Could not read file " + file.getAbsolutePath(), e);
 			}
         	if (entries.size() > 0) {
-				this.configEntries.clear();
+				this.getConfigEntries().clear();
 				for (ConfigEntry entry : entries) {
-					this.configEntries.add(entry);
+					this.getConfigEntries().add(entry);
 				}
         	}
         }
+    }
+    
+    protected void sendConfigurationToYaas(Window window) {
+    	// /yaas/controller/receive/configuration
+    	LightHouseOSCServer oscServer = LightHouseOSCServer.getInstance();
+    	try {
+        	Object[] args = new Object[] {"start"};
+        	OSCMessage m = new OSCMessage("/yaas/controller/receive/configuration", args);
+			oscServer.sendToYaas(m);
+
+			for (ConfigEntry entry : this.getConfigEntries()) {
+    		
+				String value1 = entry.getValue1() != null ? entry.getValue1() : "";
+				String value2 = entry.getValue2() != null ? entry.getValue2() : "";
+				String value3 = entry.getValue3() != null ? entry.getValue3() : "";
+	        	args = new Object[] {entry.getMidiCommand(), entry.getMidiValue(), entry.getController(),
+	        			entry.getCommand(), value1, value2, value3};
+	        	m = new OSCMessage("/yaas/controller/receive/configuration", args);
+				oscServer.sendToYaas(m);
+    		}
+        	args = new Object[] {"end"};
+        	m = new OSCMessage("/yaas/controller/receive/configuration", args);
+			oscServer.sendToYaas(m);
+			
+		} catch (IOException e) {
+			logger.error("Error when sending configuration", e);
+//			Dialogs.create()
+//	        .owner(window)
+//	        .title("Exception Dialog")
+//	        .masthead("Could not send configuration to YAAS")
+//	        .message(e.getMessage())
+//	        .showException(e);
+		}
     }
     
     protected ConfigEntry getEntryFromString(String line) {
@@ -235,7 +306,7 @@ public class ConfigurationController {
 				fw.write("from consts import *\n\n");
 
 				fw.write("midi_note_definitions = {\n");				
-				for (ConfigEntry entry : configEntries) {
+				for (ConfigEntry entry : getConfigEntries()) {
 					
 					if (entry.getMidiCommand().equals(MIDI_NOTE)) {
 						fw.write("\t" + getStringForEntry(entry) + "\n");
@@ -244,7 +315,7 @@ public class ConfigurationController {
 				fw.write("}\n\n");
 
 				fw.write("midi_cc_definitions = {\n");				
-				for (ConfigEntry entry : configEntries) {
+				for (ConfigEntry entry : getConfigEntries()) {
 					
 					if (entry.getMidiCommand().equals(MIDI_CC)) {
 						fw.write("\t" + getStringForEntry(entry) + "\n");
@@ -285,8 +356,24 @@ public class ConfigurationController {
     
     protected void addInputToTable() {
     	
-    	//TODO: check for plausability
-    	
+    	String error = "";
+    	if (StringUtils.isEmpty(txtMidiValue.getText())) {
+    		error = "Midi value has to be set\n";
+    	}
+    	if (StringUtils.isEmpty(controllerCombo.getValue())) {
+    		error += "Controller has to be set\n";
+    	}
+    	if (StringUtils.isEmpty(midiCommandCombo.getValue())) {
+    		error += "Command has to be set\n";
+    	}
+    	if (StringUtils.isNotEmpty(error)) {
+    		Alert alert = new Alert(AlertType.ERROR);
+    		alert.setTitle("Error Dialog");
+    		alert.setHeaderText(null);
+    		alert.setContentText(error);
+    		alert.showAndWait();    	
+    		return;
+    	}
     	ConfigEntry ce = new ConfigEntry();
     	ce.setCommand(commandCombo.getValue());
     	ce.setController(controllerCombo.getValue());
@@ -296,7 +383,7 @@ public class ConfigurationController {
     	ce.setValue2(txtValue2.getText());
     	ce.setValue3(txtValue3.getText());
     	
-    	configEntries.add(ce);
+    	getConfigEntries().add(ce);
     }
 
 	public void updateController(HashMap<String, List<String>> yaasCommands) {
@@ -324,5 +411,13 @@ public class ConfigurationController {
 				commandCombo.setItems(commandNames);
 			}
 		});
+	}
+
+	public ObservableList<ConfigEntry> getConfigEntries() {
+		return configEntries;
+	}
+
+	public void setConfigEntries(ObservableList<ConfigEntry> configEntries) {
+		this.configEntries = configEntries;
 	}
 }
