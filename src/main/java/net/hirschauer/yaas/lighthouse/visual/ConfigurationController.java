@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.plaf.basic.BasicColorChooserUI.PropertyHandler;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -22,6 +20,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -31,7 +31,6 @@ import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
-import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
 import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 
 import org.apache.commons.io.FileUtils;
@@ -72,8 +71,6 @@ public class ConfigurationController implements IStorable {
     private TableColumn<ConfigEntry, String> colValue2;
     @FXML
     private TableColumn<ConfigEntry, String> colValue3;
-    @FXML
-    private TableColumn<ConfigEntry, String> colAction;
     @FXML
     private TextField txtMidiValue;
     @FXML
@@ -123,6 +120,19 @@ public class ConfigurationController implements IStorable {
 		colValue3.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value3"));
 
 		configTable.setItems(getConfigEntries());
+		
+		MenuItem mnuDel = new MenuItem("Delete row");
+		mnuDel.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override
+		    public void handle(ActionEvent t) {
+		        logger.debug("Delete row");
+                ConfigEntry p = configTable.getSelectionModel().getSelectedItem();
+                if(p!=null) {
+                    configEntries.remove(p);
+                }
+		    }
+		});
+		configTable.setContextMenu(new ContextMenu(mnuDel));
 		
 		midiCommandCombo.setValue(MIDI_NOTE);
 		
@@ -242,12 +252,9 @@ public class ConfigurationController implements IStorable {
 			
 		} catch (IOException e) {
 			logger.error("Error when sending configuration", e);
-//			Dialogs.create()
-//	        .owner(window)
-//	        .title("Exception Dialog")
-//	        .masthead("Could not send configuration to YAAS")
-//	        .message(e.getMessage())
-//	        .showException(e);
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setContentText("Could not send configuration to YAAS");
+			alert.show();
 		}
     }
     
@@ -356,6 +363,12 @@ public class ConfigurationController implements IStorable {
     	String error = "";
     	if (StringUtils.isEmpty(txtMidiValue.getText())) {
     		error = "Midi value has to be set\n";
+    	} else {
+    		for (ConfigEntry entry : configEntries) {
+    			if (entry.getMidiValue().equals(txtMidiValue.getText())) {
+    				
+    			}
+    		}
     	}
     	if (StringUtils.isEmpty(controllerCombo.getValue())) {
     		error += "Controller has to be set\n";
