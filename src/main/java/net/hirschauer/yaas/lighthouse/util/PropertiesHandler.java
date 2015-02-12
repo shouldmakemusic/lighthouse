@@ -32,7 +32,7 @@ public class PropertiesHandler {
 		loadProperties();
 	}
 	
-	public void store(Object[] objects) throws IOException {
+	public void store(Object... objects) throws IOException {
 		for (Object obj : objects) {
 			store(obj);
 		}
@@ -73,7 +73,7 @@ public class PropertiesHandler {
         applicationProps.store(out, null);
 	}
 	
-	public void setProperties(Object[] objects) {
+	public void setProperties(Object... objects) {
 		HashMap<String, Object> objs = new HashMap<String, Object>();
 		for (Object obj : objects) {
 			objs.put(obj.getClass().getName(), obj);
