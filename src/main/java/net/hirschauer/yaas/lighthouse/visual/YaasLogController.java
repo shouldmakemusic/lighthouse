@@ -285,6 +285,7 @@ public class YaasLogController implements IStorable {
 	}
 
 	Task<Void> errorLogChangeListener = new Task<Void>() {
+		
 		@Override
 		protected Void call() throws Exception {
 
@@ -299,6 +300,7 @@ public class YaasLogController implements IStorable {
 			//logger.debug("lastmodified " + lastmodified);
 			List<String> lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
 			int lineCount = lines.size();
+			logger.debug("starting line count " + lineCount);
 
 			while (true) {
 				// Block the thread for a short time, but be sure
@@ -306,13 +308,18 @@ public class YaasLogController implements IStorable {
 				try {					
 					
 					if (lastmodified != errorLog.lastModified()) {
-						//logger.debug("changed");
+							
 						lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
+						logger.debug("starting line count " + lineCount);
+						logger.debug("found lines " + lines.size());
+						StringBuffer sb = new StringBuffer();
 						for (int i = lineCount; i < lines.size(); i++) {
-							updateMessage(lines.get(i));
+							sb.append(lines.get(i));
+							sb.append("\n");
 						}
-						lineCount = lines.size();
+						updateMessage(sb.toString());
 						lastmodified = errorLog.lastModified();
+						lineCount = lines.size();
 					}
 					
 					Thread.sleep(2000);
@@ -390,21 +397,30 @@ public class YaasLogController implements IStorable {
 
 	@Override
 	public void store(Properties values) {
-		values.put(getClass().getName() + "|" + port, port);
+		values.put(getClass().getName() + "|" + "port", port);
 		values.put(getClass().getName() + "|" + "fileName", fileName);
 	}
 
 	@Override
 	public void load(Properties values) {
+		
 		String className = getClass().getName();
+		
 		for (Object keyObj : values.keySet()) {
+			
 			String key = keyObj.toString();
-			if (key.startsWith(className) && key.contains("|")) {
-				String name = key.split("|")[1];
-				if (name.equals("port")) {
-					port = values.getProperty(key);					
-				} else if (name.equals("fileName")) {
-					fileName = values.getProperty(key);
+			
+			if (key.startsWith(className)) {
+				String[] entry = key.split("\\|");
+				if (entry.length == 2) {
+					String name = entry[1];
+					if (name.equals("port")) {
+						logger.debug("restoring port: " + values.getProperty(key));
+						setPort(values.getProperty(key));					
+					} else if (name.equals("fileName")) {
+						logger.debug("restoring fileName: " + values.getProperty(key));
+						setFileName(values.getProperty(key));
+					}
 				}
 			}
 		}
