@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import javafx.beans.value.ChangeListener;
@@ -19,6 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -26,6 +28,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
@@ -91,6 +94,10 @@ public class ConfigurationController implements IStorable {
     private Button btnReceive;
     @FXML
     private Button btnSend;
+    @FXML
+    private Button btnCopy;
+    @FXML
+    private BorderPane borderPane;
     
     @StoredProperty
 	private ObservableList<ConfigEntry> configEntries = FXCollections.observableArrayList();
@@ -170,13 +177,44 @@ public class ConfigurationController implements IStorable {
 				load(event);
 			}
 		});
+		
+		btnCopy.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				copy(((Node)event.getTarget()).getScene().getWindow());
+			}
+		});		
 	}
+    
+	protected void copy(Window window) {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation Dialog");
+		alert.setHeaderText("Overwrite current 'config_midi.py' from YAAS?");
+		alert.setContentText("Requires a restart of Live. There will be a better solution soon than overwriting a python file...");
+
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == ButtonType.OK){
+		    File file = new File(LightHouseOSCServer.yaasConfigFile);
+		    if (!file.exists()) {
+		    	try {
+					file.createNewFile();
+				} catch (IOException e) {
+					logger.error("Could not create config file " + file.getAbsolutePath(), e);
+				}
+		    }
+		    if (file.canWrite()) {
+		    	writeToFile(file);
+		    }
+		}
+	}
+
     
     protected void load(ActionEvent event) {
     	
 		FileChooser fileChooser = new FileChooser();	
 		fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Midi config", "*.conf")
+                new FileChooser.ExtensionFilter("config", "*.conf, *.py")
             );
 		Window window = ((Node)event.getTarget()).getScene().getWindow();
 		File file = fileChooser.showOpenDialog(window);
@@ -263,6 +301,9 @@ public class ConfigurationController implements IStorable {
     	// TODO: add error handling
     	ConfigEntry entry = new ConfigEntry();
     	String[] midiCommand = line.split(":");
+    	if (midiCommand.length < 2) {
+    		return null;
+    	}
     	entry.setMidiValue(midiCommand[0].trim());
 
     	midiCommand[1] = midiCommand[1].trim();
@@ -299,39 +340,45 @@ public class ConfigurationController implements IStorable {
     	
 		FileChooser fileChooser = new FileChooser();	
 		fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Midi config", "*.conf")
+                new FileChooser.ExtensionFilter("Midi config", "*.conf"),
+                new FileChooser.ExtensionFilter("Python config", "*.py")
             );
 		Window window = ((Node)event.getTarget()).getScene().getWindow();
 		File file = fileChooser.showSaveDialog(window);
         if (file != null) {
-        	FileWriter fw;
-			try {
-				fw = new FileWriter(file, false);
-				fw.write("from consts import *\n\n");
-
-				fw.write("midi_note_definitions = {\n");				
-				for (ConfigEntry entry : getConfigEntries()) {
-					
-					if (entry.getMidiCommand().equals(MIDI_NOTE)) {
-						fw.write("\t" + getStringForEntry(entry) + "\n");
-					}
-				}				
-				fw.write("}\n\n");
-
-				fw.write("midi_cc_definitions = {\n");				
-				for (ConfigEntry entry : getConfigEntries()) {
-					
-					if (entry.getMidiCommand().equals(MIDI_CC)) {
-						fw.write("\t" + getStringForEntry(entry) + "\n");
-					}
-				}				
-				fw.write("}\n\n");
-				
-	        	fw.close();
-			} catch (IOException e) {
-				logger.error("Could not save to file " + file.getAbsolutePath(), e);
-			}
+        	writeToFile(file);
         }
+    }
+    
+    private void writeToFile(File file) {
+    	FileWriter fw;
+		try {
+			fw = new FileWriter(file, false);
+			fw.write("from consts import *\n\n");
+
+			fw.write("midi_note_definitions = {\n");				
+			for (ConfigEntry entry : getConfigEntries()) {
+				
+				if (entry.getMidiCommand().equals(MIDI_NOTE)) {
+					fw.write("\t" + getStringForEntry(entry) + "\n");
+				}
+			}				
+			fw.write("}\n\n");
+
+			fw.write("midi_cc_definitions = {\n");				
+			for (ConfigEntry entry : getConfigEntries()) {
+				
+				if (entry.getMidiCommand().equals(MIDI_CC)) {
+					fw.write("\t" + getStringForEntry(entry) + "\n");
+				}
+			}				
+			fw.write("}\n\n");
+			
+        	fw.close();
+		} catch (IOException e) {
+			logger.error("Could not save to file " + file.getAbsolutePath(), e);
+		}
+
     }
     
     private String getStringForEntry(ConfigEntry entry) {

@@ -8,24 +8,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.collections.FXCollections ?>
 
-<AnchorPane prefHeight="369.0" prefWidth="756.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.ConfigurationController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="369.0" prefWidth="756.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.ConfigurationController">
    <children>
-      <BorderPane prefHeight="277.0" prefWidth="711.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <center>
-            <TableView fx:id="configTable" prefHeight="121.0" prefWidth="196.0" BorderPane.alignment="CENTER">
-              <columns>
-                <TableColumn fx:id="colMidiCommand" prefWidth="108.0" text="Command type" />
-                <TableColumn fx:id="colMidiValue" minWidth="2.0" prefWidth="103.0" text="Midi value" />
-                  <TableColumn fx:id="colController" prefWidth="116.0" text="Controller" />
-                  <TableColumn fx:id="colCommand" prefWidth="88.0" text="Command" />
-                  <TableColumn fx:id="colValue1" prefWidth="74.0" text="Value 1" />
-                  <TableColumn fx:id="colValue2" prefWidth="75.0" text="Value 2" />
-                  <TableColumn fx:id="colValue3" prefWidth="63.0" text="Value 3" />
-              </columns>
-            </TableView>
-         </center>
+      <BorderPane fx:id="borderPane" prefHeight="277.0" prefWidth="711.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
-            <HBox prefHeight="118.0" prefWidth="673.0" BorderPane.alignment="CENTER">
+            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="118.0" prefWidth="673.0" BorderPane.alignment="CENTER">
                <children>
                   <VBox prefHeight="51.0" prefWidth="190.0">
                      <children>
@@ -69,7 +56,7 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                   </VBox>
-                  <VBox prefHeight="110.0" prefWidth="201.0">
+                  <VBox prefHeight="119.0" prefWidth="219.0">
                      <children>
                         <Button fx:id="btnAdd" mnemonicParsing="false" text="Add new configuration to table">
                            <VBox.margin>
@@ -90,7 +77,16 @@
                               <Insets bottom="5.0" />
                            </VBox.margin>
                         </Button>
-                        <Button fx:id="btnSend" mnemonicParsing="false" text="Send configuration to YAAS" />
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <Button fx:id="btnSend" mnemonicParsing="false" text="Send to YAAS">
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="btnCopy" mnemonicParsing="false" text="Copy to YAAS" />
+                           </children>
+                        </HBox>
                      </children>
                   </VBox>
                </children>
@@ -99,6 +95,19 @@
                </padding>
             </HBox>
          </top>
+         <center>
+            <TableView fx:id="configTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+              <columns>
+                <TableColumn fx:id="colMidiCommand" prefWidth="108.0" text="Command type" />
+                <TableColumn fx:id="colMidiValue" minWidth="2.0" prefWidth="103.0" text="Midi value" />
+                  <TableColumn fx:id="colController" prefWidth="116.0" text="Controller" />
+                  <TableColumn fx:id="colCommand" prefWidth="88.0" text="Command" />
+                  <TableColumn fx:id="colValue1" prefWidth="74.0" text="Value 1" />
+                  <TableColumn fx:id="colValue2" prefWidth="75.0" text="Value 2" />
+                  <TableColumn fx:id="colValue3" prefWidth="63.0" text="Value 3" />
+              </columns>
+            </TableView>
+         </center>
       </BorderPane>
    </children>
 </AnchorPane>
