@@ -341,7 +341,14 @@ public class YaasLogController implements IStorable {
 			@Override
 			public void changed(ObservableValue<? extends String> observable,
 					String oldValue, String newValue) {
-				
+				if (oldValue != null && logEntries.size() > 0) {
+					if (oldValue.startsWith(OSCMessageFromTask.TYPE_YAAS)) {
+						String lastMessage = logEntries.get(logEntries.size() - 1).getMessage();
+						if (!oldValue.contains(lastMessage)) {
+							log(new OSCMessageFromTask(oldValue));
+						}
+					}
+				}
 				if (newValue.startsWith(OSCMessageFromTask.TYPE_YAAS)) {
 
 					OSCMessageFromTask m = new OSCMessageFromTask(newValue);	
