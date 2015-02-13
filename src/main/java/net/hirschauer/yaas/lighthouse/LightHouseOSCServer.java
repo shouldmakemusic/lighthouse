@@ -25,7 +25,7 @@ import de.sciss.net.OSCServer;
 public class LightHouseOSCServer extends Task<SensorValue> implements OSCListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OSCServer.class);
-	private boolean pause = false; // (must be an instance or static field to be
+//	private boolean pause = false; // (must be an instance or static field to be
 
 	private final Object sync = new Object();
 	private OSCServer c = null;
@@ -34,6 +34,9 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
 	
 	public static HashMap<String, List<String>> yaasCommands = new HashMap<String, List<String>>();
+	public static String yaasErrorLogFile;
+	public static String yaasStdOutLogFile;
+	public static String yaasConfigFile;
 	
 	private long lastUpdateWii = 0;
 	
@@ -108,7 +111,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		if (m.getName().equals("/pause")) {
 			// tell the main thread to pause the server,
 			// wake up the main thread
-			pause = true;
+//			pause = true;
 			synchronized (sync) {
 				sync.notifyAll();
 			}
@@ -180,9 +183,6 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 
 	private void handleYaasMessages(OSCMessage m) throws InvalidMidiDataException {
 		
-		if (m.getName().equals("/yaas/oscserver/startup")) {
-			fetchAvailableCommandsFromYaas();
-		}
 		if (m.getName().equals("/android/sensor")) {
 			
 			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
@@ -213,6 +213,13 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
 		} else if (m.getName().startsWith("/yaas/config")) {
 			
+			if (m.getName().equals("/yaas/config/errorfile")) {
+				yaasErrorLogFile = (String) m.getArg(0);
+			} else if (m.getName().equals("/yaas/config/configfile")) {
+				yaasConfigFile = (String) m.getArg(0);
+			} else if (m.getName().equals("/yaas/config/stdoutfile")) {
+				yaasStdOutLogFile = (String) m.getArg(0);
+			}
 			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
 		} else if (m.getName().startsWith("/yaas/commands")) {
 			
