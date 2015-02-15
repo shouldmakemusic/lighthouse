@@ -3,17 +3,16 @@ package net.hirschauer.yaas.lighthouse;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import javafx.concurrent.Task;
 
 import javax.sound.midi.InvalidMidiDataException;
 
+import net.hirschauer.yaas.lighthouse.controller.AndroidController;
+import net.hirschauer.yaas.lighthouse.controller.WiiController;
+import net.hirschauer.yaas.lighthouse.controller.YaasController;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
-import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,23 +28,22 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 
 	private final Object sync = new Object();
 	private OSCServer c = null;
+
+	private YaasController yaasController;
+	private AndroidController androidController;
+	private WiiController wiiController;
 	
-	private SensorValue sensorDataAndroid = new SensorValue(SensorType.ANDROID, -10, 10);
-	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
-	
-	public static HashMap<String, List<String>> yaasCommands = new HashMap<String, List<String>>();
-	public static String yaasErrorLogFile;
-	public static String yaasStdOutLogFile;
-	public static String yaasConfigFile;
-	
-	private long lastUpdateWii = 0;
-	
-	private LightHouseMidi midi;
 	private static LightHouseOSCServer instance;
 	
 	protected LightHouseOSCServer(LightHouseMidi midi) {
-		this.midi = midi;
+
+		if (instance != null) {
+			logger.warn("Creating multiple oscServers");
+		}
 		instance = this;
+		yaasController = new YaasController(this, midi);
+		wiiController = new WiiController(this, midi);
+		androidController = new AndroidController(this, midi);
 	}
 	
 	public static LightHouseOSCServer getInstance() {
@@ -92,13 +90,8 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		logger.debug("Sent message " + m.getName() + " to YAAS");
 	}
 		
-	public void messageReceived(OSCMessage m, SocketAddress addr,
-			long time) {
+	public void messageReceived(OSCMessage m, SocketAddress addr, long time) {
 		
-		String args = "";
-		for (int i=0; i < m.getArgCount(); i++) {
-			args += m.getArg(i) + " ";
-		}
 
 		// first of all, send a reply message (just a demo)
 		try {
@@ -127,31 +120,46 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		} else if (m.getName().startsWith("/wii")) {
 			
 			try {
-				handleWiiMessages(m);
+				wiiController.handleMessage(m);
 			} catch (InvalidMidiDataException e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Could not handle wii message: " + m.getName(), e);
+			}
+		} else if (m.getName().startsWith("/android")) {
+			
+			try {
+				androidController.handleMessage(m);
+			} catch (InvalidMidiDataException e) {
+				logger.error("Could not handle android message: " + m.getName(), e);
 			}
 		} else if (m.getName().startsWith("/yaas")) {
 			
 			try {
-				handleYaasMessages(m);
+				yaasController.handleMessage(m);
 			} catch (InvalidMidiDataException e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Could not handle yaas message: " + m.getName(), e);
 			}
 		} else {
+			String args = "";
+			for (int i=0; i < m.getArgCount(); i++) {
+				args += m.getArg(i) + " ";
+			}
+
 			logger.debug("Received message: " + m.getName() + " " + args + " from " + addr);
 			updateMessage(m);
 		}
 	}
 	
-	private void updateMessage(OSCMessage m) {
+	public void updateMessage(OSCMessage m) {
 		updateMessage(new OSCMessageFromTask(m));
 	}
-	private void updateMessage(OSCMessage m, String type) {
+	public void updateMessage(OSCMessage m, String type) {
 		updateMessage(new OSCMessageFromTask(m, type));
 	}
-	private void updateMessage(OSCMessageFromTask m) {
+	public void updateMessage(OSCMessageFromTask m) {
 		updateMessage(m.toString());
+	}
+	public void updateSensorData(SensorValue data) {
+		updateValue(data);
 	}
 	// try {
 	// do {
@@ -181,113 +189,8 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	// e1.printStackTrace();
 	// }
 
-	private void handleYaasMessages(OSCMessage m) throws InvalidMidiDataException {
-		
-		if (m.getName().equals("/android/sensor")) {
-			
-			sensorDataAndroid.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
 
-			midi.sendMidiNote(2, sensorDataAndroid.getLiveXValue());
-			midi.sendMidiNote(3, sensorDataAndroid.getLiveYValue());
-			midi.sendMidiNote(4, sensorDataAndroid.getLiveZValue());
 
-			try {
-				// this is for the visual feedback
-				// in another thread
-				updateValue(sensorDataAndroid.clone());
-
-			} catch (CloneNotSupportedException e) {
-				logger.error("Could not update android sensor values");
-			}
-		} else if (m.getName().startsWith("/yaas/play")) {
-			
-			updateMessage(m, OSCMessageFromTask.TYPE_ANDROID);
-			midi.sendMidiNote(1, 1);
-			
-		} else if (m.getName().startsWith("/yaas/stop")) {
-			updateMessage(m, OSCMessageFromTask.TYPE_ANDROID);
-			midi.sendMidiNote(1, 2);
-			
-		} else if (m.getName().startsWith("/yaas/log")) {
-			
-			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
-		} else if (m.getName().startsWith("/yaas/config")) {
-			
-			if (m.getName().equals("/yaas/config/errorfile")) {
-				yaasErrorLogFile = (String) m.getArg(0);
-			} else if (m.getName().equals("/yaas/config/configfile")) {
-				yaasConfigFile = (String) m.getArg(0);
-			} else if (m.getName().equals("/yaas/config/stdoutfile")) {
-				yaasStdOutLogFile = (String) m.getArg(0);
-			}
-			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
-		} else if (m.getName().startsWith("/yaas/commands")) {
-			
-			if (m.getName().endsWith("clear")) {
-				yaasCommands = new HashMap<String, List<String>>();
-			} else if (m.getName().endsWith("list")) {
-				String className = (String) m.getArg(0);
-				String methodName = (String) m.getArg(1);
-				if (!yaasCommands.containsKey(className)) {
-					yaasCommands.put(className, new ArrayList<String>());
-				}
-				yaasCommands.get(className).add(methodName);
-			} else if (m.getName().endsWith("done")) {
-				logger.info("Got available commands from YAAS");
-				updateMessage(new OSCMessageFromTask("Got available commands from YAAS").toString());
-			}
-		} else {			
-			updateMessage(m);
-		}
-	}
-
-	private void handleWiiMessages(OSCMessage m) throws InvalidMidiDataException {
-		if (m.getName().equals("/wii/1/accel/xyz")) {
-
-			// show sensor values in barChart
-			sensorDataWii.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
-			
-			long currentTime = System.currentTimeMillis();
-			if (currentTime - lastUpdateWii > 500) {
-				lastUpdateWii = currentTime;
-				
-				midi.sendMidiNote(12, sensorDataWii.getLiveXValue());
-				midi.sendMidiNote(13, sensorDataWii.getLiveYValue());
-				midi.sendMidiNote(14, sensorDataWii.getLiveZValue());
-			}
-			
-			try {
-				// this is for the visual feedback
-				// in another thread
-				updateValue(sensorDataWii.clone());
-
-			} catch (CloneNotSupportedException e) {
-				logger.error("Could not update wii sensor values");
-			}
-			
-		} else if (m.getName().equals("/wii/1/accel/pry")) {
-			
-			//sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
-		} else {
-			updateMessage(m, OSCMessageFromTask.TYPE_WII);
-		}
-	}
-	public SensorValue getSensorDataAndroid() {
-		return sensorDataAndroid;
-	}
-
-	public void setSensorDataAndroid(SensorValue sensorDataAndroid) {
-		this.sensorDataAndroid = sensorDataAndroid;
-	}
-
-	public SensorValue getSensorDataWii() {
-		return sensorDataWii;
-	}
-
-	public void setSensorDataWii(SensorValue sensorDataWii) {
-		this.sensorDataWii = sensorDataWii;
-	}
-	
 	public void fetchAvailableCommandsFromYaas() {
 		
 		OSCMessage m = new OSCMessage("/yaas/controller/send/info");

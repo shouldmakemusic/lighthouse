@@ -15,6 +15,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import net.hirschauer.yaas.lighthouse.controller.YaasController;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
@@ -159,10 +160,10 @@ public class LightHouse extends Application {
 
 				if (newValue.getText() != null && newValue.getText().equals("YAAS config")) {
 					logger.debug("yaas config selected");
-					if (LightHouseOSCServer.yaasCommands.size() == 0) {
+					if (YaasController.yaasCommands.size() == 0) {
 						oscServer.fetchAvailableCommandsFromYaas();
 					}
-					configurationController.updateController(LightHouseOSCServer.yaasCommands);
+					configurationController.updateController(YaasController.yaasCommands);
 				}				
 			}
 		});

@@ -32,6 +32,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
+import net.hirschauer.yaas.lighthouse.controller.YaasController;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.util.StoredProperty;
@@ -195,7 +196,7 @@ public class ConfigurationController implements IStorable {
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK){
-		    File file = new File(LightHouseOSCServer.yaasConfigFile);
+		    File file = new File(YaasController.yaasConfigFile);
 		    if (!file.exists()) {
 		    	try {
 					file.createNewFile();
