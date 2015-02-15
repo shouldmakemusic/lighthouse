@@ -7,13 +7,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -185,6 +189,21 @@ public class ConfigurationController implements IStorable {
 				copy(((Node)event.getTarget()).getScene().getWindow());
 			}
 		});		
+		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
+
+			@Override
+			public void onChanged(Change change) {
+				Platform.runLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						updateControllerCombo();
+						commandCombo.setValue("");
+						commandCombo.setItems(null);
+					}
+				});				
+			}
+		});
 	}
     
 	protected void copy(Window window) {
@@ -195,7 +214,7 @@ public class ConfigurationController implements IStorable {
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK){
-		    File file = new File(YaasController.yaasConfigFile);
+		    File file = new File(YaasController.getInstance().getYaasConfigFile());
 		    if (!file.exists()) {
 		    	try {
 					file.createNewFile();
@@ -443,11 +462,12 @@ public class ConfigurationController implements IStorable {
     	getConfigEntries().add(ce);
     }
 
-	public void updateController(HashMap<String, List<String>> yaasCommands) {
+	public void updateControllerCombo() {
 		
+		Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands; 
 		ObservableList<String> controllerNames = FXCollections.observableArrayList();
 		for (String name : yaasCommands.keySet()) {
-			logger.debug("added controller " + name);
+//			logger.debug("added controller " + name);
 			controllerNames.add(name);
 		}
 		controllerCombo.setItems(controllerNames);

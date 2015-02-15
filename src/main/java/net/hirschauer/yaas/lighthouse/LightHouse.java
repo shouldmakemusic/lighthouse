@@ -160,10 +160,7 @@ public class LightHouse extends Application {
 
 				if (newValue.getText() != null && newValue.getText().equals("YAAS config")) {
 					logger.debug("yaas config selected");
-					if (YaasController.yaasCommands.size() == 0) {
-						oscServer.fetchAvailableCommandsFromYaas();
-					}
-					configurationController.updateController(YaasController.yaasCommands);
+					YaasController.getInstance().fetchAvailableCommandsFromYaas();
 				}				
 			}
 		});

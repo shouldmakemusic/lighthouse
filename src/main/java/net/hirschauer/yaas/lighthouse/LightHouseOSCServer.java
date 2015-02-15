@@ -189,15 +189,4 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	// e1.printStackTrace();
 	// }
 
-
-
-	public void fetchAvailableCommandsFromYaas() {
-		
-		OSCMessage m = new OSCMessage("/yaas/controller/send/info");
-		try {
-			sendToYaas(m);
-		} catch (IOException e) {
-			logger.error("Could not request controller info", e);
-		}
-	}
 }

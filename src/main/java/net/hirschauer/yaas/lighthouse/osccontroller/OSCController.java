@@ -1,5 +1,7 @@
 package net.hirschauer.yaas.lighthouse.osccontroller;
 
+import java.io.IOException;
+
 import javax.sound.midi.InvalidMidiDataException;
 
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
@@ -32,6 +34,10 @@ public abstract class OSCController {
 	
 	public void updateValue(SensorValue clone) {
 		this.oscServer.updateSensorData(clone);
+	}
+	
+	public void sendToYaas(OSCMessage m) throws IOException {
+		this.oscServer.sendToYaas(m);
 	}
 
 }
