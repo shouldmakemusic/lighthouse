@@ -1,4 +1,4 @@
-package net.hirschauer.yaas.lighthouse.controller;
+package net.hirschauer.yaas.lighthouse.osccontroller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import de.sciss.net.OSCMessage;
 
-public class YaasController extends Controller {
+public class YaasController extends OSCController {
 
 	private static final Logger logger = LoggerFactory.getLogger(YaasController.class);
 

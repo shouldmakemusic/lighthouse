@@ -36,8 +36,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
-import net.hirschauer.yaas.lighthouse.controller.YaasController;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
+import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 

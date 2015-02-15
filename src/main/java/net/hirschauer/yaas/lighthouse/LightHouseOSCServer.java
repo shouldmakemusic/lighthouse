@@ -8,11 +8,11 @@ import javafx.concurrent.Task;
 
 import javax.sound.midi.InvalidMidiDataException;
 
-import net.hirschauer.yaas.lighthouse.controller.AndroidController;
-import net.hirschauer.yaas.lighthouse.controller.WiiController;
-import net.hirschauer.yaas.lighthouse.controller.YaasController;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
+import net.hirschauer.yaas.lighthouse.osccontroller.AndroidController;
+import net.hirschauer.yaas.lighthouse.osccontroller.WiiController;
+import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

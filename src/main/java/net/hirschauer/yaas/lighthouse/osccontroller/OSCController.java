@@ -1,4 +1,4 @@
-package net.hirschauer.yaas.lighthouse.controller;
+package net.hirschauer.yaas.lighthouse.osccontroller;
 
 import javax.sound.midi.InvalidMidiDataException;
 
@@ -8,12 +8,12 @@ import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import de.sciss.net.OSCMessage;
 
-public abstract class Controller {
+public abstract class OSCController {
 	
 	protected LightHouseMidi midi;
 	protected LightHouseOSCServer oscServer;
 	
-	public Controller(LightHouseOSCServer oscServer, LightHouseMidi midi) {
+	public OSCController(LightHouseOSCServer oscServer, LightHouseMidi midi) {
 		this.midi = midi;
 		this.oscServer = oscServer;
 	}

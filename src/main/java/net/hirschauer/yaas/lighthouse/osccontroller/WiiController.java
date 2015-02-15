@@ -1,4 +1,4 @@
-package net.hirschauer.yaas.lighthouse.controller;
+package net.hirschauer.yaas.lighthouse.osccontroller;
 
 import javax.sound.midi.InvalidMidiDataException;
 
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import de.sciss.net.OSCMessage;
 
-public class WiiController extends Controller {
+public class WiiController extends OSCController {
 
 	private static final Logger logger = LoggerFactory.getLogger(WiiController.class);
 	private SensorValue sensorDataWii = new SensorValue(SensorType.WII, 4, 6);
