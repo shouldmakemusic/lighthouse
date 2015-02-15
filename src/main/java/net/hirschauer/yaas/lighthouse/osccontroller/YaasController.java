@@ -2,7 +2,9 @@ package net.hirschauer.yaas.lighthouse.osccontroller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javafx.beans.property.adapter.JavaBeanStringProperty;
 import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder;
@@ -25,6 +27,8 @@ public class YaasController extends OSCController {
 	private static final Logger logger = LoggerFactory.getLogger(YaasController.class);
 
 	public ObservableMap<String, List<String>> yaasCommands = FXCollections.observableHashMap();
+	private Map<String, List<String>> yaasCommandsReceive = new HashMap<String, List<String>>();
+	
 	private String yaasErrorLogFile;
 	private String yaasStdOutLogFile;
 	private String yaasConfigFile;
@@ -76,17 +80,19 @@ public class YaasController extends OSCController {
 		} else if (m.getName().startsWith("/yaas/commands")) {
 			
 			if (m.getName().endsWith("clear")) {
-				yaasCommands.clear();
+				yaasCommandsReceive = new HashMap<String, List<String>>();
 			} else if (m.getName().endsWith("list")) {
 				String className = (String) m.getArg(0);
 				String methodName = (String) m.getArg(1);
-				if (!yaasCommands.containsKey(className)) {
-					yaasCommands.put(className, new ArrayList<String>());
+				if (!yaasCommandsReceive.containsKey(className)) {
+					yaasCommandsReceive.put(className, new ArrayList<String>());
 				}
-				yaasCommands.get(className).add(methodName);
+				yaasCommandsReceive.get(className).add(methodName);
 			} else if (m.getName().endsWith("done")) {
 				logger.info("Got available commands from YAAS");
 				updateMessage(new OSCMessageFromTask("Got available commands from YAAS"));
+				yaasCommands.clear();
+				yaasCommands.putAll(yaasCommandsReceive);
 			}
 		} else {			
 			updateMessage(m);

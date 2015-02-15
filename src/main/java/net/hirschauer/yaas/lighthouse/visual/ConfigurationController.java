@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +16,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -31,7 +29,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TableColumn.SortType;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -189,6 +186,7 @@ public class ConfigurationController implements IStorable {
 				copy(((Node)event.getTarget()).getScene().getWindow());
 			}
 		});		
+		
 		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
 
 			@Override
@@ -204,6 +202,26 @@ public class ConfigurationController implements IStorable {
 				});				
 			}
 		});
+		
+		controllerCombo.valueProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				
+				logger.debug("selected " + newValue);
+				Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands; 				
+				ObservableList<String> commandNames = FXCollections.observableArrayList();	
+				if (yaasCommands.containsKey(newValue)) {
+					for (String name : yaasCommands.get(newValue)) {
+						logger.debug("added command " + name);
+						commandNames.add(name);
+					}
+				}
+				commandCombo.setItems(commandNames);
+			}
+		});
+
 	}
     
 	protected void copy(Window window) {
@@ -471,23 +489,6 @@ public class ConfigurationController implements IStorable {
 			controllerNames.add(name);
 		}
 		controllerCombo.setItems(controllerNames);
-		controllerCombo.valueProperty().addListener(new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable,
-					String oldValue, String newValue) {
-				
-				logger.debug("selected " + newValue);
-				ObservableList<String> commandNames = FXCollections.observableArrayList();	
-				if (yaasCommands.containsKey(newValue)) {
-					for (String name : yaasCommands.get(newValue)) {
-						logger.debug("added command " + name);
-						commandNames.add(name);
-					}
-				}
-				commandCombo.setItems(commandNames);
-			}
-		});
 	}
 
 	public ObservableList<ConfigEntry> getConfigEntries() {
