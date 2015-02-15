@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +26,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TableColumn.SortType;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -119,15 +123,10 @@ public class ConfigurationController implements IStorable {
 	private void initialize() {
 		logger.debug("init");
 		
-		colMidiCommand.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("midiCommand"));
-		colMidiValue.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("midiValue"));
-		colCommand.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("command"));
-		colController.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("controller"));
-		colValue1.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value1"));
-		colValue2.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value2"));
-		colValue3.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value3"));
+		setCellFactories();
 
 		configTable.setItems(getConfigEntries());
+		configTable.setEditable(true);
 		
 		MenuItem mnuDel = new MenuItem("Delete row");
 		mnuDel.setOnAction(new EventHandler<ActionEvent>() {
@@ -497,12 +496,118 @@ public class ConfigurationController implements IStorable {
 			String key = keyObj.toString();
 			if (key.startsWith(className)) {
 				int i = Integer.parseInt(key.split("\\|")[1]);
-				logger.debug("loading " + i);
+				
 				ConfigEntry entry = gson.fromJson((String) values.get(keyObj), ConfigEntry.class);
 				configEntries.add(entry);
 			}
 		}
 	}
-
+	
+	private void setCellFactories() {
+		colMidiCommand.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("midiCommand"));
+		colMidiCommand.setCellFactory(TextFieldTableCell.forTableColumn());
+		colMidiCommand.setOnEditCommit(
+		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
+		        @Override
+		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		            ((ConfigEntry) t.getTableView().getItems().get(
+		                t.getTablePosition().getRow())
+		                ).setMidiCommand(t.getNewValue());
+		        }
+		    }
+		);
+		colMidiValue.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("midiValue"));
+		colMidiValue.setCellFactory(TextFieldTableCell.forTableColumn());
+		colMidiValue.setOnEditCommit(
+		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
+		        @Override
+		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		        	
+		        	if (StringUtils.isNumeric(t.getNewValue())) {
+			            ((ConfigEntry) t.getTableView().getItems().get(
+			                t.getTablePosition().getRow())
+			                ).setMidiValue(t.getNewValue());
+		        	} else {
+		        		
+		        		Alert alert = new Alert(AlertType.INFORMATION);
+		        		alert.setTitle("Information Dialog");
+		        		alert.setHeaderText(null);
+		        		alert.setContentText("Midi value has to be a integer!");
+		        		alert.showAndWait();
+		        		t.getTableView().getColumns().get(1).setVisible(false);
+		        		t.getTableView().getColumns().get(1).setVisible(true);		        		
+		        	}
+		        }
+		    });
+		colMidiValue.setComparator(new Comparator<String>() {
+			
+			@Override
+			public int compare(String o1, String o2) {
+				Integer i1 = Integer.parseInt(o1);
+				Integer i2 = Integer.parseInt(o2);
+				return i1.compareTo(i2);
+			}
+		});
+		colCommand.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("command"));
+		colCommand.setCellFactory(TextFieldTableCell.forTableColumn());
+		colCommand.setOnEditCommit(
+		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
+		        @Override
+		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		            ((ConfigEntry) t.getTableView().getItems().get(
+		                t.getTablePosition().getRow())
+		                ).setCommand(t.getNewValue());
+		        }
+		    }
+		);
+		colController.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("controller"));
+		colController.setCellFactory(TextFieldTableCell.forTableColumn());
+		colController.setOnEditCommit(
+		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
+		        @Override
+		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		            ((ConfigEntry) t.getTableView().getItems().get(
+		                t.getTablePosition().getRow())
+		                ).setController(t.getNewValue());
+		        }
+		    }
+		);
+		colValue1.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value1"));
+		colValue1.setCellFactory(TextFieldTableCell.forTableColumn());
+		colValue1.setOnEditCommit(
+		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
+		        @Override
+		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		            ((ConfigEntry) t.getTableView().getItems().get(
+		                t.getTablePosition().getRow())
+		                ).setValue1(t.getNewValue());
+		        }
+		    }
+		);
+		colValue2.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value2"));
+		colValue2.setCellFactory(TextFieldTableCell.forTableColumn());
+		colValue2.setOnEditCommit(
+		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
+		        @Override
+		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		            ((ConfigEntry) t.getTableView().getItems().get(
+		                t.getTablePosition().getRow())
+		                ).setValue2(t.getNewValue());
+		        }
+		    }
+		);
+		colValue3.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value3"));
+		colValue3.setCellFactory(TextFieldTableCell.forTableColumn());
+		colValue3.setOnEditCommit(
+		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
+		        @Override
+		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		            ((ConfigEntry) t.getTableView().getItems().get(
+		                t.getTablePosition().getRow())
+		                ).setValue3(t.getNewValue());
+		        }
+		    }
+		);
+	}
 
 }
