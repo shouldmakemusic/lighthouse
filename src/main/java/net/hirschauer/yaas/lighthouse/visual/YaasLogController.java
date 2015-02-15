@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -24,11 +25,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
+import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
+import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 
@@ -64,7 +68,7 @@ public class YaasLogController implements IStorable {
 	@FXML
 	private TextInputControl txtYaasPort;
 	@FXML
-	private TextInputControl txtYaasErrorLog;
+	private TextInputControl txtYaasLocation;
 
 	private static final Logger logger = LoggerFactory.getLogger(YaasLogController.class);
 	private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
@@ -161,9 +165,9 @@ public class YaasLogController implements IStorable {
 							// Compare first name and last name of every person
 							// with filter text.
 							String lowerCaseFilter = newValue.toLowerCase();
-							logger.debug("Filtering " + lowerCaseFilter
-									+ " for message \"" + entry.getMessage()
-									+ "\"");
+//							logger.debug("Filtering " + lowerCaseFilter
+//									+ " for message \"" + entry.getMessage()
+//									+ "\"");
 
 							if (entry.getMessage().toLowerCase()
 									.indexOf(lowerCaseFilter) != -1) {
@@ -185,20 +189,34 @@ public class YaasLogController implements IStorable {
 			}
 		});
 		
-		txtYaasErrorLog.setEditable(false);
+		txtYaasLocation.setEditable(false);
 		btnFile.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {
-				FileChooser fileChooser = new FileChooser();	
-				fileChooser.getExtensionFilters().addAll(
-		                new FileChooser.ExtensionFilter("Text", "stderr.txt")
-		            );
+				DirectoryChooser dirChooser = new DirectoryChooser();
+
 				Window window = ((Node)event.getTarget()).getScene().getWindow();
-				File file = fileChooser.showOpenDialog(window);
+				File file = dirChooser.showDialog(window);
                 if (file != null) {
                 	setFileName(file.getAbsolutePath());
                 }
+			}
+		});
+		YaasController.getInstance().yaasConfigurationProperty.addListener(new ChangeListener<YaasConfiguration>() {
+
+			@Override
+			public void changed(
+					ObservableValue<? extends YaasConfiguration> observable,
+					YaasConfiguration oldValue, YaasConfiguration newValue) {
+				
+				Platform.runLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						setFileName(newValue.getYaasLocation());
+					}
+				});				
 			}
 		});
 		
@@ -397,8 +415,8 @@ public class YaasLogController implements IStorable {
 		
 		if (!fileName.equals(this.fileName)) {
 			this.fileName = fileName;
-			this.txtYaasErrorLog.setText(fileName);
-			YaasLogController.getInstance().setErrorFile(fileName);
+			this.txtYaasLocation.setText(fileName);
+			// TODO: initialize new YaasConfiguration
 		}
 	}
 

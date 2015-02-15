@@ -45,12 +45,12 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                   </TextField>
-                  <Label prefHeight="16.0" prefWidth="97.0" text="Yaas Error Log:">
+                  <Label prefHeight="16.0" prefWidth="97.0" text="Yaas Location:">
                      <HBox.margin>
                         <Insets right="10.0" top="6.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="txtYaasErrorLog" />
+                  <TextField fx:id="txtYaasLocation" />
                   <Button fx:id="btnFile" mnemonicParsing="false" text="...">
                      <HBox.margin>
                         <Insets right="10.0" />

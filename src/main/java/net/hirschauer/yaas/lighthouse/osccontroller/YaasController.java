@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javafx.beans.property.adapter.JavaBeanStringProperty;
-import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder;
+import javafx.beans.property.adapter.JavaBeanObjectProperty;
+import javafx.beans.property.adapter.JavaBeanObjectPropertyBuilder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -16,6 +16,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
+import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,32 +29,27 @@ public class YaasController extends OSCController {
 
 	public ObservableMap<String, List<String>> yaasCommands = FXCollections.observableHashMap();
 	private Map<String, List<String>> yaasCommandsReceive = new HashMap<String, List<String>>();
-	
-	private String yaasErrorLogFile;
-	private String yaasStdOutLogFile;
-	private String yaasConfigFile;
-	public JavaBeanStringProperty yaasErrorLogFileProperty;
-	public JavaBeanStringProperty yaasConfigFileProperty;
-	public JavaBeanStringProperty yaasStdOutLogFileProperty;
-	
+		
 	private static YaasController instance;
+	
+	private YaasConfiguration yaasConfiguration;
+	public JavaBeanObjectProperty<YaasConfiguration> yaasConfigurationProperty;
 	
 	public YaasController(LightHouseOSCServer oscServer, LightHouseMidi midi) {
 		super(oscServer, midi);
 		
-		JavaBeanStringPropertyBuilder sb = JavaBeanStringPropertyBuilder.create();
-		sb.bean(this);
-		try {
-			sb.name("yaasErrorLogFile");
-			yaasErrorLogFileProperty = sb.build();
-			sb.name("yaasStdOutLogFile");
-			yaasStdOutLogFileProperty = sb.build();
-			sb.name("yaasConfigFile");
-			yaasConfigFileProperty = sb.build();
-		} catch (NoSuchMethodException e) {
-			logger.error(e.getMessage(), e);
-		}
 		instance = this;
+
+		@SuppressWarnings("unchecked")
+		JavaBeanObjectPropertyBuilder<YaasConfiguration> pb = JavaBeanObjectPropertyBuilder.create();
+		pb.bean(this);
+		pb.name("yaasConfiguration");
+		try {
+			yaasConfigurationProperty = pb.build();
+		} catch (NoSuchMethodException e) {
+			logger.error("Could not initialize yaasConfigurationProperty", e);
+		}
+		
 		logger.debug("Initialized");
 	}
 	
@@ -69,14 +65,11 @@ public class YaasController extends OSCController {
 			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
 		} else if (m.getName().startsWith("/yaas/config")) {
 			
-			if (m.getName().equals("/yaas/config/errorfile")) {
-				setYaasErrorLogFile((String) m.getArg(0));
-			} else if (m.getName().equals("/yaas/config/configfile")) {
-				setYaasConfigFile((String) m.getArg(0));
-			} else if (m.getName().equals("/yaas/config/stdoutfile")) {
-				setYaasStdOutLogFile((String) m.getArg(0));
+			if (m.getName().equals("/yaas/config/location")) {
+				yaasConfigurationProperty.set(new YaasConfiguration((String)m.getArg(0)));
 			}
 			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
+			
 		} else if (m.getName().startsWith("/yaas/commands")) {
 			
 			if (m.getName().endsWith("clear")) {
@@ -109,28 +102,11 @@ public class YaasController extends OSCController {
 		}
 	}
 
-
-	public String getYaasErrorLogFile() {
-		return yaasErrorLogFile;
+	public YaasConfiguration getYaasConfiguration() {
+		return yaasConfiguration;
 	}
 
-	public void setYaasErrorLogFile(String yaasErrorLogFile) {
-		this.yaasErrorLogFile = yaasErrorLogFile;
-	}
-
-	public String getYaasStdOutLogFile() {
-		return yaasStdOutLogFile;
-	}
-
-	public void setYaasStdOutLogFile(String yaasStdOutLogFile) {
-		this.yaasStdOutLogFile = yaasStdOutLogFile;
-	}
-
-	public String getYaasConfigFile() {
-		return yaasConfigFile;
-	}
-
-	public void setYaasConfigFile(String yaasConfigFile) {
-		this.yaasConfigFile = yaasConfigFile;
+	public void setYaasConfiguration(YaasConfiguration yaasConfiguration) {
+		this.yaasConfiguration = yaasConfiguration;
 	}
 }

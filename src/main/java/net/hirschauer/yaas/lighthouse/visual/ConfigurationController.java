@@ -38,6 +38,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
+import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.util.StoredProperty;
@@ -231,8 +232,9 @@ public class ConfigurationController implements IStorable {
 		alert.setContentText("Requires a restart of Live. There will be a better solution soon than overwriting a python file...");
 
 		Optional<ButtonType> result = alert.showAndWait();
-		if (result.get() == ButtonType.OK){
-		    File file = new File(YaasController.getInstance().getYaasConfigFile());
+		if (result.get() == ButtonType.OK) {
+			YaasConfiguration config = YaasController.getInstance().yaasConfigurationProperty.get();
+		    File file = new File(config.getYaasConfigFile());
 		    if (!file.exists()) {
 		    	try {
 					file.createNewFile();
