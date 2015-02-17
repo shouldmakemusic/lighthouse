@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.collections.FXCollections ?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="369.0" prefWidth="756.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.ConfigurationController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="369.0" prefWidth="786.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.ConfigurationController">
    <children>
       <BorderPane fx:id="borderPane" prefHeight="277.0" prefWidth="711.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
@@ -103,8 +103,8 @@
                   <TableColumn fx:id="colController" prefWidth="172.0" text="Controller" />
                   <TableColumn fx:id="colCommand" prefWidth="206.0" text="Command" />
                   <TableColumn fx:id="colValue1" minWidth="0.0" prefWidth="79.0" text="Value 1" />
-                  <TableColumn fx:id="colValue2" minWidth="0.0" prefWidth="60.0" text="Value 2" />
-                  <TableColumn fx:id="colValue3" prefWidth="59.0" text="Value 3" />
+                  <TableColumn fx:id="colValue2" minWidth="0.0" prefWidth="74.0" text="Value 2" />
+                  <TableColumn fx:id="colValue3" prefWidth="64.0" text="Value 3" />
               </columns>
             </TableView>
          </center>
