@@ -32,6 +32,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
@@ -44,7 +45,6 @@ import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
 import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
-import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -109,8 +109,9 @@ public class ConfigurationController implements IStorable {
     @FXML
     private BorderPane borderPane;
     
-    @StoredProperty
 	private ObservableList<ConfigEntry> configEntries = FXCollections.observableArrayList();
+	private ObservableList<String> controllerEntries = FXCollections.observableArrayList();
+	private ObservableList<String> commandEntries = FXCollections.observableArrayList();
     
     private static ConfigurationController instance;
     
@@ -530,12 +531,12 @@ public class ConfigurationController implements IStorable {
 	public void updateControllerCombo() {
 		
 		Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands; 
-		ObservableList<String> controllerNames = FXCollections.observableArrayList();
+		controllerEntries.clear();
 		for (String name : yaasCommands.keySet()) {
 //			logger.debug("added controller " + name);
-			controllerNames.add(name);
+			controllerEntries.add(name);
 		}
-		controllerCombo.setItems(controllerNames);
+		controllerCombo.setItems(controllerEntries);
 	}
 
 	public ObservableList<ConfigEntry> getConfigEntries() {
@@ -617,7 +618,20 @@ public class ConfigurationController implements IStorable {
 			}
 		});
 		colCommand.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("command"));
-		colCommand.setCellFactory(TextFieldTableCell.forTableColumn());
+		colCommand.setCellFactory(ComboBoxTableCell.forTableColumn(commandEntries));
+		colCommand.setOnEditStart(new EventHandler<TableColumn.CellEditEvent<ConfigEntry,String>>() {
+			@Override
+			public void handle(CellEditEvent<ConfigEntry, String> event) {
+				String controller = event.getRowValue().getController();
+				Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands;
+				commandEntries.clear();
+				if (yaasCommands.containsKey(controller)) {
+					for (String name : yaasCommands.get(controller)) {
+						commandEntries.add(name);
+					}
+				}
+			}
+		});
 		colCommand.setOnEditCommit(
 		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
 		        @Override
@@ -629,14 +643,19 @@ public class ConfigurationController implements IStorable {
 		    }
 		);
 		colController.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("controller"));
-		colController.setCellFactory(TextFieldTableCell.forTableColumn());
+		colController.setCellFactory(ComboBoxTableCell.forTableColumn(controllerEntries));
 		colController.setOnEditCommit(
 		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
 		        @Override
 		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		            if (t.getNewValue() != "" && !t.getNewValue().equals(t.getRowValue().getController())) {
+		            	t.getRowValue().setCommand("");
+		            	configTable.getColumns().get(3).setVisible(false);
+		            	configTable.getColumns().get(3).setVisible(true);
+		            }
 		            ((ConfigEntry) t.getTableView().getItems().get(
-		                t.getTablePosition().getRow())
-		                ).setController(t.getNewValue());
+			                t.getTablePosition().getRow())
+			                ).setController(t.getNewValue());
 		        }
 		    }
 		);
