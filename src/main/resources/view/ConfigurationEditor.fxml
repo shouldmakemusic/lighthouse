@@ -98,13 +98,13 @@
          <center>
             <TableView fx:id="configTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
               <columns>
-                <TableColumn fx:id="colMidiCommand" prefWidth="108.0" text="Command type" />
-                <TableColumn fx:id="colMidiValue" minWidth="2.0" prefWidth="103.0" text="Midi value" />
-                  <TableColumn fx:id="colController" prefWidth="116.0" text="Controller" />
-                  <TableColumn fx:id="colCommand" prefWidth="88.0" text="Command" />
-                  <TableColumn fx:id="colValue1" prefWidth="74.0" text="Value 1" />
-                  <TableColumn fx:id="colValue2" prefWidth="75.0" text="Value 2" />
-                  <TableColumn fx:id="colValue3" prefWidth="63.0" text="Value 3" />
+                <TableColumn fx:id="colMidiCommand" prefWidth="104.0" text="Command type" />
+                <TableColumn fx:id="colMidiValue" minWidth="2.0" prefWidth="75.0" text="Midi value" />
+                  <TableColumn fx:id="colController" prefWidth="172.0" text="Controller" />
+                  <TableColumn fx:id="colCommand" prefWidth="206.0" text="Command" />
+                  <TableColumn fx:id="colValue1" minWidth="0.0" prefWidth="79.0" text="Value 1" />
+                  <TableColumn fx:id="colValue2" minWidth="0.0" prefWidth="60.0" text="Value 2" />
+                  <TableColumn fx:id="colValue3" prefWidth="59.0" text="Value 3" />
               </columns>
             </TableView>
          </center>
