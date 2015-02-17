@@ -40,9 +40,9 @@
                   <VBox prefHeight="51.0" prefWidth="198.0">
                      <children>
                         <Label text="Select a controller" />
-                        <ComboBox fx:id="controllerCombo" prefWidth="150.0" />
+                        <ComboBox fx:id="controllerCombo" prefHeight="26.0" prefWidth="189.0" />
                         <Label text="Select a command" />
-                        <ComboBox fx:id="commandCombo" prefWidth="150.0" />
+                        <ComboBox fx:id="commandCombo" prefHeight="26.0" prefWidth="189.0" />
                      </children>
                   </VBox>
                   <VBox prefHeight="118.0" prefWidth="112.0">
