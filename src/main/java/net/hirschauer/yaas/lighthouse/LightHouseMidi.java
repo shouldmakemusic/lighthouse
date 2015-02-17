@@ -22,8 +22,15 @@ public class LightHouseMidi {
 	private MidiDevice yaasDevice;
 	private Receiver yaasReceiver;
 	private HashMap<String, Info> possibleMidiInfos = new HashMap<String, Info>();
+	private static LightHouseMidi instance;
 
-	public LightHouseMidi() {
+	public static LightHouseMidi getInstance() {
+		if (instance == null) {
+			instance = new LightHouseMidi();			
+		}
+		return instance;
+	}
+	private LightHouseMidi() {
 		
 		for (Info info : MidiSystem.getMidiDeviceInfo()) {
 			logger.debug("Found device " + info.getName() + " - " + info.getDescription());

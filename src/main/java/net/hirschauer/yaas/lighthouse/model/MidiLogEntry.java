@@ -7,10 +7,16 @@ import java.util.Date;
 public class MidiLogEntry {
 	
 	private static final DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+	public static final String NOTE_ON = "Note on";
+	public static final String NOTE_OFF = "Note off";
+	public static final String CC = "Control change";
+	public static final int STATUS_NOTE_ON = 144;
+	public static final int STATUS_NOTE_OFF = 128;
+	public static final int STATUS_CC = 176;
+	
 	private String timeString;
-	private String eventType;
 	private String channel;
-	private String status;
+	private int status;
 	private String data1;
 	private String data2;
 	private String description;
@@ -27,10 +33,13 @@ public class MidiLogEntry {
 		this.timeString = timeString;
 	}
 	public String getEventType() {
-		return eventType;
-	}
-	public void setEventType(String eventType) {
-		this.eventType = eventType;
+		switch (status) {
+			case STATUS_NOTE_OFF:
+				return NOTE_OFF;
+			case STATUS_CC:
+				return CC;
+		}
+		return NOTE_ON;
 	}
 	public String getChannel() {
 		return channel;
@@ -38,10 +47,10 @@ public class MidiLogEntry {
 	public void setChannel(String channel) {
 		this.channel = channel;
 	}
-	public String getStatus() {
+	public int getStatus() {
 		return status;
 	}
-	public void setStatus(String status) {
+	public void setStatus(int status) {
 		this.status = status;
 	}
 	public String getData1() {

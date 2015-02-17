@@ -44,7 +44,6 @@ public class LightHouse extends Application {
     
 	private SensorController sensorController;
 	private ConfigurationController configurationController;
-	private LightHouseMidi midi;
     
 	@FXML
 	TabPane tabPane;
@@ -72,6 +71,7 @@ public class LightHouse extends Application {
     TextArea loggingView;
     
     private YaasLogController yaasLogController;
+    private MidiLogController midiLogController;
     
     private PropertiesHandler properties;
 
@@ -101,10 +101,8 @@ public class LightHouse extends Application {
 
 		properties = new PropertiesHandler();
 
-		midi = new LightHouseMidi();
-
 		if (oscServer == null) {
-			oscServer = new LightHouseOSCServer(midi);
+			oscServer = LightHouseOSCServer.getInstance();
 			oscThread = new Thread(oscServer);
 			oscThread.start();
 		}
@@ -130,7 +128,7 @@ public class LightHouse extends Application {
         showMidiLogTable();
         showConfigurationEditor();        
         
-        properties.load(yaasLogController, configurationController);
+        properties.load(yaasLogController, configurationController, midiLogController);
 	}
 	
 	private void showYaasLogTable() throws IOException {
@@ -172,8 +170,8 @@ public class LightHouse extends Application {
 		AnchorPane childLogTable = (AnchorPane) loader.load();
 
         // Give the controller access to the main app
-        MidiLogController controller = loader.getController();
-        controller.setMidi(midi);
+		midiLogController = loader.getController();
+		midiLogController.setMidi(LightHouseMidi.getInstance());
         
         midiLogTablePane.getChildren().add(childLogTable);
 	}
@@ -226,7 +224,7 @@ public class LightHouse extends Application {
 	public void stop() throws Exception {		
 		super.stop();
 
-		properties.store(yaasLogController, configurationController);
+		properties.store(yaasLogController, configurationController, midiLogController);
 
 		if (oscServer != null) {
 			oscServer.stop();

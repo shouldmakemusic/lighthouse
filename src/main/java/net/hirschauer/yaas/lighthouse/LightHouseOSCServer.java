@@ -33,20 +33,21 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	private AndroidController androidController;
 	private WiiController wiiController;
 	
-	private static LightHouseOSCServer instance;
+	private static LightHouseOSCServer instance = null;
 	
-	protected LightHouseOSCServer(LightHouseMidi midi) {
+	private LightHouseOSCServer() {
 
-		if (instance != null) {
-			logger.warn("Creating multiple oscServers");
-		}
-		instance = this;
+		LightHouseMidi midi = LightHouseMidi.getInstance();
 		yaasController = new YaasController(this, midi);
 		wiiController = new WiiController(this, midi);
 		androidController = new AndroidController(this, midi);
 	}
 	
 	public static LightHouseOSCServer getInstance() {
+		if (instance == null) {
+			instance = new LightHouseOSCServer();
+			logger.debug("LightHouseOSCServer created");
+		}
 		return instance;
 	}
 	

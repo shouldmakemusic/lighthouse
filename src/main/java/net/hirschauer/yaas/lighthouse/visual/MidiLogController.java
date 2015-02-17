@@ -1,6 +1,7 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
 import java.util.HashMap;
+import java.util.Properties;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -17,21 +18,21 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiDevice.Info;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
+import net.hirschauer.yaas.lighthouse.LightHouseMidiReceiver;
 import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
+import net.hirschauer.yaas.lighthouse.util.IStorable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MidiLogController {
+public class MidiLogController implements IStorable {
 
-	private LightHouseMidi midi;
 	Logger logger = LoggerFactory.getLogger(MidiLogController.class);
 	
    	@FXML
@@ -55,12 +56,27 @@ public class MidiLogController {
 	@FXML
 	private Button btnClear;
 
-    private ObservableList<MidiLogEntry> logEntries = FXCollections.observableArrayList();
 	private HashMap<String, Info> midiInfos;
+	private String name;
+	private LightHouseMidi midi;
 
 	public void setMidi(LightHouseMidi midi) {
+		
+		if (midi == null) {
+			return;
+		}
 		this.midi = midi;
+		tableMidi.setItems(LightHouseMidiReceiver.getInstance().logEntries);
+		
+		btnClear.setOnAction(new EventHandler<ActionEvent>() {
 
+			@Override
+			public void handle(ActionEvent event) {
+				LightHouseMidiReceiver.getInstance().logEntries.clear();
+			}
+		});
+
+		
 		ObservableList<String> midiNames = FXCollections.observableArrayList();
 		midiInfos = midi.getPossibleMidiInfos();
 		for (Info info: midiInfos.values()) {
@@ -74,46 +90,50 @@ public class MidiLogController {
 					String oldValue, String newValue) {
 				
 				logger.debug("selected " + newValue);
-				if (newValue != null) {
-
-					boolean found = false;
-					Exception exc = null;
-						for (Info info : MidiSystem.getMidiDeviceInfo()) {
-							logger.debug("passing through " + info.getName());
-							if (info != null) {
-								try {
-									if (newValue.equals(info.getName())) {
-										logger.debug("Found device info");
-										MidiDevice device = midi.getMidiDevice(info);
-										Transmitter trans = device.getTransmitter();
-										trans.setReceiver(new MidiInputReceiver(device.getDeviceInfo().toString()));
-										device.open();
-										found = true;
-									}
-								} catch (MidiUnavailableException e) {
-									exc = e;
-								}
-								if (oldValue != null && oldValue.equals(info.getName())) {
-									logger.debug("Found device info");
-									MidiDevice device;
-									try {
-										device = midi.getMidiDevice(info);
-										device.close();
-									} catch (MidiUnavailableException e) {
-										logger.error("Could not get midi device " + oldValue + " for closing", exc);
-									}
-									
-								}
-							}
-						}
-					if (!found) {
-						logger.error("Could not get midi device " + newValue, exc);
-						midiInputCombobox.setValue(oldValue);
-					}
-				}
+				name = newValue;
+				init(name);
 			}
 			
 		});
+	}
+	
+	private void init(String name) {
+		if (name != null) {
+
+			boolean found = false;
+			Exception exc = null;
+				for (Info info : MidiSystem.getMidiDeviceInfo()) {
+					logger.debug("passing through " + info.getName());
+					if (info != null) {
+						try {
+							if (name.equals(info.getName())) {
+								logger.debug("Found device info");
+								MidiDevice device = midi.getMidiDevice(info);
+								Transmitter trans = device.getTransmitter();
+								trans.setReceiver(LightHouseMidiReceiver.getInstance().setDevice(device));
+								found = true;
+							}
+						} catch (MidiUnavailableException e) {
+							exc = e;
+						}
+//						if (oldValue != null && oldValue.equals(info.getName())) {
+//							logger.debug("Found device info");
+//							MidiDevice device;
+//							try {
+//								device = midi.getMidiDevice(info);
+//								device.close();
+//							} catch (MidiUnavailableException e) {
+//								logger.error("Could not get midi device " + oldValue + " for closing", exc);
+//							}
+//							
+//						}
+					}
+				}
+			if (!found) {
+				logger.error("Could not get midi device " + name, exc);
+//				midiInputCombobox.setValue(oldValue);
+			}
+		}
 	}
 
     @FXML
@@ -126,68 +146,21 @@ public class MidiLogController {
     	dataColumn2.setCellValueFactory(new PropertyValueFactory<MidiLogEntry, String>("data2"));
     	descriptionColumn.setCellValueFactory(new PropertyValueFactory<MidiLogEntry, String>("description"));
 
-		tableMidi.setItems(logEntries);
-		
-		btnClear.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				logEntries.clear();
-			}
-		});
     }
-    
-    public class MidiInputReceiver implements Receiver {
-    	
-        public String name;
-        public MidiInputReceiver(String name) {
-        	logger.debug("created midi input receiver " + name);
-            this.name = name;
-        }
-		@Override
-		public void send(MidiMessage message, long timeStamp) {
-			
-			logger.debug("Received midi with state " + message.getStatus());
-			MidiLogEntry entry = new MidiLogEntry();
-			
-			byte[] messageBytes = message.getMessage();
-			//int data0 = (int)(messageBytes[0] & 0xFF);
-			// same as status
-			int data1 = (int)(messageBytes[1] & 0xFF);
-			int data2 = (int)(messageBytes[2] & 0xFF);
-			
-			if (message.getLength() == 3) {
-				entry.setChannel("1");
-			} else {
-				logger.info("Received midi message different: " + message.getMessage());
-				return;
-			}
-			entry.setData1("" + data1);
-			entry.setData2("" + data2);
 
-			int status = message.getStatus();
-			entry.setStatus("" + status);
-			switch (status) {
-				case 144:
-					entry.setEventType("Note on");
-					break;
-				case 128:
-					entry.setEventType("Note off");
-					break;
-				case 176:
-					entry.setEventType("Control change");
-					entry.setDescription("CC#" + data1);
-					break;
-			}
-			
-			// TODO: add note name
-			
-			logEntries.add(entry);
-			
+	@Override
+	public void store(Properties values) {
+		if (name != null) {
+			values.put(getClass().getName() + "|" + "midi", name);
 		}
-		@Override
-		public void close() {
+	}
+
+	@Override
+	public void load(Properties values) {
+		String name = values.getProperty(getClass().getName() + "|" + "midi");
+		if (StringUtils.isNoneEmpty(name)) {
+//			init(name);
+			midiInputCombobox.setValue(name);
 		}
-        
-    }
+	}
 }

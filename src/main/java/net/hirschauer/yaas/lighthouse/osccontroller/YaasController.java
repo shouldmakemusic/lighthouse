@@ -35,11 +35,16 @@ public class YaasController extends OSCController {
 	private YaasConfiguration yaasConfiguration;
 	public JavaBeanObjectProperty<YaasConfiguration> yaasConfigurationProperty;
 	
+	public static YaasController getInstance() {
+		
+		return instance;
+	}
 	public YaasController(LightHouseOSCServer oscServer, LightHouseMidi midi) {
 		super(oscServer, midi);
 		
+		logger.debug("YaasController created");
 		instance = this;
-
+		
 		@SuppressWarnings("unchecked")
 		JavaBeanObjectPropertyBuilder<YaasConfiguration> pb = JavaBeanObjectPropertyBuilder.create();
 		pb.bean(this);
@@ -51,10 +56,6 @@ public class YaasController extends OSCController {
 		}
 		
 		logger.debug("Initialized");
-	}
-	
-	public static YaasController getInstance() {
-		return instance;
 	}
 
 	@Override

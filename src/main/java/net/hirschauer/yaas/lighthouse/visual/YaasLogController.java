@@ -422,8 +422,12 @@ public class YaasLogController implements IStorable {
 
 	@Override
 	public void store(Properties values) {
-		values.put(getClass().getName() + "|" + "port", port);
-		values.put(getClass().getName() + "|" + "fileName", fileName);
+		if (port != null) {
+			values.put(getClass().getName() + "|" + "port", port);
+		}
+		if (fileName != null) {
+			values.put(getClass().getName() + "|" + "fileName", fileName);
+		}
 	}
 
 	@Override
