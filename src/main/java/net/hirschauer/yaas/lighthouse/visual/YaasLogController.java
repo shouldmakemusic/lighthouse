@@ -26,7 +26,6 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
@@ -373,10 +372,6 @@ public class YaasLogController implements IStorable {
 //					logger.debug("name:" + m.getName());
 //					logger.debug("arg0:" + m.getArgList().get(0));
 					log(m);
-					if (m.getName().equals("/yaas/config/errorfile")) {
-						setFileName(m.getFirstArg());
-						debug("Error logging is enabled");						
-					}
 					if (m.getName().equals("/yaas/config/port")) {
 						txtYaasPort.setText(m.getFirstArg());		
 						setPort(m.getFirstArg());
@@ -415,8 +410,7 @@ public class YaasLogController implements IStorable {
 		
 		if (!fileName.equals(this.fileName)) {
 			this.fileName = fileName;
-			this.txtYaasLocation.setText(fileName);
-			// TODO: initialize new YaasConfiguration
+			this.txtYaasLocation.setText(fileName);			
 		}
 	}
 
@@ -447,8 +441,9 @@ public class YaasLogController implements IStorable {
 						logger.debug("restoring port: " + values.getProperty(key));
 						setPort(values.getProperty(key));					
 					} else if (name.equals("fileName")) {
-						logger.debug("restoring fileName: " + values.getProperty(key));
-						setFileName(values.getProperty(key));
+						String fileName = values.getProperty(key);
+						logger.debug("restoring fileName: " + fileName);
+						YaasController.getInstance().yaasConfigurationProperty.set(new YaasConfiguration(fileName));
 					}
 				}
 			}
