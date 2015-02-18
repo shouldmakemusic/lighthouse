@@ -290,6 +290,10 @@ public class ConfigurationController implements IStorable {
 		    }
 		    if (file.canWrite()) {
 		    	writeToFile(file);
+		    	alert = new Alert(AlertType.INFORMATION);
+		    	alert.setTitle("OK");
+		    	alert.setContentText("Configuration written to YAAS");
+		    	alert.show();
 		    }
 		}
 	}
