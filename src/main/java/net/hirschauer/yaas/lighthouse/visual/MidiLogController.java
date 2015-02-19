@@ -59,6 +59,7 @@ public class MidiLogController implements IStorable {
 	private HashMap<String, Info> midiInfos;
 	private String name;
 	private LightHouseMidi midi;
+	private MidiDevice device;
 
 	public void setMidi(LightHouseMidi midi) {
 		
@@ -80,7 +81,7 @@ public class MidiLogController implements IStorable {
 		ObservableList<String> midiNames = FXCollections.observableArrayList();
 		midiInfos = midi.getPossibleMidiInfos();
 		for (Info info: midiInfos.values()) {
-			midiNames.add(info.getName());
+			midiNames.add(info.getName() + " - " + info.getDescription());
 		}
 		midiInputCombobox.setItems(midiNames);
 		midiInputCombobox.valueProperty().addListener(new ChangeListener<String>() {
@@ -101,14 +102,17 @@ public class MidiLogController implements IStorable {
 		if (name != null) {
 
 			boolean found = false;
+			if (device != null) {
+				device.close();
+			}
 			Exception exc = null;
 				for (Info info : MidiSystem.getMidiDeviceInfo()) {
-					logger.debug("passing through " + info.getName());
+					logger.debug("passing through " + info.getName() + " - " + info.getDescription());
 					if (info != null) {
 						try {
-							if (name.equals(info.getName())) {
+							if (name.equals(info.getName() + " - " + info.getDescription())) {
 								logger.debug("Found device info");
-								MidiDevice device = midi.getMidiDevice(info);
+								device = midi.getMidiDevice(info);
 								Transmitter trans = device.getTransmitter();
 								trans.setReceiver(LightHouseMidiReceiver.getInstance().setDevice(device));
 								found = true;
@@ -116,17 +120,6 @@ public class MidiLogController implements IStorable {
 						} catch (MidiUnavailableException e) {
 							exc = e;
 						}
-//						if (oldValue != null && oldValue.equals(info.getName())) {
-//							logger.debug("Found device info");
-//							MidiDevice device;
-//							try {
-//								device = midi.getMidiDevice(info);
-//								device.close();
-//							} catch (MidiUnavailableException e) {
-//								logger.error("Could not get midi device " + oldValue + " for closing", exc);
-//							}
-//							
-//						}
 					}
 				}
 			if (!found) {
@@ -162,5 +155,17 @@ public class MidiLogController implements IStorable {
 //			init(name);
 			midiInputCombobox.setValue(name);
 		}
+	}
+	
+	@Override
+	public void finalize() throws Exception{
+		
+		try {
+			super.finalize();
+		} catch (Throwable e) {
+			throw new Exception(e);
+		}
+		device.close();
+		logger.debug("finalize");
 	}
 }

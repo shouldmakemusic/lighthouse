@@ -69,8 +69,24 @@ public class LightHouseMidiReceiver implements Receiver {
 		entry.setStatus(status);
 
 		// TODO: add note name
+		entry.setDescription(getNoteName(data1));
 
 		logEntries.add(entry);
+	}
+	
+	private String getNoteName(int value) {
+		String notes = "C C#D D#E F F#G G#A A#B ";
+		int octave;
+		String note;
+		for (int noteNum = 0; noteNum < 128; noteNum++) {
+			octave = noteNum / 12 - 1;
+			note = notes.substring((noteNum % 12) * 2, (noteNum % 12) * 2 + 2);
+			System.out.println("Note number " + noteNum + " is octave "
+					+ octave + " and note " + note);
+		}
+		octave = value / 12 - 1;
+		note = notes.substring((value % 12) * 2, (value % 12) * 2 + 2);
+		return octave + " " + note;
 	}
 
 	@Override

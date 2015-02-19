@@ -35,11 +35,11 @@ public class LightHouseMidi {
 		for (Info info : MidiSystem.getMidiDeviceInfo()) {
 			logger.debug("Found device " + info.getName() + " - " + info.getDescription());
 			
-			this.possibleMidiInfos.put(info.getName(), info);
+			this.possibleMidiInfos.put(info.getName() + " - " + info.getDescription(), info);
 			
 			if (YAAS_BUS.equals(info.getName())) {
 				this.yaasBus = info;
-				logger.info("Using device " + info.getName());
+				logger.info("Using device " + info.getName() + " - " + info.getDescription());
 			}
 		}
 		

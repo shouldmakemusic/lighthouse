@@ -225,6 +225,8 @@ public class LightHouse extends Application {
 		super.stop();
 
 		properties.store(yaasLogController, configurationController, midiLogController);
+		yaasLogController.finalize();
+		midiLogController.finalize();
 
 		if (oscServer != null) {
 			oscServer.stop();
@@ -238,6 +240,5 @@ public class LightHouse extends Application {
 		}
 		oscThread.stop();
 		oscThread = null;
-		YaasLogController.getInstance().finalize();
 	}
 }

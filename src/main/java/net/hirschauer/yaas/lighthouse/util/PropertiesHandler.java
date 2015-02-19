@@ -38,6 +38,7 @@ public class PropertiesHandler {
 		File f = new File(fileName);
 		OutputStream out = new FileOutputStream( f );
 		applicationProps.store(out, null);
+		out.close();
 	}
 	
 	public void load(IStorable... objects) {
