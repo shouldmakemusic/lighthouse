@@ -113,17 +113,7 @@ public class ConfigurationController implements IStorable {
 	private ObservableList<String> controllerEntries = FXCollections.observableArrayList();
 	private ObservableList<String> commandEntries = FXCollections.observableArrayList();
     
-    private static ConfigurationController instance;
-    
     Gson gson = new Gson();
-    
-    public ConfigurationController() {
-		instance = this;
-	}
-    
-    public static ConfigurationController getInstance() {
-    	return instance;
-    }
     
     @FXML
 	private void initialize() {

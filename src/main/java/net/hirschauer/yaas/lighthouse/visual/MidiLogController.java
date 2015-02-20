@@ -165,7 +165,9 @@ public class MidiLogController implements IStorable {
 		} catch (Throwable e) {
 			throw new Exception(e);
 		}
-		device.close();
+		if (device != null) {
+			device.close();
+		}
 		logger.debug("finalize");
 	}
 }

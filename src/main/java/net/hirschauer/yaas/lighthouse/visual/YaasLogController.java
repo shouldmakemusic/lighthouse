@@ -78,20 +78,10 @@ public class YaasLogController implements IStorable {
 	@StoredProperty
 	private String port;
 	
-	private static YaasLogController instance;
-
 	public YaasLogController() {
-		instance = this;
 		logger.debug("initialize yaas log controller");
 	}
 	
-	public static YaasLogController getInstance() {
-		if (instance == null) {
-			instance = new YaasLogController();
-		}
-		return instance;
-	}
-
 	@FXML
 	private void initialize() {
 		timeColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("timeString"));
