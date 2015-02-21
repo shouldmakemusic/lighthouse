@@ -371,18 +371,6 @@ public class YaasLogController implements IStorable {
 		});
 	}
 	
-	@Override
-	public void finalize() throws Exception{
-		
-		try {
-			super.finalize();
-		} catch (Throwable e) {
-			throw new Exception(e);
-		}
-		errorLogChangeListener.cancel(true);
-		logger.debug("finalize");
-	}
-
 	public String getPort() {
 		return port;
 	}

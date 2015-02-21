@@ -12,6 +12,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -91,6 +92,8 @@ public class LightHouse extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		
 		logger.debug("start");
+		Image icon = new Image(getClass().getResourceAsStream( "/music94.png" ));
+		primaryStage.getIcons().add(icon); 
 		
         // Load the root layout from the fxml file
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LightHouseSurface.fxml"));
@@ -129,6 +132,7 @@ public class LightHouse extends Application {
         showConfigurationEditor();        
         
         properties.load(yaasLogController, configurationController, midiLogController);
+        
 	}
 	
 	private void showYaasLogTable() throws IOException {
@@ -171,7 +175,6 @@ public class LightHouse extends Application {
 
         // Give the controller access to the main app
 		midiLogController = loader.getController();
-		midiLogController.setMidi(LightHouseMidi.getInstance());
         
         midiLogTablePane.getChildren().add(childLogTable);
 	}
@@ -225,9 +228,8 @@ public class LightHouse extends Application {
 		super.stop();
 
 		properties.store(yaasLogController, configurationController, midiLogController);
-		yaasLogController.finalize();
-		midiLogController.finalize();
-
+		LightHouseMidi.getInstance().close();
+		
 		if (oscServer != null) {
 			oscServer.stop();
 			oscServer = null;

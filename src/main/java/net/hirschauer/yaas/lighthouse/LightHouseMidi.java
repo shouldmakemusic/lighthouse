@@ -3,101 +3,175 @@ package net.hirschauer.yaas.lighthouse;
 import java.util.Date;
 import java.util.HashMap;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiDevice.Info;
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Transmitter;
+
+import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LightHouseMidi {
-	
+public class LightHouseMidi implements Receiver {
+
 	private static final Logger logger = LoggerFactory.getLogger(LightHouseMidi.class);
-	public static final String YAAS_BUS = "YaasBus";
-	private Info yaasBus;
-	private MidiDevice yaasDevice;
+	
+	private MidiDevice receiver;
+	private MidiDevice transmitter;
 	private Receiver yaasReceiver;
 	private HashMap<String, Info> possibleMidiInfos = new HashMap<String, Info>();
 	private static LightHouseMidi instance;
+	public ObservableList<MidiLogEntry> logEntries;
+	
+	private LightHouseMidi() {
 
+		for (Info info : MidiSystem.getMidiDeviceInfo()) {
+
+			logger.debug("Found device " + info.getName() + " - " + info.getDescription());
+			this.possibleMidiInfos.put(info.getName() + " - " + info.getDescription(), info);
+			logEntries = FXCollections.observableArrayList();
+		}
+	}
+	
 	public static LightHouseMidi getInstance() {
 		if (instance == null) {
-			instance = new LightHouseMidi();			
+			instance = new LightHouseMidi();
 		}
 		return instance;
 	}
-	private LightHouseMidi() {
-		
-		for (Info info : MidiSystem.getMidiDeviceInfo()) {
-			logger.debug("Found device " + info.getName() + " - " + info.getDescription());
-			
-			this.possibleMidiInfos.put(info.getName() + " - " + info.getDescription(), info);
-			
-			if (YAAS_BUS.equals(info.getName())) {
-				this.yaasBus = info;
-				logger.info("Using device " + info.getName() + " - " + info.getDescription());
-			}
-		}
-		
-		if (yaasBus != null) {
-			try {
-				yaasDevice = getMidiDevice(this.yaasBus);
-			} catch (MidiUnavailableException e) {
-				logger.error("Couldn't initialize midi device", e);
-			}
-		}
-		
-		if (yaasDevice != null) {
-			try {
-				yaasDevice.open();				
-			} catch (MidiUnavailableException e) {
-				logger.error("Couldn't open midi device", e);
-			}			
-		}
-		
-		if (yaasDevice != null) {
-			try {
-				yaasReceiver = yaasDevice.getReceiver();
-			} catch (MidiUnavailableException e) {
-				logger.error("Couldn't get receiver", e);
-			}
-		}
-		
-		if (yaasReceiver != null) {
-			try {
-				sendMidiNote(1, 1, 1);
-			} catch (InvalidMidiDataException e) {
-				logger.error("Couldn't send midi note", e);
-			}
-		}
+
+	public boolean hasDevice() {
+		return receiver != null;
 	}
-	
-	public MidiDevice getMidiDevice(Info info) throws MidiUnavailableException {
-		return MidiSystem.getMidiDevice(info);
-	}
-	
+
 	public void sendMidiNote(int channel, int note, int value) throws InvalidMidiDataException {
+		
 		ShortMessage message = new ShortMessage();
-		if (value < 0) value = 0;
-		else if (value > 127) value = 127;
+		if (value < 0)
+			value = 0;
+		else if (value > 127)
+			value = 127;
 		message.setMessage(ShortMessage.NOTE_ON, channel, note, value);
+		send(message, new Date().getTime());
+		// message.setMessage(ShortMessage.NOTE_OFF, channel, note, value);
 		yaasReceiver.send(message, new Date().getTime());
-//		message.setMessage(ShortMessage.NOTE_OFF, channel, note, value);
-//		yaasReceiver.send(message, new Date().getTime());
 	}
-	public void sendMidiNote(int note, int value) throws InvalidMidiDataException {
+
+	public void sendMidiNote(int note, int value)
+			throws InvalidMidiDataException {
 		sendMidiNote(1, note, value);
+	}
+
+	@Override
+	public void send(MidiMessage message, long timeStamp) {
+
+		// logger.debug("Received midi with state " + message.getStatus());
+		MidiLogEntry entry = new MidiLogEntry();
+
+		byte[] messageBytes = message.getMessage();
+		// int data0 = (int)(messageBytes[0] & 0xFF);
+		// same as status
+		int data1 = (int) (messageBytes[1] & 0xFF);
+		int data2 = (int) (messageBytes[2] & 0xFF);
+
+		if (message.getLength() == 3) {
+			entry.setChannel("1");
+		} else {
+			logger.info("Received midi message different: "
+					+ message.getMessage());
+			return;
+		}
+		entry.setData1("" + data1);
+		entry.setData2("" + data2);
+
+		int status = message.getStatus();
+		entry.setStatus(status);
+
+		entry.setDescription(getNoteName(data1));
+
+		logEntries.add(entry);
+	}
+
+	private String getNoteName(int value) {
+		String notes = "C C#D D#E F F#G G#A A#B ";
+		int octave;
+		String note;
+		// for (int noteNum = 0; noteNum < 128; noteNum++) {
+		// octave = noteNum / 12 - 1;
+		// note = notes.substring((noteNum % 12) * 2, (noteNum % 12) * 2 + 2);
+		// System.out.println("Note number " + noteNum + " is octave "
+		// + octave + " and note " + note);
+		// }
+		octave = value / 12 - 1;
+		note = notes.substring((value % 12) * 2, (value % 12) * 2 + 2);
+		return octave + " " + note;
+	}
+
+	@Override
+	public void close() {
+		receiver.close();
+		transmitter.close();
 	}
 
 	public HashMap<String, Info> getPossibleMidiInfos() {
 		return possibleMidiInfos;
 	}
 
-	public void setPossibleMidiInfos(HashMap<String, Info> possibleMidiInfos) {
-		this.possibleMidiInfos = possibleMidiInfos;
+	public MidiDevice getMidiDevice(Info info) throws MidiUnavailableException {
+		return MidiSystem.getMidiDevice(info);
 	}
+
+	public void setDevice(String name) throws MidiUnavailableException {
+		logger.debug("set midi device: " + name);
+		if (name != null) {
+
+			if (receiver != null) {
+				receiver.close();
+			}
+			if (transmitter != null) {
+				transmitter.close();
+			}
+
+			for (Info info : MidiSystem.getMidiDeviceInfo()) {
+				logger.debug("passing through " + info.getName() + " - "
+						+ info.getDescription());
+				if (info != null) {
+					if (name.equals(info.getName() + " - "
+							+ info.getDescription())) {
+						logger.debug("Found device info");
+						MidiDevice device = getMidiDevice(info);
+
+						if (device.getClass().getSimpleName().equals("MidiOutDevice")) {
+							
+							yaasReceiver = device.getReceiver();
+							device.open();
+							logger.debug("receiver opened");
+//							try {
+//								sendMidiNote(1, 1, 1);
+//							} catch (InvalidMidiDataException e) {
+//								logger.error("Couldn't send midi note", e);
+//							}
+						}
+						if (device.getClass().getSimpleName().equals("MidiInDevice")) {
+							
+							Transmitter trans = device.getTransmitter();
+							trans.setReceiver(this);
+							device.open();
+							logger.debug("transmitter opened");
+						}
+					}
+				}
+			}
+		}
+	}
+
 }

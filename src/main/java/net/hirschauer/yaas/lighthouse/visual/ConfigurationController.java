@@ -38,7 +38,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import net.hirschauer.yaas.lighthouse.LightHouseMidiReceiver;
+import net.hirschauer.yaas.lighthouse.LightHouseMidi;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
 import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
@@ -114,7 +114,7 @@ public class ConfigurationController implements IStorable {
 	private ObservableList<String> commandEntries = FXCollections.observableArrayList();
     
     Gson gson = new Gson();
-    
+
     @FXML
 	private void initialize() {
 		logger.debug("init");
@@ -139,50 +139,6 @@ public class ConfigurationController implements IStorable {
 		
 		midiCommandCombo.setValue(MIDI_NOTE);
 		
-		btnReceiveMidi.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				
-				if (!LightHouseMidiReceiver.getInstance().hasDevice()) {
-					Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Midi device not set");
-					alert.setContentText("You have to go to the \"Midi viewer\" and select the device first");
-					alert.show();
-					return;
-				}
-				btnReceiveMidi.setDisable(true);
-				ListChangeListener<MidiLogEntry> changeListener = new ListChangeListener<MidiLogEntry>() {
-
-					@Override
-					public void onChanged(
-							javafx.collections.ListChangeListener.Change<? extends MidiLogEntry> c) {
-						c.next();
-						MidiLogEntry nextMidi = c.getAddedSubList().get(0);
-						int status = nextMidi.getStatus();
-						
-						Platform.runLater(new Runnable() {
-							
-							@Override
-							public void run() {
-								if (status == MidiLogEntry.STATUS_CC) {
-									midiCommandCombo.setValue(MIDI_CC);
-								} else {
-									midiCommandCombo.setValue(MIDI_NOTE);
-								}
-								// TODO: midi note off			
-								txtMidiValue.setText(nextMidi.getData1());
-								btnReceiveMidi.setDisable(false);
-							}
-						});
-
-						LightHouseMidiReceiver.getInstance().logEntries.removeListener(this);
-					}					
-				};
-				LightHouseMidiReceiver.getInstance().logEntries.addListener(changeListener);
-			}
-		});
-		btnReceive.setDisable(true);
 		
 		btnSend.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -258,7 +214,8 @@ public class ConfigurationController implements IStorable {
 				commandCombo.setItems(commandNames);
 			}
 		});
-
+		
+		initMidi();
 	}
     
 	protected void copy(Window window) {
@@ -558,7 +515,7 @@ public class ConfigurationController implements IStorable {
 		for (Object keyObj : values.keySet()) {
 			String key = keyObj.toString();
 			if (key.startsWith(className)) {
-				int i = Integer.parseInt(key.split("\\|")[1]);
+//				int i = Integer.parseInt(key.split("\\|")[1]);
 				
 				ConfigEntry entry = gson.fromJson((String) values.get(keyObj), ConfigEntry.class);
 				configEntries.add(entry);
@@ -691,4 +648,53 @@ public class ConfigurationController implements IStorable {
 		);
 	}
 
+	public void initMidi() {
+		
+		LightHouseMidi midi = LightHouseMidi.getInstance();
+		btnReceiveMidi.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				
+				if (!midi.hasDevice()) {
+					Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Midi device not set");
+					alert.setContentText("You have to go to the \"Midi viewer\" and select the device first");
+					alert.show();
+					return;
+				}
+				btnReceiveMidi.setDisable(true);
+				ListChangeListener<MidiLogEntry> changeListener = new ListChangeListener<MidiLogEntry>() {
+
+					@Override
+					public void onChanged(
+							javafx.collections.ListChangeListener.Change<? extends MidiLogEntry> c) {
+						c.next();
+						MidiLogEntry nextMidi = c.getAddedSubList().get(0);
+						int status = nextMidi.getStatus();
+						
+						Platform.runLater(new Runnable() {
+							
+							@Override
+							public void run() {
+								if (status == MidiLogEntry.STATUS_CC) {
+									midiCommandCombo.setValue(MIDI_CC);
+								} else {
+									midiCommandCombo.setValue(MIDI_NOTE);
+								}
+								// TODO: midi note off			
+								txtMidiValue.setText(nextMidi.getData1());
+								btnReceiveMidi.setDisable(false);
+							}
+						});
+
+						midi.logEntries.removeListener(this);
+					}					
+				};
+				midi.logEntries.addListener(changeListener);
+			}
+		});
+		btnReceive.setDisable(true);
+
+	}
 }

@@ -33,7 +33,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	private AndroidController androidController;
 	private WiiController wiiController;
 	
-	private static LightHouseOSCServer instance = null;
+	private static LightHouseOSCServer instance;
 	
 	private LightHouseOSCServer() {
 
@@ -46,11 +46,10 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	public static LightHouseOSCServer getInstance() {
 		if (instance == null) {
 			instance = new LightHouseOSCServer();
-			logger.debug("LightHouseOSCServer created");
 		}
 		return instance;
 	}
-	
+		
 	public void stop() {
 		logger.debug("stop()");
 		c.removeOSCListener(this);
