@@ -5,10 +5,13 @@ import java.io.IOException;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -49,27 +52,19 @@ public class LightHouse extends Application {
 	@FXML
 	TabPane tabPane;
     @FXML
-    AnchorPane logTablePane;
-    @FXML
-    AnchorPane logTableWii;
-    @FXML
-    AnchorPane logTableAndroid;
+    AnchorPane logTablePane, logTableWii, logTableAndroid, yaasLogTablePane;
     @FXML
     HBox topBox;
     @FXML
-    AnchorPane yaasLogTablePane;
-    @FXML
-    AnchorPane midiLogTablePane;
-    @FXML
-    AnchorPane configurationTablePane;
+    AnchorPane midiLogTablePane, configurationTablePane;
     @FXML
     MenuBar menuBar;
     @FXML
-    AnchorPane paneAndroidChart;
-    @FXML
-    AnchorPane paneWiiChart;
+    AnchorPane paneAndroidChart, paneWiiChart;
     @FXML
     TextArea loggingView;
+    @FXML
+    MenuItem menuClose, menuYaasSettings;
     
     private YaasLogController yaasLogController;
     private MidiLogController midiLogController;
@@ -99,7 +94,7 @@ public class LightHouse extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LightHouseSurface.fxml"));
         loader.setController(this);
         rootLayout = (AnchorPane) loader.load();
-		menuBar.setUseSystemMenuBar(true);
+        setupMenu();
 		TextAreaAppender.setTextArea(loggingView);
 
 		properties = new PropertiesHandler();
@@ -135,6 +130,16 @@ public class LightHouse extends Application {
         
 	}
 	
+	private void setupMenu() {
+		menuBar.setUseSystemMenuBar(true);
+		menuClose.setOnAction(new EventHandler<ActionEvent>() {			
+			@Override
+			public void handle(ActionEvent event) {
+				primaryStage.close();
+			}
+		});
+	}
+
 	private void showYaasLogTable() throws IOException {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/YaasLogTable.fxml"));
 		AnchorPane childLogTable = (AnchorPane) loader.load();
@@ -223,6 +228,7 @@ public class LightHouse extends Application {
 		topBox.getChildren().get(1).getStyleClass().add("series-wii");
     }
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void stop() throws Exception {		
 		super.stop();
