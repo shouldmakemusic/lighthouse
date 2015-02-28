@@ -211,6 +211,7 @@ public class YaasLogController implements IStorable {
 					@Override
 					public void run() {
 						setFileName(newValue.getYaasLocation());
+						setErrorFile(newValue.getYaasErrorLogFile());
 					}
 				});				
 			}
@@ -303,8 +304,10 @@ public class YaasLogController implements IStorable {
 		@Override
 		protected Void call() throws Exception {
 
-			logger.debug("started file observer for " + getFileName());
-			File errorLog = new File(getFileName());
+			String errorFile = YaasController.getInstance().getYaasConfiguration().getYaasErrorLogFile();
+			logger.debug("started file observer for " + errorFile);
+			
+			File errorLog = new File(errorFile);
 			if (!errorLog.exists()) {
 				logger.warn("Error log is not available");
 				updateMessage("Cancelled");
@@ -412,11 +415,13 @@ public class YaasLogController implements IStorable {
 				if (entry.length == 2) {
 					String name = entry[1];
 					if (name.equals("port")) {
+						
 						logger.debug("restoring port: " + values.getProperty(key));
-						setPort(values.getProperty(key));					
+						setPort(values.getProperty(key));	
+						
 					} else if (name.equals("fileName")) {
 						String fileName = values.getProperty(key);
-						logger.debug("restoring fileName: " + fileName);
+						logger.debug("restoring yaas location: " + fileName);
 						YaasController.getInstance().yaasConfigurationProperty.set(new YaasConfiguration(fileName));
 					}
 				}
