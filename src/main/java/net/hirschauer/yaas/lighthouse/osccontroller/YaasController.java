@@ -17,6 +17,7 @@ import net.hirschauer.yaas.lighthouse.LightHouseMidi;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
+import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,8 @@ public class YaasController extends OSCController {
 		if (m.getName().startsWith("/yaas/log")) {
 			
 			updateMessage(m, OSCMessageFromTask.TYPE_YAAS);
+			YaasLogController.log(m);
+
 		} else if (m.getName().startsWith("/yaas/config")) {
 			
 			if (m.getName().equals("/yaas/config/location")) {

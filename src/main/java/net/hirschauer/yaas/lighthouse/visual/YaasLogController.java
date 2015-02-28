@@ -70,7 +70,6 @@ public class YaasLogController implements IStorable {
 	private TextInputControl txtYaasLocation;
 
 	private static final Logger logger = LoggerFactory.getLogger(YaasLogController.class);
-	private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
 	
 	@StoredProperty
 	private String fileName;
@@ -78,8 +77,16 @@ public class YaasLogController implements IStorable {
 	@StoredProperty
 	private String port;
 	
+	private ObservableList<LogEntry> yaasLogEntries = FXCollections.observableArrayList();
+	private static YaasLogController instance;
+	
 	public YaasLogController() {
 		logger.debug("initialize yaas log controller");
+		instance = this;
+	}
+	
+	public static YaasLogController getInstance() {
+		return instance;
 	}
 	
 	@FXML
@@ -110,7 +117,7 @@ public class YaasLogController implements IStorable {
 
 		log("LogController initialized");
 
-		FilteredList<LogEntry> leveledData = new FilteredList<>(logEntries,
+		FilteredList<LogEntry> leveledData = new FilteredList<>(yaasLogEntries,
 				p -> true);
 		levelCombobox.valueProperty().addListener(new ChangeListener<String>() {
 
@@ -174,7 +181,7 @@ public class YaasLogController implements IStorable {
 
 			@Override
 			public void handle(ActionEvent event) {
-				logEntries.clear();
+				yaasLogEntries.clear();
 			}
 		});
 		
@@ -220,7 +227,7 @@ public class YaasLogController implements IStorable {
 		});
 	}
 
-	public void log(OSCMessage m) {
+	public static void log(OSCMessage m) {
 
 		LogEntry logEntry = new LogEntry();
 		logEntry.setLevel(DEBUG);
@@ -232,10 +239,10 @@ public class YaasLogController implements IStorable {
 			logEntry.setLevel(ERROR);
 		}
 		logEntry.setMessage(m.getArg(0).toString());
-		logEntries.add(logEntry);
+		YaasLogController.getInstance().yaasLogEntries.add(logEntry);
 	}
 
-	public void log(OSCMessageFromTask m) {
+	public static void log(OSCMessageFromTask m) {
 
 		LogEntry logEntry = new LogEntry();
 		logEntry.setLevel(DEBUG);
@@ -247,34 +254,34 @@ public class YaasLogController implements IStorable {
 			logEntry.setLevel(ERROR);
 		}
 		logEntry.setMessage(m.getArgList().get(0));
-		logEntries.add(logEntry);
+		YaasLogController.getInstance().yaasLogEntries.add(logEntry);
 	}
 
-	public void verbose(String m) {
+	public static void verbose(String m) {
 		log(VERBOSE, m);
 	}
 
-	public void log(String m) {
+	public static void log(String m) {
 
 		log(INFO, m);
 	}
 
-	public void debug(String m) {
+	public static void debug(String m) {
 
 		log(DEBUG, m);
 	}
 
-	public void error(String m) {
+	public static void error(String m) {
 
 		log(ERROR, m);
 	}
 
-	public void log(String level, String m) {
+	public static void log(String level, String m) {
 
 		LogEntry logEntry = new LogEntry();
 		logEntry.setLevel(level);
 		logEntry.setMessage(m);
-		logEntries.add(logEntry);
+		YaasLogController.getInstance().yaasLogEntries.add(logEntry);
 	}
 
 	public void setErrorFile(String fileName) {
@@ -348,20 +355,9 @@ public class YaasLogController implements IStorable {
 			@Override
 			public void changed(ObservableValue<? extends String> observable,
 					String oldValue, String newValue) {
-				if (oldValue != null && logEntries.size() > 0) {
-					if (oldValue.startsWith(OSCMessageFromTask.TYPE_YAAS)) {
-						String lastMessage = logEntries.get(logEntries.size() - 1).getMessage();
-						if (!oldValue.contains(lastMessage)) {
-							log(new OSCMessageFromTask(oldValue));
-						}
-					}
-				}
 				if (newValue.startsWith(OSCMessageFromTask.TYPE_YAAS)) {
 
 					OSCMessageFromTask m = new OSCMessageFromTask(newValue);	
-//					logger.debug("name:" + m.getName());
-//					logger.debug("arg0:" + m.getArgList().get(0));
-					log(m);
 					if (m.getName().equals("/yaas/config/port")) {
 						txtYaasPort.setText(m.getFirstArg());		
 						setPort(m.getFirstArg());
