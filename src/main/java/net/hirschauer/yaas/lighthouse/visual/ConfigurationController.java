@@ -183,7 +183,7 @@ public class ConfigurationController implements IStorable {
 		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
 
 			@Override
-			public void onChanged(Change change) {
+			public void onChanged(@SuppressWarnings("rawtypes") Change change) {
 				Platform.runLater(new Runnable() {
 					
 					@Override

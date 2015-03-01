@@ -25,9 +25,8 @@ public class LightHouseMidi implements Receiver {
 
 	private static final Logger logger = LoggerFactory.getLogger(LightHouseMidi.class);
 	
-	private MidiDevice receiver;
-	private MidiDevice transmitter;
-	private Receiver yaasReceiver;
+	private Transmitter transmitter;
+	private Receiver receiver;
 	private HashMap<String, Info> possibleMidiInfos = new HashMap<String, Info>();
 	private static LightHouseMidi instance;
 	public ObservableList<MidiLogEntry> logEntries;
@@ -63,7 +62,7 @@ public class LightHouseMidi implements Receiver {
 		message.setMessage(ShortMessage.NOTE_ON, channel, note, value);
 		send(message, new Date().getTime());
 		// message.setMessage(ShortMessage.NOTE_OFF, channel, note, value);
-		yaasReceiver.send(message, new Date().getTime());
+		receiver.send(message, new Date().getTime());
 	}
 
 	public void sendMidiNote(int note, int value)
@@ -152,7 +151,7 @@ public class LightHouseMidi implements Receiver {
 
 						if (device.getClass().getSimpleName().equals("MidiOutDevice")) {
 							
-							yaasReceiver = device.getReceiver();
+							receiver = device.getReceiver();
 							device.open();
 							logger.debug("receiver opened");
 //							try {
@@ -163,8 +162,8 @@ public class LightHouseMidi implements Receiver {
 						}
 						if (device.getClass().getSimpleName().equals("MidiInDevice")) {
 							
-							Transmitter trans = device.getTransmitter();
-							trans.setReceiver(this);
+							transmitter = device.getTransmitter();
+							transmitter.setReceiver(this);
 							device.open();
 							logger.debug("transmitter opened");
 						}
