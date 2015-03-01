@@ -228,7 +228,6 @@ public class LightHouse extends Application {
 		topBox.getChildren().get(1).getStyleClass().add("series-wii");
     }
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public void stop() throws Exception {		
 		super.stop();
@@ -241,12 +240,14 @@ public class LightHouse extends Application {
 			oscServer = null;
 		}
 		try {
-			service.finalize();
-			
+			service.cancel();
+			service.finalize();			
+			serviceThread = null;
 		} catch (Throwable e) {
-			e.printStackTrace();
+			logger.error("service not stopped correctly", e);
 		}
-		oscThread.stop();
 		oscThread = null;
+		logger.debug("stopped");
+		System.exit(0);
 	}
 }

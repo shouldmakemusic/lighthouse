@@ -30,15 +30,20 @@ public class PropertiesHandler {
 		loadProperties();
 	}
 	
-	public void store(IStorable... objects) throws IOException {
-		for (IStorable obj : objects) {
-			obj.store(applicationProps);
+	public void store(IStorable... objects) {
+		try {
+			for (IStorable obj : objects) {
+				obj.store(applicationProps);
+			}
+			logger.debug("Filename to save: " + fileName);
+			File f = new File(fileName);
+			OutputStream out = new FileOutputStream( f );
+			applicationProps.store(out, null);
+			out.close();
+			logger.debug("saved");
+		} catch (IOException e) {
+			logger.error("Could not store properties", e);
 		}
-		logger.debug("Filename to save: " + fileName);
-		File f = new File(fileName);
-		OutputStream out = new FileOutputStream( f );
-		applicationProps.store(out, null);
-		out.close();
 	}
 	
 	public void load(IStorable... objects) {

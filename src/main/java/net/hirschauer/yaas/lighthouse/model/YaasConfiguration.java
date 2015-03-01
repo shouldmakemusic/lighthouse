@@ -26,18 +26,26 @@ public class YaasConfiguration {
 				setYaasErrorLogFile(stdErr.getAbsolutePath());
 				logger.debug("Error log: " + stdErr.getAbsolutePath());
 			}
+			stdErr = null;
+			
 			File stdOut = new File(dir.getAbsolutePath() + File.separatorChar + "stdout.txt");
 			if (stdOut.exists()) {
 				setYaasStdOutLogFile(stdOut.getAbsolutePath());
 				logger.debug("Stdout log: " + stdOut.getAbsolutePath());
 			}
-			File config = new File(dir.getAbsolutePath() + File.separatorChar + "config_midi.py");
+			stdOut = null;
+			
+			File config = new File(dir.getAbsolutePath() + File.separatorChar + 
+					"config" + File.separatorChar + "midi_mapping.cfg");
 			if (config.exists()) {
 				setYaasConfigFile(config.getAbsolutePath());
 				logger.debug("Config file: " + config.getAbsolutePath());
 			}
+			config = null;
+			
 			this.name = dir.getName();
-		}
+			dir = null;
+		}		
 	}
 	
 	public String getYaasErrorLogFile() {

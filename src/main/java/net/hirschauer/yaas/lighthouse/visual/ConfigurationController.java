@@ -221,8 +221,8 @@ public class ConfigurationController implements IStorable {
 	protected void copy(Window window) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Confirmation Dialog");
-		alert.setHeaderText("Overwrite current 'config_midi.py' from YAAS?");
-		alert.setContentText("Requires a restart of Live. There will be a better solution soon than overwriting a python file...");
+		alert.setHeaderText("Overwrite current 'midi_mapping.cfg' from YAAS?");
+		alert.setContentText("Requires a restart of Live to take effect.");
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK) {
@@ -250,7 +250,7 @@ public class ConfigurationController implements IStorable {
     	
 		FileChooser fileChooser = new FileChooser();	
 		fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("config", "*.conf, *.py")
+                new FileChooser.ExtensionFilter("config", "*.conf", "*.py", "*.cfg")
             );
 		Window window = ((Node)event.getTarget()).getScene().getWindow();
 		File file = fileChooser.showOpenDialog(window);
@@ -261,6 +261,9 @@ public class ConfigurationController implements IStorable {
 				int mode = 0;
 				for (String line : lines){
 					line = line.trim();
+					if (line.startsWith("[") && line.endsWith("]")) {
+						continue;
+					}
 					switch (mode) {
 						case 0:
 							if (line.equals("midi_note_definitions = {")) {
@@ -376,7 +379,7 @@ public class ConfigurationController implements IStorable {
     	
 		FileChooser fileChooser = new FileChooser();	
 		fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Midi config", "*.conf"),
+                new FileChooser.ExtensionFilter("Midi config", "*.conf, *.cfg"),
                 new FileChooser.ExtensionFilter("Python config", "*.py")
             );
 		Window window = ((Node)event.getTarget()).getScene().getWindow();
@@ -390,7 +393,7 @@ public class ConfigurationController implements IStorable {
     	FileWriter fw;
 		try {
 			fw = new FileWriter(file, false);
-			fw.write("from consts import *\n\n");
+			fw.write("[MidiIn]\n");
 
 			fw.write("midi_note_definitions = {\n");				
 			for (ConfigEntry entry : getConfigEntries()) {
@@ -399,8 +402,9 @@ public class ConfigurationController implements IStorable {
 					fw.write("\t" + getStringForEntry(entry) + "\n");
 				}
 			}				
-			fw.write("}\n\n");
+			fw.write("\t}\n\n");
 
+			fw.write("[CC]\n");
 			fw.write("midi_cc_definitions = {\n");				
 			for (ConfigEntry entry : getConfigEntries()) {
 				
@@ -408,7 +412,7 @@ public class ConfigurationController implements IStorable {
 					fw.write("\t" + getStringForEntry(entry) + "\n");
 				}
 			}				
-			fw.write("}\n\n");
+			fw.write("\t}\n\n");
 			
         	fw.close();
 		} catch (IOException e) {
