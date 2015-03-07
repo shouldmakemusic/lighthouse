@@ -3,12 +3,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.hirschauer.yaas</groupId>
 	<artifactId>lighthouse</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0-SNAPSHOT</version>
 	<name>LightHouse</name>
 
 	<properties>
 		<jdk.version>1.8</jdk.version>
 	</properties>
+
+	<organization>
+		<name>Yaas project</name>
+	</organization>
 
 	<dependencies>
 		<dependency>
@@ -27,21 +31,9 @@
 			<version>1.7.7</version>
 		</dependency>
 		<dependency>
-			<groupId>com.zenjava</groupId>
-			<artifactId>javafx-maven-plugin</artifactId>
-			<version>8.1.2</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>custom.libs</groupId>
-			<artifactId>bluecove</artifactId>
-			<version>2.1.2</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/bluecove-2.1.2.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -68,6 +60,15 @@
 	<build>
 		<finalName>LightHouse</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.2</version>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
 
 			<!-- download source code in Eclipse, best practice -->
 			<plugin>
@@ -80,51 +81,57 @@
 				</configuration>
 			</plugin>
 
-			<!-- Set a JDK compiler level -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<groupId>com.zenjava</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>8.1.2</version>
 				<configuration>
-					<source>${jdk.version}</source>
-					<target>${jdk.version}</target>
+					<mainClass>net.hirschauer.yaas.lighthouse.LightHouse</mainClass>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.twdata.maven</groupId>
+						<artifactId>mojo-executor</artifactId>
+						<version>2.1.0</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 
 			<!-- Make this jar executable -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<!-- DO NOT include log4j.properties file in your Jar -->
-					<excludes>
-						<exclude>**/log4j.properties</exclude>
-					</excludes>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<!-- Jar file entry point -->
-							<mainClass>net.hirschauer.yaas.lighthouse.LightHouse</mainClass>
-							<classpathPrefix>dependency-jars/</classpathPrefix>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-jar-plugin</artifactId> -->
+			<!-- <configuration> -->
+			<!-- DO NOT include log4j.properties file in your Jar -->
+			<!-- <excludes> -->
+			<!-- <exclude>**/log4j.properties</exclude> -->
+			<!-- </excludes> -->
+			<!-- <archive> -->
+			<!-- <manifest> -->
+			<!-- <addClasspath>true</addClasspath> -->
+			<!-- Jar file entry point -->
+			<!-- <mainClass>net.hirschauer.yaas.lighthouse.LightHouse</mainClass> -->
+			<!-- <classpathPrefix>dependency-jars/</classpathPrefix> -->
+			<!-- </manifest> -->
+			<!-- </archive> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
 
-			<!-- Includes the runtime dependencies -->
-			<plugin>
-				<groupId>com.jolira</groupId>
-				<artifactId>onejar-maven-plugin</artifactId>
-				<version>1.4.4</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>one-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Copy project dependency -->
+			<!-- onejar for packing everything -->
+			<!-- <plugin> -->
+			<!-- <groupId>com.jolira</groupId> -->
+			<!-- <artifactId>onejar-maven-plugin</artifactId> -->
+			<!-- <version>1.4.4</version> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <goals> -->
+			<!-- <goal>one-jar</goal> -->
+			<!-- </goals> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
+
+			<!-- Copy all project dependency to the output directory -->
 			<!-- <plugin> -->
 			<!-- <groupId>org.apache.maven.plugins</groupId> -->
 			<!-- <artifactId>maven-dependency-plugin</artifactId> -->
@@ -146,10 +153,10 @@
 		</plugins>
 	</build>
 	<!-- One-Jar is in the googlecode repository -->
-	<pluginRepositories>
-		<pluginRepository>
-			<id>onejar-maven-plugin.googlecode.com</id>
-			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-		</pluginRepository>
-	</pluginRepositories>
+	<!-- <pluginRepositories> -->
+	<!-- <pluginRepository> -->
+	<!-- <id>onejar-maven-plugin.googlecode.com</id> -->
+	<!-- <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url> -->
+	<!-- </pluginRepository> -->
+	<!-- </pluginRepositories> -->
 </project>
