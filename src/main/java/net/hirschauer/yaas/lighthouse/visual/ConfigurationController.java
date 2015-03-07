@@ -431,15 +431,33 @@ public class ConfigurationController implements IStorable {
     	sb.append(entry.getCommand());
     	sb.append("' , [");
     	if (StringUtils.isNotEmpty(entry.getValue1())) {
+    		if (!StringUtils.isNumeric(entry.getValue1())) {
+    			sb.append("'");
+    		}
     		sb.append(entry.getValue1());
+    		if (!StringUtils.isNumeric(entry.getValue1())) {
+    			sb.append("'");
+    		}
     	}
     	if (StringUtils.isNotEmpty(entry.getValue2())) {
     		sb.append(", ");
+    		if (!StringUtils.isNumeric(entry.getValue2())) {
+    			sb.append("'");
+    		}
     		sb.append(entry.getValue2());
+    		if (!StringUtils.isNumeric(entry.getValue2())) {
+    			sb.append("'");
+    		}
     	}
     	if (StringUtils.isNotEmpty(entry.getValue3())) {
-    		sb.append(", ");
+    		sb.append("', '");
+    		if (!StringUtils.isNumeric(entry.getValue3())) {
+    			sb.append("'");
+    		}
     		sb.append(entry.getValue3());
+    		if (!StringUtils.isNumeric(entry.getValue3())) {
+    			sb.append("'");
+    		}
     	}
     	sb.append("]],");
     	return sb.toString();
