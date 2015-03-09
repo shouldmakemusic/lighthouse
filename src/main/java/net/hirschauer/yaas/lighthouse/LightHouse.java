@@ -1,6 +1,10 @@
 package net.hirschauer.yaas.lighthouse;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -10,11 +14,15 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -30,6 +38,9 @@ import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
 import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +63,9 @@ public class LightHouse extends Application {
 	@FXML
 	TabPane tabPane;
     @FXML
-    AnchorPane logTablePane, logTableWii, logTableAndroid, yaasLogTablePane;
+    AnchorPane logTablePane, logTableWii, logTableAndroid, yaasLogTablePane, midiLogTablePane, configurationTablePane;
     @FXML
     HBox topBox;
-    @FXML
-    AnchorPane midiLogTablePane, configurationTablePane;
     @FXML
     MenuBar menuBar;
     @FXML
@@ -64,7 +73,7 @@ public class LightHouse extends Application {
     @FXML
     TextArea loggingView;
     @FXML
-    MenuItem menuClose, menuYaasSettings;
+    MenuItem menuClose, menuYaasSettings, menuInstallYaas;
     
     private YaasLogController yaasLogController;
     private MidiLogController midiLogController;
@@ -136,6 +145,84 @@ public class LightHouse extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				primaryStage.close();
+			}
+		});
+		menuInstallYaas.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				File dir;
+				String path1 = "/Applications";
+				String path2 = "/Contents/App-Resources/MIDI Remote Scripts";
+				String name = "Ableton Live";
+				if (SystemUtils.IS_OS_WINDOWS) {
+					path1 = "c:\\ProgramData\\Ableton";
+					path2 = "\\Resources\\MIDI Remote Scripts";
+					name = "Live";
+				}
+				dir = new File(path1);
+				if (dir.exists()) {
+					File live = null;
+					for (File child : dir.listFiles()) {
+						if (child.getName().startsWith(name)) {
+							live = child;
+						}
+					}
+					if (live != null) {
+						File scripts = new File(live.getAbsolutePath() + path2);
+						if (scripts.exists()) {
+							TextInputDialog dialog = new TextInputDialog("yaas");
+							dialog.setTitle("Choose midi surface name");
+							dialog.setHeaderText("Midi surface (Live) and directory name");
+							dialog.setContentText("Choose a name:");
+
+							// Traditional way to get the response value.
+							Optional<String> result = dialog.showAndWait();
+							if (result.isPresent()){
+							    String targetname = result.get();
+							    if (StringUtils.isNoneEmpty(targetname)) {
+							    	File yaas = new File(scripts.getAbsolutePath() + File.separator + targetname);
+							    	if (yaas.exists()) {
+							    		Alert alert = new Alert(AlertType.CONFIRMATION);
+							    		alert.setTitle("Confirmation Dialog");
+							    		alert.setHeaderText("The directory already exists");
+							    		alert.setContentText("Overwrite?");
+
+							    		Optional<ButtonType> overwrite = alert.showAndWait();
+							    		if (overwrite.get() != ButtonType.OK){
+							    		    return;
+							    		} 
+							    	} else {
+							    		yaas.mkdir();
+							    	}
+							    	String path = LightHouse.class
+							    	           .getProtectionDomain().getCodeSource().getLocation().getPath();
+							    	    try {
+											path = URLDecoder.decode(path, "UTF-8");
+										} catch (UnsupportedEncodingException e) {
+											logger.error(e.getMessage(), e);
+										}
+							    	if (path != null) {
+							    		File src;
+							    		if (path.endsWith("classes" + File.separator)) {
+							    			src = new File(new File(path).getParentFile().getParentFile().getPath() + File.separator + "yaas");
+							    		} else {
+							    			src = new File(new File(path).getParentFile().getPath() + File.separator + "yaas");
+							    		}
+							    		if (src.exists()) {
+									    	try {
+												FileUtils.copyDirectory(src, yaas);
+											} catch (IOException e) {
+												logger.error(e.getMessage(), e);
+											}
+							    		}
+							    	}
+							    }
+							}
+
+						}
+					}
+				}
 			}
 		});
 	}
