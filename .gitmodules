@@ -1,0 +1,3 @@
+[submodule "yaas"]
+	path = yaas
+	url = https://github.com/shouldmakemusic/yaas.git
