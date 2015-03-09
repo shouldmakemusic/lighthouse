@@ -96,67 +96,6 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
-			<!-- Make this jar executable -->
-			<!-- <plugin> -->
-			<!-- <groupId>org.apache.maven.plugins</groupId> -->
-			<!-- <artifactId>maven-jar-plugin</artifactId> -->
-			<!-- <configuration> -->
-			<!-- DO NOT include log4j.properties file in your Jar -->
-			<!-- <excludes> -->
-			<!-- <exclude>**/log4j.properties</exclude> -->
-			<!-- </excludes> -->
-			<!-- <archive> -->
-			<!-- <manifest> -->
-			<!-- <addClasspath>true</addClasspath> -->
-			<!-- Jar file entry point -->
-			<!-- <mainClass>net.hirschauer.yaas.lighthouse.LightHouse</mainClass> -->
-			<!-- <classpathPrefix>dependency-jars/</classpathPrefix> -->
-			<!-- </manifest> -->
-			<!-- </archive> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
-
-			<!-- onejar for packing everything -->
-			<!-- <plugin> -->
-			<!-- <groupId>com.jolira</groupId> -->
-			<!-- <artifactId>onejar-maven-plugin</artifactId> -->
-			<!-- <version>1.4.4</version> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <goals> -->
-			<!-- <goal>one-jar</goal> -->
-			<!-- </goals> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
-
-			<!-- Copy all project dependency to the output directory -->
-			<!-- <plugin> -->
-			<!-- <groupId>org.apache.maven.plugins</groupId> -->
-			<!-- <artifactId>maven-dependency-plugin</artifactId> -->
-			<!-- <version>2.5.1</version> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <id>copy-dependencies</id> -->
-			<!-- <phase>package</phase> -->
-			<!-- <goals> -->
-			<!-- <goal>copy-dependencies</goal> -->
-			<!-- </goals> -->
-			<!-- <configuration> -->
-			<!-- exclude junit, we need runtime dependency only -->
-			<!-- <outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory> -->
-			<!-- </configuration> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
 		</plugins>
 	</build>
-	<!-- One-Jar is in the googlecode repository -->
-	<!-- <pluginRepositories> -->
-	<!-- <pluginRepository> -->
-	<!-- <id>onejar-maven-plugin.googlecode.com</id> -->
-	<!-- <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url> -->
-	<!-- </pluginRepository> -->
-	<!-- </pluginRepositories> -->
 </project>
