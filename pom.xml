@@ -8,6 +8,7 @@
 
 	<properties>
 		<jdk.version>1.8</jdk.version>
+		<yaas.dir>${basedir}/target/jfx/app/yaas</yaas.dir>
 	</properties>
 
 	<organization>
@@ -95,6 +96,29 @@
 						<version>2.1.0</version>
 					</dependency>
 				</dependencies>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/jfx/app/yaas</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/yaas</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
