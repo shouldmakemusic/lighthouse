@@ -65,7 +65,12 @@ public class LightHouseMidi implements Receiver {
 		message.setMessage(ShortMessage.NOTE_ON, channel, note, value);
 		send(message, new Date().getTime());
 		// message.setMessage(ShortMessage.NOTE_OFF, channel, note, value);
-		receiver.send(message, new Date().getTime());
+		if (receiver != null) {
+			receiver.send(message, new Date().getTime());
+		} else {
+			logger.debug("No receiver for sending");
+		}
+		
 	}
 
 	public void sendMidiNote(int note, int value)
