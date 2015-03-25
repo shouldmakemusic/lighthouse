@@ -1,5 +1,7 @@
 package net.hirschauer.yaas.lighthouse.osccontroller;
 
+import java.util.ArrayList;
+
 import javax.sound.midi.InvalidMidiDataException;
 
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
@@ -25,7 +27,19 @@ public class WiiController extends OSCController {
 
 	@Override
 	public void handleMessage(OSCMessage m) throws InvalidMidiDataException {
-		if (m.getName().equals("/wii/1/accel/xyz")) {
+		
+		if (m.getName().startsWith(OSCMessageFromTask.TYPE_WII_EXEC)) {
+			
+			OSCMessageFromTask message = new OSCMessageFromTask((String)m.getArg(0));
+			message.setType(OSCMessageFromTask.TYPE_WII_EXEC);
+			ArrayList<String> args = new ArrayList<String>();
+			for (int i=1; i<m.getArgCount(); i++) {
+				args.add((String)m.getArg(i));
+			}
+			message.setArgList(args);
+			updateMessage(message);
+			
+		} else if (m.getName().equals("/wii/1/accel/xyz")) {
 
 			// show sensor values in barChart
 			sensorDataWii.setValues(m.getArg(0), m.getArg(1), m.getArg(2));
@@ -34,9 +48,14 @@ public class WiiController extends OSCController {
 			if (currentTime - lastUpdateWii > 500) {
 				lastUpdateWii = currentTime;
 				
-				midi.sendMidiNote(12, sensorDataWii.getLiveXValue());
-				midi.sendMidiNote(13, sensorDataWii.getLiveYValue());
-				midi.sendMidiNote(14, sensorDataWii.getLiveZValue());
+				if (midi == null) {
+					midi = LightHouseMidi.getInstance();
+				}
+				if (midi != null) {
+					midi.sendMidiNote(12, sensorDataWii.getLiveXValue());
+					midi.sendMidiNote(13, sensorDataWii.getLiveYValue());
+					midi.sendMidiNote(14, sensorDataWii.getLiveZValue());
+				}
 			}
 			
 			try {
@@ -50,7 +69,7 @@ public class WiiController extends OSCController {
 			
 		} else if (m.getName().equals("/wii/1/accel/pry")) {
 			
-			//sensorDataAndroid.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
+			sensorDataWii.setPryValues(m.getArg(0), m.getArg(1), m.getArg(2), m.getArg(3));
 		} else {
 			updateMessage(m, OSCMessageFromTask.TYPE_WII);
 		}

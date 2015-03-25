@@ -135,6 +135,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			} catch (InvalidMidiDataException e) {
 				logger.error("Could not handle yaas message: " + m.getName(), e);
 			}
+			
 		} else {
 			String args = "";
 			for (int i=0; i < m.getArgCount(); i++) {

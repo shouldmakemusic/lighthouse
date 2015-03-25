@@ -59,6 +59,11 @@ public class LogController {
     	logEntries.add(new LogEntry(m));
     }
 
+    public void log(LogEntry m) {
+        
+    	logEntries.add(m);
+    }
+
 	public void setOscServer(LightHouseOSCServer oscServer) {
 		oscServer.messageProperty().addListener(new ChangeListener<String>() {
 
@@ -66,12 +71,11 @@ public class LogController {
 			public void changed(ObservableValue<? extends String> observable,
 					String oldValue, String newValue) {
 				
-				if (newValue.startsWith(getType())) {
+				if (newValue.contains("|") && newValue.substring(0, newValue.indexOf("|")).equals(getType())) {
 
 					//logger.debug("changed");
 					OSCMessageFromTask m = new OSCMessageFromTask(newValue);								
-					log(m);
-					
+					log(m);					
 				}
 			}
 		});	

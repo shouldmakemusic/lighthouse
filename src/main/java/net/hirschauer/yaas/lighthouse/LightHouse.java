@@ -58,7 +58,8 @@ public class LightHouse extends Application {
 	@FXML
 	TabPane tabPane;
     @FXML
-    AnchorPane logTablePane, logTableWii, logTableAndroid, yaasLogTablePane, midiLogTablePane, configurationTablePane;
+    AnchorPane logTablePane, logTableWii, logTableAndroid, yaasLogTablePane, 
+    midiLogTablePane, configurationTablePane, logTableWiiProgram;
     @FXML
     HBox topBox;
     @FXML
@@ -126,6 +127,7 @@ public class LightHouse extends Application {
                 
         showBarCharts();
         showOSCLogTable();
+        showWiiTab();
         showYaasLogTable();
         showMidiLogTable();
         showConfigurationEditor();        
@@ -246,13 +248,6 @@ public class LightHouse extends Application {
         controller.setOscServer(oscServer);
         logTableAndroid.getChildren().add(childLogTable);
 
-        loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
-        controller = new LogController(OSCMessageFromTask.TYPE_WII);
-        loader.setController(controller);
-        childLogTable = (AnchorPane) loader.load();
-
-        controller.setOscServer(oscServer);
-        logTableWii.getChildren().add(childLogTable);
 }
 	
     public void showBarCharts() throws IOException {
@@ -264,12 +259,31 @@ public class LightHouse extends Application {
 		sensorController.listenTo(oscServer, SensorType.ANDROID);
 		topBox.getChildren().get(0).getStyleClass().add("series-android");
 		
-		loader = new FXMLLoader(getClass().getResource("/view/SensorBarChart.fxml"));	   
-		page = (AnchorPane) loader.load();			
+    }
+    
+    protected void showWiiTab() throws IOException {
+    	
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SensorBarChart.fxml"));	   
+		AnchorPane page = (AnchorPane) loader.load();			
 		sensorController = loader.getController();	 
 		paneWiiChart.getChildren().add(page);	
 		sensorController.listenTo(oscServer, SensorType.WII);
 		topBox.getChildren().get(1).getStyleClass().add("series-wii");
+		
+        loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
+        LogController controller = new LogController(OSCMessageFromTask.TYPE_WII);
+        loader.setController(controller);
+		AnchorPane childLogTable = (AnchorPane) loader.load();
+        controller.setOscServer(oscServer);
+        logTableWii.getChildren().add(childLogTable);
+
+        loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
+		controller = new LogController(OSCMessageFromTask.TYPE_WII_EXEC);
+        loader.setController(controller);
+		AnchorPane log4jLogTable = (AnchorPane) loader.load();
+        controller.setOscServer(oscServer);
+        logTableWiiProgram.getChildren().add(log4jLogTable);
+
     }
 	
 	@Override

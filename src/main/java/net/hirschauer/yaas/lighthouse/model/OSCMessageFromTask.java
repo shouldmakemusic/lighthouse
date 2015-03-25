@@ -11,6 +11,7 @@ public class OSCMessageFromTask {
 	public static final String TYPE_OSC = "/osc";
 	public static final String TYPE_YAAS = "/yaas/log";
 	public static final String TYPE_WII = "/wii";
+	public static final String TYPE_WII_EXEC = "/wii_exec";
 	public static final String TYPE_ANDROID = "/android";
 	
 	private String type;
