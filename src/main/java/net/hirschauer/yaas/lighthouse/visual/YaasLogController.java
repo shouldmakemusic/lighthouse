@@ -240,7 +240,9 @@ public class YaasLogController implements IStorable {
 			logEntry.setLevel(ERROR);
 		}
 		logEntry.setMessage(m.getArg(0).toString());
-		YaasLogController.getInstance().yaasLogEntries.add(logEntry);
+		if (YaasLogController.getInstance().yaasLogEntries != null) {
+			YaasLogController.getInstance().yaasLogEntries.add(logEntry);
+		}
 	}
 
 	public static void log(OSCMessageFromTask m) {
