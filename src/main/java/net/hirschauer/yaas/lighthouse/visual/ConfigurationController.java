@@ -59,7 +59,8 @@ public class ConfigurationController implements IStorable {
 
 	Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
 	
-	public static final String MIDI_NOTE = "Midi Note";
+	public static final String MIDI_NOTE_ON = "Midi Note On";
+	public static final String MIDI_NOTE_OFF = "Midi Note Off";
 	public static final String MIDI_CC = "Midi CC";
 	
 	@FXML
@@ -137,7 +138,7 @@ public class ConfigurationController implements IStorable {
 		});
 		configTable.setContextMenu(new ContextMenu(mnuDel));
 		
-		midiCommandCombo.setValue(MIDI_NOTE);
+		midiCommandCombo.setValue(MIDI_NOTE_ON);
 		
 		
 		btnSend.setOnAction(new EventHandler<ActionEvent>() {
@@ -272,6 +273,9 @@ public class ConfigurationController implements IStorable {
 							if (line.equals("midi_cc_definitions = {")) {
 								mode = 2;
 							}
+							if (line.equals("midi_note_off_definitions = {")) {
+								mode = 3;
+							}
 							break;
 						case 1:
 						case 2:
@@ -284,9 +288,12 @@ public class ConfigurationController implements IStorable {
 							}
 							ConfigEntry entry = getEntryFromString(line);
 							if (entry != null) {
-								entry.setMidiCommand(MIDI_NOTE);
+								entry.setMidiCommand(MIDI_NOTE_ON);
 								if (mode == 2) {
 									entry.setMidiCommand(MIDI_CC);
+								}
+								if (mode == 3) {
+									entry.setMidiCommand(MIDI_NOTE_OFF);
 								}
 								entries.add(entry);
 							}
@@ -398,7 +405,16 @@ public class ConfigurationController implements IStorable {
 			fw.write("midi_note_definitions = {\n");				
 			for (ConfigEntry entry : getConfigEntries()) {
 				
-				if (entry.getMidiCommand().equals(MIDI_NOTE)) {
+				if (entry.getMidiCommand().equals(MIDI_NOTE_ON)) {
+					fw.write("\t" + getStringForEntry(entry) + "\n");
+				}
+			}				
+			fw.write("\t}\n\n");
+
+			fw.write("midi_note_off_definitions = {\n");				
+			for (ConfigEntry entry : getConfigEntries()) {
+				
+				if (entry.getMidiCommand().equals(MIDI_NOTE_OFF)) {
 					fw.write("\t" + getStringForEntry(entry) + "\n");
 				}
 			}				
@@ -701,8 +717,10 @@ public class ConfigurationController implements IStorable {
 							public void run() {
 								if (status == MidiLogEntry.STATUS_CC) {
 									midiCommandCombo.setValue(MIDI_CC);
+								} else if (status == MidiLogEntry.STATUS_NOTE_OFF) {
+									midiCommandCombo.setValue(MIDI_NOTE_OFF);
 								} else {
-									midiCommandCombo.setValue(MIDI_NOTE);
+									midiCommandCombo.setValue(MIDI_NOTE_ON);
 								}
 								// TODO: midi note off			
 								txtMidiValue.setText(nextMidi.getData1());

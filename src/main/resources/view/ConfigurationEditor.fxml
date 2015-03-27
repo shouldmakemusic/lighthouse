@@ -20,7 +20,8 @@
                         <ComboBox fx:id="midiCommandCombo" prefWidth="150.0">
                         <items>
 								<FXCollections fx:factory="observableArrayList">
-									<String fx:value="Midi Note" />
+									<String fx:value="Midi Note On" />
+									<String fx:value="Midi Note Off" />
 									<String fx:value="Midi CC" />
 								</FXCollections>
 						</items>
