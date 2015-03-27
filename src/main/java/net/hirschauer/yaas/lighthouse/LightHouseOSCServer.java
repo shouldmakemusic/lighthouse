@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableIntegerValue;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -35,12 +38,15 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	
 	private static LightHouseOSCServer instance;
 	
+	SimpleIntegerProperty port = new SimpleIntegerProperty(9050);
+	
 	private LightHouseOSCServer() {
 
 		LightHouseMidi midi = LightHouseMidi.getInstance();
 		yaasController = new YaasController(this, midi);
 		wiiController = new WiiController(this, midi);
 		androidController = new AndroidController(this, midi);
+		port.set(9050);
 	}
 	
 	public static LightHouseOSCServer getInstance() {
@@ -60,20 +66,25 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	@Override
 	protected SensorValue call() throws Exception {
 		logger.debug("call()");
-		try {
-			// create UDP server on port 9050
-			c = OSCServer.newUsing(OSCServer.UDP, 9050, false);
-			logger.info("OSC Server started UDP 9050");
-		} catch (IOException e1) {
-			logger.error("Could not start osc server", e1);
-			return null;
-		}
-		//c.dumpOSC(OSCServer.kDumpBoth, System.err);
-		try {
-			c.start();
-		} catch (IOException e) {
-			//TODO: change port
-			logger.error("Could not start osc server", e);
+		boolean started = false;
+		while (!started) {
+			try {
+				// create UDP server on port 9050
+				c = OSCServer.newUsing(OSCServer.UDP, port.get(), false);
+				logger.info("OSC Server started UDP " + port.get());
+			} catch (IOException e1) {
+				logger.error("Could not start osc server", e1);
+				return null;
+			}
+			//c.dumpOSC(OSCServer.kDumpBoth, System.err);
+			try {
+				c.start();
+				started = true;
+			} catch (IOException e) {
+				//TODO: change port
+				logger.error("Could not start osc server", e);
+				port.set(port.get() + 1);
+			}
 		}
 
 		// now add a listener for incoming messages from
@@ -193,6 +204,24 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	public void sendToLightHouse(OSCMessage oscMessage) throws IOException {
 		c.send(oscMessage, new InetSocketAddress("localhost", 9050));
 		logger.debug("Sent message " + oscMessage.getName() + " to myself");
+	}
+
+	public int getPort() {
+		return port.get();
+	}
+
+	public void setPort(int port) {
+		this.port.set(port);
+		try {
+			c.stop();
+		} catch (Exception e) {
+			logger.error("Could not change port", e);
+		}
+		try {
+			call();
+		} catch (Exception e) {
+			logger.error("Could not change port", e);
+		}
 	}
 
 }

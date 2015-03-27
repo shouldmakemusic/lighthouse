@@ -114,6 +114,7 @@ public class LightHouseService extends Task<ServiceInfo> implements ServiceListe
 			logger.error("Could not start service discovery", e);
 		}
 		
+		// TODO: update service info when lighthouse port changes
 		serviceInfo = ServiceInfo.create(SERVICE_TYPE,
                 "LightHouse", 9050,
                 "Yaas OSC Server");

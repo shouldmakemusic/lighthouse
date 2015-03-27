@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -18,6 +19,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
@@ -71,6 +73,8 @@ public class LightHouse extends Application {
     TextArea loggingView;
     @FXML
     MenuItem menuClose, menuYaasSettings, menuInstallYaas;
+    @FXML
+    TextField txtPort;
     
     private YaasLogController yaasLogController;
     private MidiLogController midiLogController;
@@ -109,6 +113,35 @@ public class LightHouse extends Application {
 			oscServer = LightHouseOSCServer.getInstance();
 			oscThread = new Thread(oscServer);
 			oscThread.start();
+			oscServer.port.addListener(new ChangeListener<Number>() {
+
+				@Override
+				public void changed(
+						ObservableValue<? extends Number> observable,
+						Number oldValue, Number newValue) {
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							txtPort.setText("" + oscServer.getPort());
+						}
+					});
+				}
+			});
+			
+			txtPort.textProperty().addListener(new ChangeListener<String>() {
+
+				@Override
+				public void changed(
+						ObservableValue<? extends String> observable,
+						String oldValue, String newValue) {
+					if (!StringUtils.isNumeric(newValue)) {
+						txtPort.setText(oldValue);
+					} else {
+						oscServer.setPort(Integer.parseInt(newValue));
+					}
+				}
+			});
 		}
 
 		if (service == null) {
