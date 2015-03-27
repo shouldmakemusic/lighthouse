@@ -33,7 +33,8 @@ public class LogController {
     private TableColumn<LogEntry, String> arg2Column;
 
 
-    private ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
+    protected ObservableList<LogEntry> logEntries = FXCollections.observableArrayList();
+    protected LightHouseOSCServer oscServer;
 
     public LogController() {
     	setType(OSCMessageFromTask.TYPE_OSC);
@@ -44,7 +45,7 @@ public class LogController {
     }
 
     @FXML
-    private void initialize() {
+	protected void initialize() {
     	messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
         arg0Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg0"));
         arg1Column.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("arg1"));
@@ -65,6 +66,7 @@ public class LogController {
     }
 
 	public void setOscServer(LightHouseOSCServer oscServer) {
+		this.oscServer = oscServer;
 		oscServer.messageProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -73,7 +75,7 @@ public class LogController {
 				
 				if (newValue.contains("|") && newValue.substring(0, newValue.indexOf("|")).equals(getType())) {
 
-					//logger.debug("changed");
+					logger.debug("changed");
 					OSCMessageFromTask m = new OSCMessageFromTask(newValue);								
 					log(m);					
 				}

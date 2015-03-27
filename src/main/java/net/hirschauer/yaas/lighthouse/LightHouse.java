@@ -32,6 +32,7 @@ import net.hirschauer.yaas.lighthouse.util.TextAreaAppender;
 import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
+import net.hirschauer.yaas.lighthouse.visual.OSCLogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
 import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
@@ -232,7 +233,7 @@ public class LightHouse extends Application {
 
 	private void showOSCLogTable() throws IOException {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
-        LogController controller = new LogController(OSCMessageFromTask.TYPE_OSC);
+        OSCLogController controller = new OSCLogController();
         loader.setController(controller);
 		AnchorPane childLogTable = (AnchorPane) loader.load();
 
@@ -240,15 +241,14 @@ public class LightHouse extends Application {
         controller.setOscServer(oscServer);
         logTablePane.getChildren().add(childLogTable);
 
-        loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
-        controller = new LogController(OSCMessageFromTask.TYPE_ANDROID);
-        loader.setController(controller);
+        loader = new FXMLLoader(getClass().getResource("/view/LogTable.fxml"));
+        LogController logController = new LogController(OSCMessageFromTask.TYPE_ANDROID);
+        loader.setController(logController);
         childLogTable = (AnchorPane) loader.load();
 
-        controller.setOscServer(oscServer);
+        logController.setOscServer(oscServer);
         logTableAndroid.getChildren().add(childLogTable);
-
-}
+	}
 	
     public void showBarCharts() throws IOException {
     	
@@ -270,14 +270,14 @@ public class LightHouse extends Application {
 		sensorController.listenTo(oscServer, SensorType.WII);
 		topBox.getChildren().get(1).getStyleClass().add("series-wii");
 		
-        loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
+        loader = new FXMLLoader(getClass().getResource("/view/LogTable.fxml"));
         LogController controller = new LogController(OSCMessageFromTask.TYPE_WII);
         loader.setController(controller);
 		AnchorPane childLogTable = (AnchorPane) loader.load();
         controller.setOscServer(oscServer);
         logTableWii.getChildren().add(childLogTable);
 
-        loader = new FXMLLoader(getClass().getResource("/view/OSCLogTable.fxml"));
+        loader = new FXMLLoader(getClass().getResource("/view/LogTable.fxml"));
 		controller = new LogController(OSCMessageFromTask.TYPE_WII_EXEC);
         loader.setController(controller);
 		AnchorPane log4jLogTable = (AnchorPane) loader.load();

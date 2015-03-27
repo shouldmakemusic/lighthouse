@@ -287,7 +287,8 @@ public class YaasLogController implements IStorable {
 
 	public void setErrorFile(String fileName) {
 		logger.debug("setting error file to watch: " + fileName);
-		
+				
+		// TODO: only one errorchange listener should be possible
 		new Thread(errorLogChangeListener).start();
 		errorLogChangeListener.messageProperty().addListener(new ChangeListener<String>() {
 

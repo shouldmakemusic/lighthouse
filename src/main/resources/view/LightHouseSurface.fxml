@@ -128,11 +128,7 @@
                                           <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="822.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <items>
                                               <AnchorPane fx:id="logTableWii" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
-                                              <AnchorPane fx:id="logTableWiiProgram" minHeight="0.0" minWidth="0.0" prefHeight="249.0" prefWidth="820.0">
-                                                   <children>
-                                                      <TextArea fx:id="loggingViewWii" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                                   </children>
-                                                </AnchorPane>
+                                              <AnchorPane fx:id="logTableWiiProgram" minHeight="0.0" minWidth="0.0" prefHeight="249.0" prefWidth="820.0" />
                                             </items>
                                           </SplitPane>
                                        </children></AnchorPane>

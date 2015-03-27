@@ -72,6 +72,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		try {
 			c.start();
 		} catch (IOException e) {
+			//TODO: change port
 			logger.error("Could not start osc server", e);
 		}
 
@@ -90,12 +91,14 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	public void messageReceived(OSCMessage m, SocketAddress addr, long time) {
 		
 
-		// first of all, send a reply message (just a demo)
-		try {
-			c.send(new OSCMessage("/done", new Object[] { m.getName() }),
-					addr);
-		} catch (IOException e1) {
-			logger.error("Could not send reply");
+		// first of all, send a reply message
+		if (!addr.toString().contains("9050")) {
+			try {
+				c.send(new OSCMessage("/done", new Object[] { m.getName() }),
+						addr);
+			} catch (IOException e1) {
+				logger.error("Could not send reply");
+			}
 		}
 
 		if (m.getName().equals("/pause")) {
@@ -186,5 +189,10 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	// } catch (IOException e1) {
 	// e1.printStackTrace();
 	// }
+
+	public void sendToLightHouse(OSCMessage oscMessage) throws IOException {
+		c.send(oscMessage, new InetSocketAddress("localhost", 9050));
+		logger.debug("Sent message " + oscMessage.getName() + " to myself");
+	}
 
 }

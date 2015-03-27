@@ -1,24 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-	AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-	AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+<AnchorPane prefHeight="480.0" prefWidth="672.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
-		<TableView fx:id="logEntryTable" AnchorPane.bottomAnchor="0.0"
-			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-			AnchorPane.topAnchor="0.0">
-			<columns>
-				<TableColumn fx:id="messageColumn" prefWidth="400.0"
-					text="Message" />
-				<TableColumn fx:id="arg0Column" prefWidth="75.0" text="Arg0" />
-				<TableColumn fx:id="arg1Column" prefWidth="75.0" text="Arg1" />
-				<TableColumn fx:id="arg2Column" prefWidth="75.0" text="Arg2" />
-			</columns>
-		</TableView>
+      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+      		<TableView fx:id="logEntryTable">
+      			<columns>
+      				<TableColumn fx:id="messageColumn" prefWidth="400.0" text="Message" />
+      				<TableColumn fx:id="arg0Column" prefWidth="75.0" text="Arg0" />
+      				<TableColumn fx:id="arg1Column" prefWidth="75.0" text="Arg1" />
+      				<TableColumn fx:id="arg2Column" prefWidth="75.0" text="Arg2" />
+      			</columns>
+      		</TableView>
+            <HBox prefHeight="25.0" prefWidth="627.0">
+               <children>
+                  <Label prefHeight="26.0" prefWidth="276.0" text="Command">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label prefHeight="25.0" prefWidth="221.0" text="Parameter">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label prefHeight="61.0" prefWidth="30.0" text="to" />
+               </children>
+            </HBox>
+            <HBox prefHeight="25.0" prefWidth="627.0">
+               <children>
+                  <ComboBox fx:id="combOscCommand" prefHeight="26.0" prefWidth="274.0">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </ComboBox>
+                  <TextField fx:id="txtOscParameter1">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Button fx:id="btnSend1" mnemonicParsing="false" text="Send">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <ComboBox fx:id="comboTarget1" prefHeight="26.0" prefWidth="137.0" />
+               </children>
+            </HBox>
+            <HBox prefHeight="29.0" prefWidth="627.0">
+               <children>
+                  <TextField fx:id="txtOscCommand" prefHeight="26.0" prefWidth="274.0">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <TextField fx:id="txtOscParameter2">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Button fx:id="btnSend2" mnemonicParsing="false" text="Send">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <ComboBox fx:id="comboTarget2" prefHeight="26.0" prefWidth="137.0" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
 	</children>
 </AnchorPane>
