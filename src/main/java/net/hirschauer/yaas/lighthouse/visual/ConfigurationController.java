@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,7 +19,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -29,7 +27,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -64,49 +61,17 @@ public class ConfigurationController implements IStorable {
 	public static final String MIDI_CC = "Midi CC";
 	
 	@FXML
-	private ComboBox<String> midiCommandCombo;	
-	@FXML
-	private ComboBox<String> controllerCombo;	
-	@FXML
-	private ComboBox<String> commandCombo;
+	private ComboBox<String> midiCommandCombo, controllerCombo, commandCombo;
    	@FXML
     private TableView<ConfigEntry> configTable;
     @FXML
-    private TableColumn<ConfigEntry, String> colMidiCommand;
+    private TableColumn<ConfigEntry, String> colMidiCommand, colMidiValue, colController, colCommand;
     @FXML
-    private TableColumn<ConfigEntry, String> colMidiValue;
+    private TableColumn<ConfigEntry, String> colValue1, colValue2, colValue3;
     @FXML
-    private TableColumn<ConfigEntry, String> colController;
+    private TextField txtMidiValue, txtValue1, txtValue2, txtValue3;
     @FXML
-    private TableColumn<ConfigEntry, String> colCommand;
-    @FXML
-    private TableColumn<ConfigEntry, String> colValue1;
-    @FXML
-    private TableColumn<ConfigEntry, String> colValue2;
-    @FXML
-    private TableColumn<ConfigEntry, String> colValue3;
-    @FXML
-    private TextField txtMidiValue;
-    @FXML
-    private TextField txtValue1;
-    @FXML
-    private TextField txtValue2;
-    @FXML
-    private TextField txtValue3;
-    @FXML
-    private Button btnReceiveMidi;
-    @FXML
-    private Button btnAdd;
-    @FXML
-    private Button btnSave;
-    @FXML
-    private Button btnLoad;
-    @FXML
-    private Button btnReceive;
-    @FXML
-    private Button btnSend;
-    @FXML
-    private Button btnCopy;
+    private Button btnReceiveMidi, btnAdd;
     @FXML
     private BorderPane borderPane;
     
@@ -140,46 +105,7 @@ public class ConfigurationController implements IStorable {
 		
 		midiCommandCombo.setValue(MIDI_NOTE_ON);
 		
-		
-		btnSend.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				sendConfigurationToYaas(((Node)event.getTarget()).getScene().getWindow());
-			}
-		});
-		
-		btnAdd.setOnAction(new EventHandler<ActionEvent>() {
-			
-			@Override
-			public void handle(ActionEvent event) {
-				addInputToTable();
-			}
-		});
-		
-		btnSave.setOnAction(new EventHandler<ActionEvent>() {
-			
-			@Override
-			public void handle(ActionEvent event) {
-				save(event);
-			}
-		});
-		
-		btnLoad.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				load(event);
-			}
-		});
-		
-		btnCopy.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				copy(((Node)event.getTarget()).getScene().getWindow());
-			}
-		});		
+				
 		
 		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
 
@@ -219,7 +145,7 @@ public class ConfigurationController implements IStorable {
 		initMidi();
 	}
     
-	protected void copy(Window window) {
+	public void copy(Window window) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Confirmation Dialog");
 		alert.setHeaderText("Overwrite current 'midi_mapping.cfg' from YAAS?");
@@ -247,13 +173,12 @@ public class ConfigurationController implements IStorable {
 	}
 
     
-    protected void load(ActionEvent event) {
+    public void load(Window window) {
     	
 		FileChooser fileChooser = new FileChooser();	
 		fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("config", "*.conf", "*.py", "*.cfg")
             );
-		Window window = ((Node)event.getTarget()).getScene().getWindow();
 		File file = fileChooser.showOpenDialog(window);
         if (file != null) {
     		List<ConfigEntry> entries = new ArrayList<ConfigEntry>();
@@ -312,7 +237,7 @@ public class ConfigurationController implements IStorable {
         }
     }
     
-    protected void sendConfigurationToYaas(Window window) {
+    public void sendConfigurationToYaas(Window window) {
     	// /yaas/controller/receive/configuration
     	LightHouseOSCServer oscServer = LightHouseOSCServer.getInstance();
     	try {
@@ -382,14 +307,13 @@ public class ConfigurationController implements IStorable {
     	return entry;
     }
     
-    protected void save(ActionEvent event) {
+    public void save(Window window) {
     	
 		FileChooser fileChooser = new FileChooser();	
 		fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Midi config", "*.conf, *.cfg"),
                 new FileChooser.ExtensionFilter("Python config", "*.py")
             );
-		Window window = ((Node)event.getTarget()).getScene().getWindow();
 		File file = fileChooser.showSaveDialog(window);
         if (file != null) {
         	writeToFile(file);
@@ -564,27 +488,20 @@ public class ConfigurationController implements IStorable {
 	private void setCellFactories() {
 		colMidiCommand.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("midiCommand"));
 		colMidiCommand.setCellFactory(TextFieldTableCell.forTableColumn());
-		colMidiCommand.setOnEditCommit(
-		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
-		        @Override
-		        public void handle(CellEditEvent<ConfigEntry, String> t) {
-		            ((ConfigEntry) t.getTableView().getItems().get(
-		                t.getTablePosition().getRow())
-		                ).setMidiCommand(t.getNewValue());
-		        }
+		colMidiCommand.setOnEditCommit(cellEditEvent -> {
+		            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
+		            		cellEditEvent.getTablePosition().getRow())
+		                ).setMidiCommand(cellEditEvent.getNewValue());
 		    }
 		);
 		colMidiValue.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("midiValue"));
 		colMidiValue.setCellFactory(TextFieldTableCell.forTableColumn());
-		colMidiValue.setOnEditCommit(
-		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
-		        @Override
-		        public void handle(CellEditEvent<ConfigEntry, String> t) {
+		colMidiValue.setOnEditCommit(cellEditEvent -> {
 		        	
-		        	if (StringUtils.isNumeric(t.getNewValue())) {
-			            ((ConfigEntry) t.getTableView().getItems().get(
-			                t.getTablePosition().getRow())
-			                ).setMidiValue(t.getNewValue());
+		        	if (StringUtils.isNumeric(cellEditEvent.getNewValue())) {
+			            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
+			            		cellEditEvent.getTablePosition().getRow())
+			                ).setMidiValue(cellEditEvent.getNewValue());
 		        	} else {
 		        		
 		        		Alert alert = new Alert(AlertType.INFORMATION);
@@ -592,26 +509,19 @@ public class ConfigurationController implements IStorable {
 		        		alert.setHeaderText(null);
 		        		alert.setContentText("Midi value has to be a integer!");
 		        		alert.showAndWait();
-		        		t.getTableView().getColumns().get(1).setVisible(false);
-		        		t.getTableView().getColumns().get(1).setVisible(true);		        		
+		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(false);
+		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(true);		        		
 		        	}
-		        }
 		    });
-		colMidiValue.setComparator(new Comparator<String>() {
-			
-			@Override
-			public int compare(String o1, String o2) {
+		colMidiValue.setComparator((String o1, String o2) -> {
 				Integer i1 = Integer.parseInt(o1);
 				Integer i2 = Integer.parseInt(o2);
 				return i1.compareTo(i2);
-			}
 		});
 		colCommand.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("command"));
 		colCommand.setCellFactory(ComboBoxTableCell.forTableColumn(commandEntries));
-		colCommand.setOnEditStart(new EventHandler<TableColumn.CellEditEvent<ConfigEntry,String>>() {
-			@Override
-			public void handle(CellEditEvent<ConfigEntry, String> event) {
-				String controller = event.getRowValue().getController();
+		colCommand.setOnEditStart(cellEditEvent -> {
+				String controller = cellEditEvent.getRowValue().getController();
 				Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands;
 				commandEntries.clear();
 				if (yaasCommands.containsKey(controller)) {
@@ -619,80 +529,55 @@ public class ConfigurationController implements IStorable {
 						commandEntries.add(name);
 					}
 				}
-			}
 		});
-		colCommand.setOnEditCommit(
-		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
-		        @Override
-		        public void handle(CellEditEvent<ConfigEntry, String> t) {
-		            ((ConfigEntry) t.getTableView().getItems().get(
-		                t.getTablePosition().getRow())
-		                ).setCommand(t.getNewValue());
-		        }
+		colCommand.setOnEditCommit(cellEditEvent ->  {
+		            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
+		            		cellEditEvent.getTablePosition().getRow())
+		                ).setCommand(cellEditEvent.getNewValue());
 		    }
 		);
 		colController.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("controller"));
 		colController.setCellFactory(ComboBoxTableCell.forTableColumn(controllerEntries));
-		colController.setOnEditCommit(
-		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
-		        @Override
-		        public void handle(CellEditEvent<ConfigEntry, String> t) {
-		            if (t.getNewValue() != "" && !t.getNewValue().equals(t.getRowValue().getController())) {
-		            	t.getRowValue().setCommand("");
+		colController.setOnEditCommit(cellEditEvent -> {
+		            if (cellEditEvent.getNewValue() != "" && !cellEditEvent.getNewValue().equals(cellEditEvent.getRowValue().getController())) {
+		            	cellEditEvent.getRowValue().setCommand("");
 		            	configTable.getColumns().get(3).setVisible(false);
 		            	configTable.getColumns().get(3).setVisible(true);
 		            }
-		            ((ConfigEntry) t.getTableView().getItems().get(
-			                t.getTablePosition().getRow())
-			                ).setController(t.getNewValue());
-		        }
+		            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
+		            		cellEditEvent.getTablePosition().getRow())
+			                ).setController(cellEditEvent.getNewValue());		       
 		    }
 		);
 		colValue1.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value1"));
 		colValue1.setCellFactory(TextFieldTableCell.forTableColumn());
-		colValue1.setOnEditCommit(
-		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
-		        @Override
-		        public void handle(CellEditEvent<ConfigEntry, String> t) {
-		            ((ConfigEntry) t.getTableView().getItems().get(
-		                t.getTablePosition().getRow())
-		                ).setValue1(t.getNewValue());
-		        }
+		colValue1.setOnEditCommit(cellEditEvent ->  {
+		            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
+		            		cellEditEvent.getTablePosition().getRow())
+		                ).setValue1(cellEditEvent.getNewValue());
 		    }
 		);
 		colValue2.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value2"));
 		colValue2.setCellFactory(TextFieldTableCell.forTableColumn());
-		colValue2.setOnEditCommit(
-		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
-		        @Override
-		        public void handle(CellEditEvent<ConfigEntry, String> t) {
-		            ((ConfigEntry) t.getTableView().getItems().get(
-		                t.getTablePosition().getRow())
-		                ).setValue2(t.getNewValue());
+		colValue2.setOnEditCommit(cellEditEvent ->  {
+		            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
+		            		cellEditEvent.getTablePosition().getRow())
+		                ).setValue2(cellEditEvent.getNewValue());
 		        }
-		    }
 		);
 		colValue3.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("value3"));
 		colValue3.setCellFactory(TextFieldTableCell.forTableColumn());
-		colValue3.setOnEditCommit(
-		    new EventHandler<CellEditEvent<ConfigEntry, String>>() {
-		        @Override
-		        public void handle(CellEditEvent<ConfigEntry, String> t) {
-		            ((ConfigEntry) t.getTableView().getItems().get(
-		                t.getTablePosition().getRow())
-		                ).setValue3(t.getNewValue());
-		        }
-		    }
-		);
+		colValue3.setOnEditCommit(cellEditEvent -> {
+			((ConfigEntry) cellEditEvent.getTableView().getItems().get(
+					cellEditEvent.getTablePosition().getRow())
+		                ).setValue3(cellEditEvent.getNewValue());
+		    });
 	}
 
 	public void initMidi() {
 		
 		LightHouseMidi midi = LightHouseMidi.getInstance();
-		btnReceiveMidi.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
+		btnReceiveMidi.setOnAction(event -> {
 				
 				if (!midi.hasDevice()) {
 					Alert alert = new Alert(AlertType.ERROR);
@@ -732,9 +617,11 @@ public class ConfigurationController implements IStorable {
 					}					
 				};
 				midi.logEntries.addListener(changeListener);
-			}
 		});
-		btnReceive.setDisable(true);
 
+	}
+
+	public void clear() {
+		configEntries.clear();
 	}
 }

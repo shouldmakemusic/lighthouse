@@ -72,7 +72,8 @@ public class LightHouse extends Application {
     @FXML
     TextArea loggingView;
     @FXML
-    MenuItem menuClose, menuYaasSettings, menuInstallYaas;
+    MenuItem menuOpen, menuSave, menuClose, menuYaasSettings, menuInstallYaas,
+    	menuSendTemporarily, menuSendPermanently, menuClearEntries;
     @FXML
     TextField txtPort;
     
@@ -109,6 +110,35 @@ public class LightHouse extends Application {
 
 		properties = new PropertiesHandler();
 
+		setupOscServer();
+
+		if (service == null) {
+			service = new LightHouseService();
+			serviceThread = new Thread(service);
+			serviceThread.start();
+		}
+		
+		this.primaryStage = primaryStage;
+        this.primaryStage.setTitle("LightHouse - Service Discovery and OSC Client/Server");
+        
+        
+        Scene scene = new Scene(rootLayout);
+        scene.getStylesheets().add("/view/stylesheet.css");
+        primaryStage.setScene(scene);
+        primaryStage.show();               
+                
+        showBarCharts();
+        showOSCLogTable();
+        showWiiTab();
+        showYaasLogTable();
+        showMidiLogTable();
+        showConfigurationEditor();        
+        
+        properties.load(yaasLogController, configurationController, midiLogController);
+        
+	}
+
+	private void setupOscServer() {
 		if (oscServer == null) {
 			oscServer = LightHouseOSCServer.getInstance();
 			oscThread = new Thread(oscServer);
@@ -143,45 +173,14 @@ public class LightHouse extends Application {
 				}
 			});
 		}
-
-		if (service == null) {
-			service = new LightHouseService();
-			serviceThread = new Thread(service);
-			serviceThread.start();
-		}
-		
-		this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("LightHouse - Service Discovery and OSC Client/Server");
-        
-        
-        Scene scene = new Scene(rootLayout);
-        scene.getStylesheets().add("/view/stylesheet.css");
-        primaryStage.setScene(scene);
-        primaryStage.show();               
-                
-        showBarCharts();
-        showOSCLogTable();
-        showWiiTab();
-        showYaasLogTable();
-        showMidiLogTable();
-        showConfigurationEditor();        
-        
-        properties.load(yaasLogController, configurationController, midiLogController);
-        
 	}
 	
 	private void setupMenu() {
+		
 		menuBar.setUseSystemMenuBar(true);
-		menuClose.setOnAction(new EventHandler<ActionEvent>() {			
-			@Override
-			public void handle(ActionEvent event) {
-				primaryStage.close();
-			}
-		});
-		menuInstallYaas.setOnAction(new EventHandler<ActionEvent>() {
-			
-			@Override
-			public void handle(ActionEvent event) {
+		menuClose.setOnAction(event -> primaryStage.close());
+		
+		menuInstallYaas.setOnAction(event -> {
 				
 				TextInputDialog dialog = new TextInputDialog("yaas");
 				dialog.setTitle("Choose midi surface name");
@@ -216,8 +215,12 @@ public class LightHouse extends Application {
 				    	alert.showAndWait();
 				    }
 				}
-			}
-		});
+			});
+		menuOpen.setOnAction(event -> configurationController.load(primaryStage));
+		menuSave.setOnAction(event -> configurationController.save(primaryStage));
+		menuSendPermanently.setOnAction(event -> configurationController.copy(primaryStage));
+		menuSendTemporarily.setOnAction(event -> configurationController.sendConfigurationToYaas(primaryStage));
+		menuClearEntries.setOnAction(event -> configurationController.clear());
 	}
 
 	private void showYaasLogTable() throws IOException {

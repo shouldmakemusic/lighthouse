@@ -22,9 +22,18 @@
                     <MenuItem fx:id="menuInstallYaas" mnemonicParsing="false" text="Install yaas" />
                   </items>
                   <items>
+                        <MenuItem fx:id="menuOpen" mnemonicParsing="false" text="Load configuration" />
+                        <MenuItem fx:id="menuSave" mnemonicParsing="false" text="Save configuration" />
                     <MenuItem fx:id="menuClose" mnemonicParsing="false" text="Close" />
                   </items>
                 </Menu>
+                  <Menu mnemonicParsing="false" text="Configuration">
+                    <items>
+                      <MenuItem fx:id="menuSendTemporarily" mnemonicParsing="false" text="Send to YAAS temporarily" />
+                        <MenuItem fx:id="menuSendPermanently" mnemonicParsing="false" text="Send to YAAS permanently" />
+                        <MenuItem fx:id="menuClearEntries" mnemonicParsing="false" text="Clear all entries" />
+                    </items>
+                  </Menu>
                 <Menu mnemonicParsing="false" text="Settings">
                   <items>
                     <MenuItem fx:id="menuYaasSettings" mnemonicParsing="false" text="yaas" />

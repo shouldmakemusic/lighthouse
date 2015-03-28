@@ -32,10 +32,6 @@
                               <Insets right="10.0" />
                            </VBox.margin>
                         </TextField>
-                        <Button fx:id="btnReceiveMidi" mnemonicParsing="false" text="Receive Midi Signal">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin></Button>
                      </children>
                   </VBox>
                   <VBox prefHeight="51.0" prefWidth="198.0">
@@ -59,35 +55,14 @@
                   </VBox>
                   <VBox prefHeight="119.0" prefWidth="219.0">
                      <children>
-                        <Button fx:id="btnAdd" mnemonicParsing="false" text="Add new configuration to table">
+                        <Button fx:id="btnAdd" mnemonicParsing="false" text="Add  to table">
                            <VBox.margin>
-                              <Insets bottom="5.0" />
+                              <Insets bottom="5.0" top="15.0" />
                            </VBox.margin></Button>
-                        <HBox prefHeight="100.0" prefWidth="200.0">
-                           <children>
-                              <Button fx:id="btnSave" mnemonicParsing="false" text="Save to file" />
-                              <Button fx:id="btnLoad" mnemonicParsing="false" text="Load from file">
-                                 <HBox.margin>
-                                    <Insets bottom="5.0" left="15.0" />
-                                 </HBox.margin>
-                              </Button>
-                           </children>
-                        </HBox>
-                        <Button fx:id="btnReceive" mnemonicParsing="false" text="Load configuration from YAAS">
+                        <Button fx:id="btnReceiveMidi" mnemonicParsing="false" text="Receive Midi Signal">
                            <VBox.margin>
-                              <Insets bottom="5.0" />
-                           </VBox.margin>
-                        </Button>
-                        <HBox prefHeight="100.0" prefWidth="200.0">
-                           <children>
-                              <Button fx:id="btnSend" mnemonicParsing="false" text="Send to YAAS">
-                                 <HBox.margin>
-                                    <Insets right="10.0" />
-                                 </HBox.margin>
-                              </Button>
-                              <Button fx:id="btnCopy" mnemonicParsing="false" text="Copy to YAAS" />
-                           </children>
-                        </HBox>
+                              <Insets top="5.0" />
+                           </VBox.margin></Button>
                      </children>
                   </VBox>
                </children>
