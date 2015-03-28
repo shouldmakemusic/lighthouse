@@ -36,7 +36,7 @@
                   </Menu>
                 <Menu mnemonicParsing="false" text="Settings">
                   <items>
-                    <MenuItem fx:id="menuYaasSettings" mnemonicParsing="false" text="yaas" />
+                    <MenuItem fx:id="menuYaasSettings" disable="true" mnemonicParsing="false" text="yaas" />
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
