@@ -1,14 +1,13 @@
 package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -32,6 +31,7 @@ import net.hirschauer.yaas.lighthouse.util.CopyYaas;
 import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
 import net.hirschauer.yaas.lighthouse.util.TextAreaAppender;
 import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
+import net.hirschauer.yaas.lighthouse.visual.Controller;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.OSCLogController;
@@ -81,6 +81,8 @@ public class LightHouse extends Application {
     private MidiLogController midiLogController;
     
     private PropertiesHandler properties;
+    
+    private HashMap<String, Controller> tabControllers = new HashMap<String, Controller>();
 
 	/**
 	 * @param args
@@ -120,8 +122,7 @@ public class LightHouse extends Application {
 		
 		this.primaryStage = primaryStage;
         this.primaryStage.setTitle("LightHouse - Service Discovery and OSC Client/Server");
-        
-        
+                
         Scene scene = new Scene(rootLayout);
         scene.getStylesheets().add("/view/stylesheet.css");
         primaryStage.setScene(scene);
@@ -177,7 +178,7 @@ public class LightHouse extends Application {
 	
 	private void setupMenu() {
 		
-		menuBar.setUseSystemMenuBar(true);
+//		menuBar.setUseSystemMenuBar(true);
 		menuClose.setOnAction(event -> primaryStage.close());
 		
 		menuInstallYaas.setOnAction(event -> {
@@ -221,6 +222,23 @@ public class LightHouse extends Application {
 		menuSendPermanently.setOnAction(event -> configurationController.copy(primaryStage));
 		menuSendTemporarily.setOnAction(event -> configurationController.sendConfigurationToYaas(primaryStage));
 		menuClearEntries.setOnAction(event -> configurationController.clear());
+		
+        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
+
+			@Override
+			public void changed(
+					ObservableValue<? extends Tab> observable,
+							Tab oldValue, Tab newValue) {
+
+				if (tabControllers.containsKey(oldValue.getText().toString())) {
+					tabControllers.get(oldValue.getText().toString()).hideMenuItems(menuBar);
+				}
+				if (tabControllers.containsKey(newValue.getText().toString())) {
+					tabControllers.get(newValue.getText().toString()).showMenuItems(menuBar);
+				}
+			}
+		});
+
 	}
 
 	private void showYaasLogTable() throws IOException {
@@ -232,6 +250,7 @@ public class LightHouse extends Application {
 		yaasLogController.setOscServer(oscServer);
         
         yaasLogTablePane.getChildren().add(childLogTable);
+        tabControllers.put("YAAS Log", yaasLogController);
 	}
 	
 	private void showConfigurationEditor() throws IOException {
@@ -255,6 +274,8 @@ public class LightHouse extends Application {
 			}
 		});
         configurationTablePane.getChildren().add(childLogTable);
+        tabControllers.put("YAAS config", configurationController);
+
 	}
 	
 	private void showMidiLogTable() throws IOException {
@@ -265,6 +286,8 @@ public class LightHouse extends Application {
 		midiLogController = loader.getController();
         
         midiLogTablePane.getChildren().add(childLogTable);
+        tabControllers.put("Midi viewer", midiLogController);
+
 	}
 
 	private void showOSCLogTable() throws IOException {
@@ -284,6 +307,8 @@ public class LightHouse extends Application {
 
         logController.setOscServer(oscServer);
         logTableAndroid.getChildren().add(childLogTable);
+        
+        tabControllers.put("OSC Server", controller);
 	}
 	
     public void showBarCharts() throws IOException {
@@ -319,7 +344,6 @@ public class LightHouse extends Application {
 		AnchorPane log4jLogTable = (AnchorPane) loader.load();
         controller.setOscServer(oscServer);
         logTableWiiProgram.getChildren().add(log4jLogTable);
-
     }
 	
 	@Override

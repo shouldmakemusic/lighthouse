@@ -25,6 +25,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -52,7 +54,7 @@ import com.google.gson.Gson;
 
 import de.sciss.net.OSCMessage;
 
-public class ConfigurationController implements IStorable {
+public class ConfigurationController extends Controller implements IStorable {
 
 	Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
 	
@@ -623,5 +625,33 @@ public class ConfigurationController implements IStorable {
 
 	public void clear() {
 		configEntries.clear();
+	}
+	
+	@Override
+	public void showMenuItems(MenuBar menuBar) {
+		super.showMenuItems(menuBar);
+		toggleMenuItems(menuBar, true);
+	}
+	
+	@Override
+	public void hideMenuItems(MenuBar menuBar) {
+		super.hideMenuItems(menuBar);
+		toggleMenuItems(menuBar, false);
+	}
+		
+	private void toggleMenuItems(MenuBar menuBar, boolean visible) {
+		
+		for (Menu menu : menuBar.getMenus()) {
+			
+			if (menu.getId() != null && menu.getId().startsWith("configuration")) {					
+				menu.setVisible(visible);
+//			} else {
+//				for (MenuItem item : menu.getItems()) {
+//					if (item.getId() != null && item.getId().startsWith("configuration")) {					
+//						item.setVisible(visible);
+//					}
+//				}
+			}
+		}
 	}
 }

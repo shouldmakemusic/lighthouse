@@ -15,7 +15,7 @@ import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LogController {
+public class LogController extends Controller {
 	
 	Logger logger = LoggerFactory.getLogger(LogController.class);
 	
