@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.collections.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -14,7 +16,7 @@
          <top>
             <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="118.0" prefWidth="673.0" BorderPane.alignment="CENTER">
                <children>
-                  <VBox prefHeight="51.0" prefWidth="190.0">
+                  <VBox prefHeight="98.0" prefWidth="170.0">
                      <children>
                         <Label text="Midi command type" />
                         <ComboBox fx:id="midiCommandCombo" prefWidth="150.0">
@@ -32,6 +34,18 @@
                               <Insets right="10.0" />
                            </VBox.margin>
                         </TextField>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="98.0" prefWidth="52.0">
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="→">
+                           <font>
+                              <Font size="46.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets top="20.0" />
+                           </VBox.margin>
+                        </Text>
                      </children>
                   </VBox>
                   <VBox prefHeight="51.0" prefWidth="198.0">
@@ -55,7 +69,7 @@
                   </VBox>
                   <VBox prefHeight="119.0" prefWidth="219.0">
                      <children>
-                        <Button fx:id="btnAdd" mnemonicParsing="false" text="Add  to table">
+                        <Button fx:id="btnAdd" mnemonicParsing="false" text="Add to table">
                            <VBox.margin>
                               <Insets bottom="5.0" top="15.0" />
                            </VBox.margin></Button>
