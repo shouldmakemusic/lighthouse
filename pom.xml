@@ -113,7 +113,10 @@
 							<resources>
 								<resource>
 									<directory>${basedir}/yaas</directory>
-									<filtering>false</filtering>
+									<filtering>true</filtering>
+									<excludes>
+							          <exclude>**/resources/**</exclude>
+							        </excludes>
 								</resource>
 							</resources>
 						</configuration>
@@ -125,7 +128,7 @@
 				<version>2.7</version>
 				<executions>
 					<execution>
-						<id>copy-resources</id>
+						<id>copy-resources2</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy-resources</goal>
