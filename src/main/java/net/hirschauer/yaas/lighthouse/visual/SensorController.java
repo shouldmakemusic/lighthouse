@@ -102,4 +102,10 @@ public class SensorController extends Controller implements ChangeListener<Senso
 			setSensorData(value);
 		}
 	}
+
+	@Override
+	protected String getMenuId() {
+		
+		return "sensorController";
+	}
 }

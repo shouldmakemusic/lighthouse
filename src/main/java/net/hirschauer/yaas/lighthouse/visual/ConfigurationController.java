@@ -470,6 +470,10 @@ public class ConfigurationController extends Controller implements IStorable {
 			ConfigEntry entry = configEntries.get(i);
 			values.put(className + "|" + i, gson.toJson(entry));
 		}
+		for (int i=0; i<controllerEntries.size(); i++) {
+			ConfigEntry entry = configEntries.get(i);
+			values.put(className + "|" + i, gson.toJson(entry));			
+		}
 	}
 
 	@Override
@@ -627,31 +631,7 @@ public class ConfigurationController extends Controller implements IStorable {
 		configEntries.clear();
 	}
 	
-	@Override
-	public void showMenuItems(MenuBar menuBar) {
-		super.showMenuItems(menuBar);
-		toggleMenuItems(menuBar, true);
-	}
-	
-	@Override
-	public void hideMenuItems(MenuBar menuBar) {
-		super.hideMenuItems(menuBar);
-		toggleMenuItems(menuBar, false);
-	}
-		
-	private void toggleMenuItems(MenuBar menuBar, boolean visible) {
-		
-		for (Menu menu : menuBar.getMenus()) {
-			
-			if (menu.getId() != null && menu.getId().startsWith("configuration")) {					
-				menu.setVisible(visible);
-//			} else {
-//				for (MenuItem item : menu.getItems()) {
-//					if (item.getId() != null && item.getId().startsWith("configuration")) {					
-//						item.setVisible(visible);
-//					}
-//				}
-			}
-		}
+	protected String getMenuId() {
+		return "configuration";
 	}
 }

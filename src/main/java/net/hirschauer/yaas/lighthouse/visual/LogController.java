@@ -90,4 +90,9 @@ public class LogController extends Controller {
 	public void setType(String type) {
 		this.type = type;
 	}
+
+	@Override
+	protected String getMenuId() {
+		return "logController";
+	}
 }

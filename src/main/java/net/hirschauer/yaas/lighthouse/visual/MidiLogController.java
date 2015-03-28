@@ -140,4 +140,9 @@ public class MidiLogController extends Controller implements IStorable {
 			});
 	}
 
+	@Override
+	protected String getMenuId() {
+		return "midiController";
+	}
+
 }

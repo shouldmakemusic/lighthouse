@@ -431,4 +431,10 @@ public class YaasLogController extends Controller implements IStorable {
 			}
 		}
 	}
+
+	@Override
+	protected String getMenuId() {
+		
+		return "yaasController";
+	}
 }
