@@ -31,7 +31,7 @@ import net.hirschauer.yaas.lighthouse.util.CopyYaas;
 import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
 import net.hirschauer.yaas.lighthouse.util.TextAreaAppender;
 import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
-import net.hirschauer.yaas.lighthouse.visual.Controller;
+import net.hirschauer.yaas.lighthouse.visual.VisualController;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.OSCLogController;
@@ -82,7 +82,7 @@ public class LightHouse extends Application {
     
     private PropertiesHandler properties;
     
-    private HashMap<String, Controller> tabControllers = new HashMap<String, Controller>();
+    private HashMap<String, VisualController> tabControllers = new HashMap<String, VisualController>();
 
 	/**
 	 * @param args

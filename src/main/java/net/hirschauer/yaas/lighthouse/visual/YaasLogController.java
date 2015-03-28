@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import de.sciss.net.OSCMessage;
 
-public class YaasLogController extends Controller implements IStorable {
+public class YaasLogController extends VisualController implements IStorable {
 
 	private static final String VERBOSE = "verbose";
 	private static final String DEBUG = "debug";

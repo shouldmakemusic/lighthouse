@@ -18,7 +18,7 @@ import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SensorController extends Controller implements ChangeListener<SensorValue> {
+public class SensorController extends VisualController implements ChangeListener<SensorValue> {
 	
 	private Logger logger = LoggerFactory.getLogger(SensorController.class);
 	

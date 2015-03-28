@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MidiLogController extends Controller implements IStorable {
+public class MidiLogController extends VisualController implements IStorable {
 
 	Logger logger = LoggerFactory.getLogger(MidiLogController.class);
 

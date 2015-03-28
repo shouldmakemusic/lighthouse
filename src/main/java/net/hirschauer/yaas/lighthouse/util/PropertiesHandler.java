@@ -9,9 +9,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
-import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
-
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +29,7 @@ public class PropertiesHandler {
 	
 	public void store(IStorable... objects) {
 		try {
+			applicationProps.clear();
 			for (IStorable obj : objects) {
 				obj.store(applicationProps);
 			}

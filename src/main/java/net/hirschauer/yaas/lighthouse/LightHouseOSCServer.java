@@ -5,8 +5,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ObservableIntegerValue;
-import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 
 import javax.sound.midi.InvalidMidiDataException;

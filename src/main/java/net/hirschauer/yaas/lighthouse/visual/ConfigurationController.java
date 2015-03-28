@@ -54,7 +54,7 @@ import com.google.gson.Gson;
 
 import de.sciss.net.OSCMessage;
 
-public class ConfigurationController extends Controller implements IStorable {
+public class ConfigurationController extends VisualController implements IStorable {
 
 	Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
 	

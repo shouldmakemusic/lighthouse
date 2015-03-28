@@ -3,7 +3,7 @@ package net.hirschauer.yaas.lighthouse.visual;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 
-public abstract class Controller {
+public abstract class VisualController {
 	
 	public void showMenuItems(MenuBar menuBar) {
 
