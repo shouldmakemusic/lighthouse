@@ -6,16 +6,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -25,8 +26,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -125,11 +124,8 @@ public class ConfigurationController extends VisualController implements IStorab
 			}
 		});
 		
-		controllerCombo.valueProperty().addListener(new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable,
-					String oldValue, String newValue) {
+		controllerCombo.valueProperty().addListener((ObservableValue<? extends String> observable,
+					String oldValue, String newValue) -> {
 				
 				logger.debug("selected " + newValue);
 				Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands; 				
@@ -141,8 +137,9 @@ public class ConfigurationController extends VisualController implements IStorab
 					}
 				}
 				commandCombo.setItems(commandNames);
-			}
 		});
+		
+		btnAdd.setOnAction(event -> addInputToTable());
 		
 		initMidi();
 	}
@@ -468,11 +465,14 @@ public class ConfigurationController extends VisualController implements IStorab
 		String className = getClass().getName();
 		for (int i=0; i<configEntries.size(); i++) {
 			ConfigEntry entry = configEntries.get(i);
-			values.put(className + "|" + i, gson.toJson(entry));
+			values.put(className + "|config|" + i, gson.toJson(entry));
 		}
-		for (int i=0; i<controllerEntries.size(); i++) {
-			ConfigEntry entry = configEntries.get(i);
-			values.put(className + "|" + i, gson.toJson(entry));			
+		ObservableMap<String, List<String>> commands = YaasController.getInstance().yaasCommands;
+		for (Entry<String, List<String>> controller : commands.entrySet()) {
+			
+			for (int i = 0; i < controller.getValue().size(); i++) {
+				values.put(className + "|controller|" + controller.getKey() + "|" + i, controller.getValue().get(i));
+			}
 		}
 	}
 
@@ -483,10 +483,21 @@ public class ConfigurationController extends VisualController implements IStorab
 		for (Object keyObj : values.keySet()) {
 			String key = keyObj.toString();
 			if (key.startsWith(className)) {
-//				int i = Integer.parseInt(key.split("\\|")[1]);
 				
-				ConfigEntry entry = gson.fromJson((String) values.get(keyObj), ConfigEntry.class);
-				configEntries.add(entry);
+				String[] entry = key.split("\\|");
+				
+				if (entry[1].equals("config")) {
+					
+					ConfigEntry configEntry = gson.fromJson((String) (String)values.get(key), ConfigEntry.class);
+					configEntries.add(configEntry);
+					
+				} else if (entry[1].equals("controller")) {
+					ObservableMap<String, List<String>> commands = YaasController.getInstance().yaasCommands;
+					if (!commands.containsKey(entry[2])) {
+						commands.put(entry[2], new ArrayList<String>());
+					}
+					commands.get(entry[2]).add((String)values.get(key));
+				}
 			}
 		}
 	}
