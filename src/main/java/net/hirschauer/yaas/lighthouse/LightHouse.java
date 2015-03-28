@@ -1,6 +1,7 @@
 package net.hirschauer.yaas.lighthouse;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -31,13 +32,14 @@ import net.hirschauer.yaas.lighthouse.util.CopyYaas;
 import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
 import net.hirschauer.yaas.lighthouse.util.TextAreaAppender;
 import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
-import net.hirschauer.yaas.lighthouse.visual.VisualController;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.OSCLogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
+import net.hirschauer.yaas.lighthouse.visual.VisualController;
 import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +75,7 @@ public class LightHouse extends Application {
     TextArea loggingView;
     @FXML
     MenuItem menuOpen, menuSave, menuClose, menuYaasSettings, menuInstallYaas,
-    	menuSendTemporarily, menuSendPermanently, menuClearEntries;
+    	menuSendTemporarily, menuSendPermanently, menuClearEntries, menuAbout;
     @FXML
     TextField txtPort;
     
@@ -238,6 +240,28 @@ public class LightHouse extends Application {
 				}
 			}
 		});
+        
+        menuAbout.setOnAction(event -> {
+        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/About.fxml"));
+    		try {
+				AnchorPane child = (AnchorPane) loader.load();
+				
+				Stage aboutStage = new Stage();				
+				Scene aboutScene = new Scene(child);
+				
+				TextArea area = (TextArea) aboutScene.lookup("#txtArea");
+				URL url = getClass().getResource("/documents/about.txt");
+				String text = IOUtils.toString(url);
+				area.setText(text);
+
+				aboutStage.setScene(aboutScene);
+				aboutStage.setAlwaysOnTop(true);
+				aboutStage.showAndWait();
+				
+			} catch (Exception e) {
+				logger.error("Could not open About", e);
+			}
+        });
 
 	}
 
