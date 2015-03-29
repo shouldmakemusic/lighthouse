@@ -35,6 +35,9 @@ public class PropertiesHandler {
 			}
 			logger.debug("Filename to save: " + fileName);
 			File f = new File(fileName);
+			if (!f.exists()) {
+				f.createNewFile();
+			}
 			OutputStream out = new FileOutputStream( f );
 			applicationProps.store(out, null);
 			out.close();
@@ -78,6 +81,9 @@ public class PropertiesHandler {
 			}
 			if (propdir.endsWith("target")) {
 				propdir = propdir.substring(0, propdir.length() - 7);
+			}
+			if (propdir.endsWith(".jar")) {
+				propdir = propdir.substring(0, propdir.lastIndexOf(File.separator));
 			}
 			fileName = propdir + File.separator + "lighthouse.properties";
 			logger.debug("Application properties: " + fileName);
