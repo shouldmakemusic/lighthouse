@@ -563,7 +563,7 @@ public class ConfigurationController extends VisualController implements IStorab
 		colMidiFollowSignal.setCellFactory(TextFieldTableCell.forTableColumn());
 		colMidiFollowSignal.setOnEditCommit(cellEditEvent -> {
 		        	
-		        	if (StringUtils.isNumeric(cellEditEvent.getNewValue())) {
+		        	if (StringUtils.isEmpty(cellEditEvent.getNewValue()) || StringUtils.isNumeric(cellEditEvent.getNewValue())) {
 			            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
 			            		cellEditEvent.getTablePosition().getRow())
 			                ).setMidiFollowSignal(cellEditEvent.getNewValue());
@@ -678,6 +678,7 @@ public class ConfigurationController extends VisualController implements IStorab
 								}
 		
 								txtMidiValue.setText(nextMidi.getData1());
+								txtMidiFollowSignal.setText("");
 								btnReceiveMidi.setDisable(false);
 							}
 						});
