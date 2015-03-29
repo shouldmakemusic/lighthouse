@@ -34,7 +34,6 @@
                 <TableColumn fx:id="timestampColumn" prefWidth="87.0" text="Timestamp" />
                 <TableColumn fx:id="eventTypeColumn" prefWidth="128.0" text="EventType" />
                   <TableColumn fx:id="channelColumn" prefWidth="88.0" text="Channel" />
-                  <TableColumn fx:id="statusColumn" prefWidth="92.0" text="Status" />
                   <TableColumn fx:id="dataColumn1" prefWidth="98.0" text="Midi Note" />
                   <TableColumn fx:id="dataColumn2" prefWidth="81.0" text="Value" />
                   <TableColumn fx:id="descriptionColumn" prefWidth="108.0" text="Description" />

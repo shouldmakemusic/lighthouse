@@ -8,6 +8,7 @@ public class ConfigEntry implements Serializable {
 
 	private String midiCommand;
 	private String midiValue;
+	private String midiFollowSignal;
 	private String controller;
 	private String command;
 	private String value1;
@@ -58,5 +59,13 @@ public class ConfigEntry implements Serializable {
 	}
 	public void setValue3(String value3) {
 		this.value3 = value3;
+	}
+
+	public String getMidiFollowSignal() {
+		return midiFollowSignal;
+	}
+
+	public void setMidiFollowSignal(String midiFollowSignal) {
+		this.midiFollowSignal = midiFollowSignal;
 	}
 }

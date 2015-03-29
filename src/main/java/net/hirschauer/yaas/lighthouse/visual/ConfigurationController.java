@@ -30,6 +30,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -66,11 +67,10 @@ public class ConfigurationController extends VisualController implements IStorab
    	@FXML
     private TableView<ConfigEntry> configTable;
     @FXML
-    private TableColumn<ConfigEntry, String> colMidiCommand, colMidiValue, colController, colCommand;
+    private TableColumn<ConfigEntry, String> colMidiCommand, colMidiValue, colController, 
+    	colCommand, colMidiFollowSignal, colValue1, colValue2, colValue3;
     @FXML
-    private TableColumn<ConfigEntry, String> colValue1, colValue2, colValue3;
-    @FXML
-    private TextField txtMidiValue, txtValue1, txtValue2, txtValue3;
+    private TextField txtMidiValue, txtValue1, txtValue2, txtValue3, txtMidiFollowSignal;
     @FXML
     private Button btnReceiveMidi, btnAdd;
     @FXML
@@ -106,8 +106,6 @@ public class ConfigurationController extends VisualController implements IStorab
 		
 		midiCommandCombo.setValue(MIDI_NOTE_ON);
 		
-				
-		
 		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
 
 			@Override
@@ -140,6 +138,9 @@ public class ConfigurationController extends VisualController implements IStorab
 		});
 		
 		btnAdd.setOnAction(event -> addInputToTable());
+		
+		txtMidiFollowSignal.setTooltip(new Tooltip("This is only for controllers that used mackie control scripts.\nFirst comes a note and then an integer event type.\nPlace the value that shows as event type here:"));
+		btnReceiveMidi.setTooltip(new Tooltip("Receive the next midi event from the controller\nselected in the Midi viewer."));
 		
 		initMidi();
 	}
@@ -203,6 +204,7 @@ public class ConfigurationController extends VisualController implements IStorab
 							break;
 						case 1:
 						case 2:
+						case 3:
 							if (line.equals("}")) {
 								mode = 0;
 								continue;
@@ -269,6 +271,7 @@ public class ConfigurationController extends VisualController implements IStorab
     protected ConfigEntry getEntryFromString(String line) {
     	
     	// TODO: add error handling
+    	// 	8 : ['TrackController' , 'toggle_solo_track' , [0, 1]],
     	ConfigEntry entry = new ConfigEntry();
     	String[] midiCommand = line.split(":");
     	if (midiCommand.length < 2) {
@@ -276,18 +279,27 @@ public class ConfigurationController extends VisualController implements IStorab
     	}
     	entry.setMidiValue(midiCommand[0].trim());
 
+    	// ['TrackController' , 'toggle_solo_track' , [0, 1]],
     	midiCommand[1] = midiCommand[1].trim();
     	String command = midiCommand[1].substring(1, midiCommand[1].length() - 2);
     	String[] commandParts = command.split(",");
     	
+    	// 'TrackController'
     	commandParts[0] = commandParts[0].trim();
     	entry.setController(commandParts[0].substring(1, commandParts[0].length() - 1));
     	
+    	// 'toggle_solo_track'
     	commandParts[1] = commandParts[1].trim();
     	entry.setCommand(commandParts[1].substring(1, commandParts[1].length() - 1));
     	
-    	String concValues = "";
-    	for (int i=2; i < commandParts.length; i++) {
+    	// [0 1] or [0 1] [234]
+    	boolean hasFollowSignal = false;
+    	String concValues = commandParts[2];
+    	for (int i=3; i < commandParts.length; i++) {
+    		if (commandParts[i].startsWith("[")) {
+    			hasFollowSignal = true;
+    			break;
+    		}
     		concValues += commandParts[i];
     	}
     	concValues = concValues.trim();
@@ -301,6 +313,11 @@ public class ConfigurationController extends VisualController implements IStorab
     	}
     	if (values.length >= 3) {
     		entry.setValue3(values[2]);
+    	}
+    	if (hasFollowSignal) {
+    		String followSignal = commandParts[commandParts.length -1].trim();
+    		logger.debug("Follow Signal: " + followSignal);
+    		entry.setMidiFollowSignal(followSignal.substring(1, followSignal.length() - 1));
     	}
     	
     	return entry;
@@ -398,7 +415,13 @@ public class ConfigurationController extends VisualController implements IStorab
     			sb.append("'");
     		}
     	}
-    	sb.append("]],");
+    	sb.append("]");
+    	if (StringUtils.isNotEmpty(entry.getMidiFollowSignal())) {
+    		sb.append(", [");
+    		sb.append(entry.getMidiFollowSignal());
+    		sb.append("]");
+    	}
+    	sb.append("],");
     	return sb.toString();
     }
     
@@ -530,6 +553,25 @@ public class ConfigurationController extends VisualController implements IStorab
 		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(true);		        		
 		        	}
 		    });
+		colMidiFollowSignal.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("midiFollowSignal"));
+		colMidiFollowSignal.setCellFactory(TextFieldTableCell.forTableColumn());
+		colMidiFollowSignal.setOnEditCommit(cellEditEvent -> {
+		        	
+		        	if (StringUtils.isNumeric(cellEditEvent.getNewValue())) {
+			            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
+			            		cellEditEvent.getTablePosition().getRow())
+			                ).setMidiFollowSignal(cellEditEvent.getNewValue());
+		        	} else {
+		        		
+		        		Alert alert = new Alert(AlertType.INFORMATION);
+		        		alert.setTitle("Information Dialog");
+		        		alert.setHeaderText(null);
+		        		alert.setContentText("Midi follow signal has to be a integer!");
+		        		alert.showAndWait();
+		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(false);
+		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(true);		        		
+		        	}
+		    });		
 		colMidiValue.setComparator((String o1, String o2) -> {
 				Integer i1 = Integer.parseInt(o1);
 				Integer i2 = Integer.parseInt(o2);
@@ -617,6 +659,7 @@ public class ConfigurationController extends VisualController implements IStorab
 							
 							@Override
 							public void run() {
+								
 								if (status == MidiLogEntry.STATUS_CC) {
 									midiCommandCombo.setValue(MIDI_CC);
 								} else if (status == MidiLogEntry.STATUS_NOTE_OFF) {
@@ -624,7 +667,7 @@ public class ConfigurationController extends VisualController implements IStorab
 								} else {
 									midiCommandCombo.setValue(MIDI_NOTE_ON);
 								}
-								// TODO: midi note off			
+		
 								txtMidiValue.setText(nextMidi.getData1());
 								btnReceiveMidi.setDisable(false);
 							}

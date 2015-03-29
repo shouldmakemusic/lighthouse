@@ -320,7 +320,7 @@ public class YaasLogController extends VisualController implements IStorable {
 			//logger.debug("lastmodified " + lastmodified);
 			List<String> lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
 			int lineCount = lines.size();
-			logger.debug("starting line count " + lineCount);
+			//logger.debug("starting line count " + lineCount);
 
 			while (true) {
 				// Block the thread for a short time, but be sure
@@ -330,8 +330,8 @@ public class YaasLogController extends VisualController implements IStorable {
 					if (lastmodified != errorLog.lastModified()) {
 							
 						lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
-						logger.debug("starting line count " + lineCount);
-						logger.debug("found lines " + lines.size());
+//						logger.debug("starting line count " + lineCount);
+//						logger.debug("found lines " + lines.size());
 						StringBuffer sb = new StringBuffer();
 						for (int i = lineCount; i < lines.size(); i++) {
 							sb.append(lines.get(i));
