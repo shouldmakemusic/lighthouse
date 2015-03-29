@@ -94,13 +94,8 @@ public class MidiLogController extends VisualController implements IStorable {
 	public void load(Properties values) {
 		String name = values.getProperty(getClass().getName() + "|" + "midi");
 		if (StringUtils.isNoneEmpty(name)) {
-			// init(name);
+			// the listener of the combobox will call setDevice(name)
 			midiInputCombobox.setValue(name);
-			try {
-				LightHouseMidi.getInstance().setDevice(name);
-			} catch (MidiUnavailableException e) {
-				logger.error("Could not set midi device " + name, e);
-			}
 		}
 	}
 
