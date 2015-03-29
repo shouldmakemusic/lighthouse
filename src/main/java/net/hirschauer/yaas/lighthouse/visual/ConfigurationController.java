@@ -588,13 +588,16 @@ public class ConfigurationController extends VisualController implements IStorab
 						commandEntries.add(name);
 					}
 				}
-		});
+		});		
 		colCommand.setOnEditCommit(cellEditEvent ->  {
 		            ((ConfigEntry) cellEditEvent.getTableView().getItems().get(
 		            		cellEditEvent.getTablePosition().getRow())
 		                ).setCommand(cellEditEvent.getNewValue());
+		            colCommand.setVisible(false);
+		            colCommand.setVisible(true);
 		    }
 		);
+
 		colController.setCellValueFactory(new PropertyValueFactory<ConfigEntry, String>("controller"));
 		colController.setCellFactory(ComboBoxTableCell.forTableColumn(controllerEntries));
 		colController.setOnEditCommit(cellEditEvent -> {
