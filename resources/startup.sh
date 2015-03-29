@@ -1,1 +1,1 @@
-java -Xdock:icon=.\resources\music94.png -jar LightHouse-jfx.jar
+java -Xdock:icon=./resources/music94.png -jar LightHouse-jfx.jar
