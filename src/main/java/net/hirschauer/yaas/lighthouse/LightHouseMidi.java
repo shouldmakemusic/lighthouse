@@ -37,8 +37,8 @@ public class LightHouseMidi implements Receiver {
 
 		for (Info info : MidiSystem.getMidiDeviceInfo()) {
 
-			logger.debug("Found device " + info.getName() + " - " + info.getDescription());
-			this.possibleMidiInfos.put(info.getName() + " - " + info.getDescription(), info);
+			logger.debug("Found device " + info.getDescription()+ " (" + info.getName() + ")");
+			this.possibleMidiInfos.put(info.getDescription(), info);
 			logEntries = FXCollections.observableArrayList();
 		}
 	}
@@ -155,11 +155,9 @@ public class LightHouseMidi implements Receiver {
 			close();
 
 			for (Info info : MidiSystem.getMidiDeviceInfo()) {
-				logger.debug("passing through " + info.getName() + " - "
-						+ info.getDescription());
+				logger.debug("passing through " + info.getDescription() + " (" + info.getName() + ")");
 				if (info != null) {
-					if (name.equals(info.getName() + " - "
-							+ info.getDescription())) {
+					if (name.equals(info.getDescription())) {
 						logger.debug("Found device info");
 						MidiDevice device = getMidiDevice(info);
 

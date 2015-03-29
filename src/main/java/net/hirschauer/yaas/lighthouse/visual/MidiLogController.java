@@ -96,6 +96,11 @@ public class MidiLogController extends VisualController implements IStorable {
 		if (StringUtils.isNoneEmpty(name)) {
 			// init(name);
 			midiInputCombobox.setValue(name);
+			try {
+				LightHouseMidi.getInstance().setDevice(name);
+			} catch (MidiUnavailableException e) {
+				logger.error("Could not set midi device " + name, e);
+			}
 		}
 	}
 
@@ -115,7 +120,7 @@ public class MidiLogController extends VisualController implements IStorable {
 		ObservableList<String> midiNames = FXCollections.observableArrayList();
 		midiInfos = midi.getPossibleMidiInfos();
 		for (Info info : midiInfos.values()) {
-			midiNames.add(info.getName() + " - " + info.getDescription());
+			midiNames.add(info.getDescription());
 		}
 		midiInputCombobox.setItems(midiNames);
 		midiInputCombobox.valueProperty().addListener(
