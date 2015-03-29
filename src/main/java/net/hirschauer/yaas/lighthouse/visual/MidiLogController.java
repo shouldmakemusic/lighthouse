@@ -7,8 +7,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -36,19 +34,8 @@ public class MidiLogController extends VisualController implements IStorable {
 	@FXML
 	private TableView<MidiLogEntry> tableMidi;
 	@FXML
-	private TableColumn<MidiLogEntry, String> timestampColumn;
-	@FXML
-	private TableColumn<MidiLogEntry, String> eventTypeColumn;
-	@FXML
-	private TableColumn<MidiLogEntry, String> channelColumn;
-	@FXML
-	private TableColumn<MidiLogEntry, String> statusColumn;
-	@FXML
-	private TableColumn<MidiLogEntry, String> dataColumn1;
-	@FXML
-	private TableColumn<MidiLogEntry, String> dataColumn2;
-	@FXML
-	private TableColumn<MidiLogEntry, String> descriptionColumn;
+	private TableColumn<MidiLogEntry, String> timestampColumn, eventTypeColumn, 
+		channelColumn, dataColumn1, dataColumn2, descriptionColumn;
 	@FXML
 	private ComboBox<String> midiInputCombobox;
 	@FXML
@@ -68,9 +55,6 @@ public class MidiLogController extends VisualController implements IStorable {
 		channelColumn
 				.setCellValueFactory(new PropertyValueFactory<MidiLogEntry, String>(
 						"channel"));
-		statusColumn
-				.setCellValueFactory(new PropertyValueFactory<MidiLogEntry, String>(
-						"status"));
 		dataColumn1
 				.setCellValueFactory(new PropertyValueFactory<MidiLogEntry, String>(
 						"data1"));
@@ -104,13 +88,7 @@ public class MidiLogController extends VisualController implements IStorable {
 		LightHouseMidi midi = LightHouseMidi.getInstance();
 		tableMidi.setItems(midi.logEntries);
 
-		btnClear.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				midi.logEntries.clear();
-			}
-		});
+		btnClear.setOnAction(event -> midi.logEntries.clear());
 
 		ObservableList<String> midiNames = FXCollections.observableArrayList();
 		midiInfos = midi.getPossibleMidiInfos();
@@ -144,5 +122,4 @@ public class MidiLogController extends VisualController implements IStorable {
 	protected String getMenuId() {
 		return "midiController";
 	}
-
 }

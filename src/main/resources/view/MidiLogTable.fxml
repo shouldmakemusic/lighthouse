@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="369.0" prefWidth="586.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.MidiLogController">
+<AnchorPane prefHeight="369.0" prefWidth="713.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.MidiLogController">
    <children>
       <BorderPane prefHeight="200.0" prefWidth="562.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
@@ -31,13 +31,13 @@
          <center>
             <TableView fx:id="tableMidi" prefHeight="171.0" prefWidth="537.0" BorderPane.alignment="CENTER">
               <columns>
-                <TableColumn fx:id="timestampColumn" prefWidth="75.0" text="Timestamp" />
-                <TableColumn fx:id="eventTypeColumn" prefWidth="75.0" text="EventType" />
-                  <TableColumn fx:id="channelColumn" prefWidth="75.0" text="Channel" />
-                  <TableColumn fx:id="statusColumn" prefWidth="75.0" text="Status" />
-                  <TableColumn fx:id="dataColumn1" prefWidth="75.0" text="Data1" />
-                  <TableColumn fx:id="dataColumn2" prefWidth="75.0" text="Data2" />
-                  <TableColumn fx:id="descriptionColumn" prefWidth="75.0" text="Description" />
+                <TableColumn fx:id="timestampColumn" prefWidth="87.0" text="Timestamp" />
+                <TableColumn fx:id="eventTypeColumn" prefWidth="128.0" text="EventType" />
+                  <TableColumn fx:id="channelColumn" prefWidth="88.0" text="Channel" />
+                  <TableColumn fx:id="statusColumn" prefWidth="92.0" text="Status" />
+                  <TableColumn fx:id="dataColumn1" prefWidth="98.0" text="Midi Note" />
+                  <TableColumn fx:id="dataColumn2" prefWidth="81.0" text="Value" />
+                  <TableColumn fx:id="descriptionColumn" prefWidth="108.0" text="Description" />
               </columns>
             </TableView>
          </center>
