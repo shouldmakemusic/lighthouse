@@ -25,9 +25,10 @@ public class LightHouseMidi implements Receiver {
 
 	private static final Logger logger = LoggerFactory.getLogger(LightHouseMidi.class);
 	
-	private Receiver receiver;
-	private MidiDevice receiverDevice;
+	private Receiver transmitter;
+	private Transmitter receiver;
 	private MidiDevice transmitterDevice;
+	private MidiDevice receiverDevice;
 	
 	private HashMap<String, Info> possibleMidiInfos = new HashMap<String, Info>();
 	private static LightHouseMidi instance;
@@ -65,10 +66,10 @@ public class LightHouseMidi implements Receiver {
 		message.setMessage(ShortMessage.NOTE_ON, channel, note, value);
 		send(message, new Date().getTime());
 		// message.setMessage(ShortMessage.NOTE_OFF, channel, note, value);
-		if (receiver != null) {
-			receiver.send(message, new Date().getTime());
+		if (transmitter != null) {
+			transmitter.send(message, new Date().getTime());
 		} else {
-			logger.debug("No receiver for sending");
+			logger.debug("No transmitter for sending");
 		}
 		
 	}
@@ -126,17 +127,17 @@ public class LightHouseMidi implements Receiver {
 	@Override
 	public void close() {
 		logger.debug("closing midi devices");
-		if (receiver != null) {
-			receiver.close();
-			receiver = null;
-		}
-		if (transmitterDevice != null) {
-			transmitterDevice.close();
-			transmitterDevice = null;
+		if (transmitter != null) {
+			transmitter.close();
+			transmitter = null;
 		}
 		if (receiverDevice != null) {
 			receiverDevice.close();
 			receiverDevice = null;
+		}
+		if (transmitterDevice != null) {
+			transmitterDevice.close();
+			transmitterDevice = null;
 		}
 	}
 
@@ -156,6 +157,9 @@ public class LightHouseMidi implements Receiver {
 
 			for (Info info : MidiSystem.getMidiDeviceInfo()) {
 				logger.debug("passing through " + info.getDescription() + " (" + info.getName() + ")");
+//				logger.debug("name: " + info.getName());
+//				logger.debug("vendor: " + info.getVendor());
+//				logger.debug("version: " + info.getVersion());
 				if (info != null) {
 					if (name.equals(info.getDescription())) {
 						logger.debug("Found device info");
@@ -163,10 +167,10 @@ public class LightHouseMidi implements Receiver {
 
 						if (device.getClass().getSimpleName().equals("MidiOutDevice")) {
 							
-							receiver = device.getReceiver();
+							transmitter = device.getReceiver();
 							device.open();
-							receiverDevice = device;
-							logger.debug("receiver opened");
+							transmitterDevice = device;
+							logger.debug("transmitter opened");
 //							try {
 //								sendMidiNote(1, 1, 1);
 //							} catch (InvalidMidiDataException e) {
@@ -174,11 +178,11 @@ public class LightHouseMidi implements Receiver {
 //							}
 						} else if (device.getClass().getSimpleName().equals("MidiInDevice")) {
 							
-							Transmitter transmitter = device.getTransmitter();
-							transmitter.setReceiver(this);
+							receiver = device.getTransmitter();
+							receiver.setReceiver(this);
 							device.open();
-							transmitterDevice = device;
-							logger.debug("transmitter opened");
+							receiverDevice = device;
+							logger.debug("receiver opened");
 						}
 					}
 				}

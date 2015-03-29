@@ -38,8 +38,10 @@ public class MidiLogEntry {
 				return NOTE_OFF;
 			case STATUS_CC:
 				return CC;
+			case STATUS_NOTE_ON:
+				return NOTE_ON;
 		}
-		return NOTE_ON;
+		return "" + status;
 	}
 	public String getChannel() {
 		return channel;
