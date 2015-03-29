@@ -251,8 +251,13 @@ public class ConfigurationController extends VisualController implements IStorab
 				String value1 = entry.getValue1() != null ? entry.getValue1() : "";
 				String value2 = entry.getValue2() != null ? entry.getValue2() : "";
 				String value3 = entry.getValue3() != null ? entry.getValue3() : "";
-	        	args = new Object[] {entry.getMidiCommand(), entry.getMidiValue(), entry.getController(),
+				if (StringUtils.isEmpty(entry.getMidiFollowSignal())) {
+					args = new Object[] {entry.getMidiCommand(), entry.getMidiValue(), entry.getController(),
 	        			entry.getCommand(), value1, value2, value3};
+				} else {
+					args = new Object[] {entry.getMidiCommand(), entry.getMidiValue(), entry.getController(),
+		        			entry.getCommand(), value1, value2, value3, entry.getMidiFollowSignal()};					
+				}
 	        	m = new OSCMessage("/yaas/controller/receive/configuration", args);
 				oscServer.sendToYaas(m);
     		}
@@ -456,6 +461,7 @@ public class ConfigurationController extends VisualController implements IStorab
     	ce.setController(controllerCombo.getValue());
     	ce.setMidiCommand(midiCommandCombo.getValue());
     	ce.setMidiValue(txtMidiValue.getText());
+    	ce.setMidiFollowSignal(txtMidiFollowSignal.getText());
     	ce.setValue1(txtValue1.getText());
     	ce.setValue2(txtValue2.getText());
     	ce.setValue3(txtValue3.getText());
