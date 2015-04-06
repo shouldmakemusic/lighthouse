@@ -49,7 +49,7 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
     	boolean hasFollowSignal = false;
     	String concValues = commandParts[2];
     	for (int i=3; i < commandParts.length; i++) {
-    		if (commandParts[i].startsWith("[")) {
+    		if (commandParts[i].trim().startsWith("[")) {
     			hasFollowSignal = true;
     			break;
     		}

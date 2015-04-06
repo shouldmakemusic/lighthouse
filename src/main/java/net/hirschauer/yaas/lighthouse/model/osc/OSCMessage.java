@@ -21,7 +21,7 @@ public class OSCMessage {
 	public OSCMessage(String name, String... params) {
 		
 		this.name = name;
-		for (Object arg : args) {
+		for (Object arg : params) {
 			this.args.add(arg.toString());
 		}
 	}
