@@ -219,8 +219,8 @@ public class LightHouse extends Application {
 				    }
 				}
 			});
-		menuOpen.setOnAction(event -> configurationController.load(primaryStage));
-		menuSave.setOnAction(event -> configurationController.save(primaryStage));
+		menuOpen.setOnAction(event -> configurationController.loadFromFile(primaryStage));
+		menuSave.setOnAction(event -> configurationController.saveToFile(primaryStage));
 		menuSendPermanently.setOnAction(event -> configurationController.copy(primaryStage));
 		menuSendTemporarily.setOnAction(event -> configurationController.sendConfigurationToYaas(primaryStage));
 		menuClearEntries.setOnAction(event -> configurationController.clear());

@@ -81,12 +81,17 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                   </VBox>
-                  <VBox prefHeight="98.0" prefWidth="104.0">
+                  <VBox prefHeight="98.0" prefWidth="132.0">
                      <children>
-                        <Button fx:id="btnAdd" mnemonicParsing="false" text="Add to table">
+                        <Button fx:id="btnAdd" mnemonicParsing="false" prefHeight="26.0" prefWidth="102.0" text="Add to table">
                            <VBox.margin>
                               <Insets bottom="5.0" top="15.0" />
                            </VBox.margin></Button>
+                        <Button fx:id="btnLightSettings" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Light settings">
+                           <VBox.margin>
+                              <Insets top="23.0" />
+                           </VBox.margin>
+                        </Button>
                      </children>
                   </VBox>
                </children>
