@@ -74,6 +74,12 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
     	}
     }
 	
+	public ConfigMidiEntry(ConfigEntry midiInput) {
+		this.midiCommand = midiInput.midiCommand;
+		this.midiFollowSignal = midiInput.midiFollowSignal;
+		this.midiValue = midiInput.midiValue;
+	}
+
 	public String getController() {
 		return controller;
 	}

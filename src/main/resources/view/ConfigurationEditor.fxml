@@ -16,37 +16,7 @@
          <top>
             <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="118.0" prefWidth="673.0" BorderPane.alignment="CENTER">
                <children>
-                  <VBox prefHeight="98.0" prefWidth="170.0">
-                     <children>
-                        <Label text="Midi command type" />
-                        <ComboBox fx:id="midiCommandCombo" prefWidth="150.0">
-                        <items>
-								<FXCollections fx:factory="observableArrayList">
-									<String fx:value="Midi Note On" />
-									<String fx:value="Midi Note Off" />
-									<String fx:value="Midi CC" />
-								</FXCollections>
-						</items>
-                        </ComboBox>
-                        <Label text="Midi value" />
-                        <TextField fx:id="txtMidiValue" maxWidth="-Infinity" prefHeight="26.0" prefWidth="149.0" promptText="1-127" VBox.vgrow="NEVER">
-                           <VBox.margin>
-                              <Insets right="10.0" />
-                           </VBox.margin>
-                        </TextField>
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="98.0" prefWidth="138.0">
-                     <children>
-                        <Label text="Midi Follow Signal" />
-                        <TextField fx:id="txtMidiFollowSignal" prefHeight="26.0" prefWidth="132.0" />
-                        <Label prefHeight="16.0" prefWidth="32.0" />
-                        <Button fx:id="btnReceiveMidi" mnemonicParsing="false" text="Receive Midi Signal">
-                           <VBox.margin>
-                              <Insets />
-                           </VBox.margin></Button>
-                     </children>
-                  </VBox>
+                  <AnchorPane fx:id="paneInput" prefHeight="98.0" prefWidth="268.0" />
                   <VBox prefHeight="98.0" prefWidth="32.0">
                      <children>
                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="→">

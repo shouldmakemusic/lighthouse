@@ -38,6 +38,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -52,6 +53,7 @@ import net.hirschauer.yaas.lighthouse.model.osc.OSCMessage;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageReceiveConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
+import net.hirschauer.yaas.lighthouse.visual.components.MidiReceiver;
 import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettingsController;
 
 import org.apache.commons.io.FileUtils;
@@ -66,18 +68,20 @@ public class ConfigurationController extends VisualController implements IStorab
 	Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
 		
 	@FXML
-	private ComboBox<String> midiCommandCombo, controllerCombo, commandCombo;
+	private ComboBox<String> controllerCombo, commandCombo;
    	@FXML
     private TableView<ConfigMidiEntry> configTable;
     @FXML
     private TableColumn<ConfigMidiEntry, String> colMidiCommand, colMidiValue, colController, 
     	colCommand, colMidiFollowSignal, colValue1, colValue2, colValue3;
     @FXML
-    private TextField txtMidiValue, txtValue1, txtValue2, txtValue3, txtMidiFollowSignal;
+    private TextField txtValue1, txtValue2, txtValue3;
     @FXML
-    private Button btnReceiveMidi, btnAdd, btnLightSettings;
+    private Button btnAdd, btnLightSettings;
     @FXML
     private BorderPane borderPane;
+    @FXML
+    private AnchorPane paneInput;
     
 	private ObservableList<ConfigMidiEntry> configEntries = FXCollections.observableArrayList();
 	private ObservableList<String> controllerEntries = FXCollections.observableArrayList();
@@ -86,6 +90,8 @@ public class ConfigurationController extends VisualController implements IStorab
     Gson gson = new Gson();
 
 	private List<ConfigLightEntry> configLightEntries = new ArrayList<ConfigLightEntry>();
+
+	private MidiReceiver midiInputController;
 	
 	public ConfigurationController() {
 	}
@@ -111,9 +117,7 @@ public class ConfigurationController extends VisualController implements IStorab
 		    }
 		});
 		configTable.setContextMenu(new ContextMenu(mnuDel));
-		
-		midiCommandCombo.setValue(MIDI_NOTE_ON);
-		
+				
 		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
 
 			@Override
@@ -147,14 +151,11 @@ public class ConfigurationController extends VisualController implements IStorab
 		
 		btnAdd.setOnAction(event -> addInputToTable());
 		
-		txtMidiFollowSignal.setTooltip(new Tooltip("This is only for controllers that used mackie control scripts.\nFirst comes a note and then an integer event type.\nPlace the value that shows as event type here:"));
-		btnReceiveMidi.setTooltip(new Tooltip("Receive the next midi event from the controller\nselected in the Midi viewer."));
-		
 		btnLightSettings.setOnAction(event -> {
 			configLightEntries = ControllerSettingsController.show(configLightEntries);
 		});
 		
-		initMidi();
+		midiInputController = MidiReceiver.show(paneInput);
 	}
     
 	public void copy(Window window) {
@@ -377,21 +378,9 @@ public class ConfigurationController extends VisualController implements IStorab
     
     protected void addInputToTable() {
     	
-    	String error = "";
-    	if (StringUtils.isEmpty(txtMidiValue.getText())) {
-    		error = "Midi value has to be set\n";
-    	} else {
-    		for (ConfigMidiEntry entry : configEntries) {
-    			if (entry.getMidiValue().equals(txtMidiValue.getText())) {
-    				
-    			}
-    		}
-    	}
+    	String error = midiInputController.verify();
     	if (StringUtils.isEmpty(controllerCombo.getValue())) {
     		error += "Controller has to be set\n";
-    	}
-    	if (StringUtils.isEmpty(midiCommandCombo.getValue())) {
-    		error += "Command has to be set\n";
     	}
     	if (StringUtils.isNotEmpty(error)) {
     		Alert alert = new Alert(AlertType.ERROR);
@@ -401,12 +390,10 @@ public class ConfigurationController extends VisualController implements IStorab
     		alert.showAndWait();    	
     		return;
     	}
-    	ConfigMidiEntry ce = new ConfigMidiEntry();
+    	
+    	ConfigMidiEntry ce = new ConfigMidiEntry(midiInputController.getMidiInput());
     	ce.setCommand(commandCombo.getValue());
     	ce.setController(controllerCombo.getValue());
-    	ce.setMidiCommand(midiCommandCombo.getValue());
-    	ce.setMidiValue(txtMidiValue.getText());
-    	ce.setMidiFollowSignal(txtMidiFollowSignal.getText());
     	ce.setValue1(txtValue1.getText());
     	ce.setValue2(txtValue2.getText());
     	ce.setValue3(txtValue3.getText());
@@ -594,55 +581,6 @@ public class ConfigurationController extends VisualController implements IStorab
 					cellEditEvent.getTablePosition().getRow())
 		                ).setValue3(cellEditEvent.getNewValue());
 		    });
-	}
-
-	public void initMidi() {
-		
-		LightHouseMidi midi = LightHouseMidi.getInstance();
-		btnReceiveMidi.setOnAction(event -> {
-				
-				if (!midi.hasDevice()) {
-					Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Midi device not set");
-					alert.setContentText("You have to go to the \"Midi viewer\" and select the device first");
-					alert.show();
-					return;
-				}
-				btnReceiveMidi.setDisable(true);
-				ListChangeListener<MidiLogEntry> changeListener = new ListChangeListener<MidiLogEntry>() {
-
-					@Override
-					public void onChanged(
-							javafx.collections.ListChangeListener.Change<? extends MidiLogEntry> c) {
-						c.next();
-						MidiLogEntry nextMidi = c.getAddedSubList().get(0);
-						int status = nextMidi.getStatus();
-						
-						Platform.runLater(new Runnable() {
-							
-							@Override
-							public void run() {
-								
-								if (status == MidiLogEntry.STATUS_CC) {
-									midiCommandCombo.setValue(MIDI_CC);
-								} else if (status == MidiLogEntry.STATUS_NOTE_OFF) {
-									midiCommandCombo.setValue(MIDI_NOTE_OFF);
-								} else {
-									midiCommandCombo.setValue(MIDI_NOTE_ON);
-								}
-		
-								txtMidiValue.setText(nextMidi.getData1());
-								txtMidiFollowSignal.setText("");
-								btnReceiveMidi.setDisable(false);
-							}
-						});
-						
-						midi.logEntries.removeListener(this);
-					}					
-				};
-				midi.logEntries.addListener(changeListener);
-		});
-
 	}
 
 	public void clear() {
