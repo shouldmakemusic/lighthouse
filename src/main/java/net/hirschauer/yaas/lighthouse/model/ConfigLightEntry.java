@@ -2,7 +2,6 @@ package net.hirschauer.yaas.lighthouse.model;
 
 import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +28,16 @@ public class ConfigLightEntry extends ConfigEntry {
     	if (midiDefinition.length < 2) {
     		throw new ConfigurationException("Wrong length: " + line);
     	}
-    	setCommand(Command.valueOf(midiDefinition[0].trim()));
+    	String command = midiDefinition[0].trim();
+    	if (command.startsWith("'")) {
+    		command = command.substring(1, command.length() - 1);
+    	}
+    	setCommand(Command.valueOf(command));
 
     	// ['Midi Note On' , 10],
     	midiDefinition[1] = midiDefinition[1].trim();
-    	String command = midiDefinition[1].substring(1, midiDefinition[1].length() - 2);
-    	String[] commandParts = command.split(",");
+    	String midi_command = midiDefinition[1].substring(1, midiDefinition[1].length() - 2);
+    	String[] commandParts = midi_command.split(",");
     	
     	// 'Midi Note On'
     	commandParts[0] = commandParts[0].trim();
@@ -63,7 +66,9 @@ public class ConfigLightEntry extends ConfigEntry {
 	public String toString() {
     	StringBuffer sb = new StringBuffer();
     	
+    	sb.append("'");
     	sb.append(getCommand());
+    	sb.append("'");
     	sb.append(" : ['");
     	sb.append(getMidiCommand());
     	sb.append("' , ");
