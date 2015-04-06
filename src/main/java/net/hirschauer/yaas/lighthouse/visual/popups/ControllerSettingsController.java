@@ -15,6 +15,7 @@ import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
 import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry;
 import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry.Command;
 import net.hirschauer.yaas.lighthouse.visual.VisualController;
+import net.hirschauer.yaas.lighthouse.visual.components.MidiReceiver;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,17 +28,22 @@ public class ControllerSettingsController extends VisualController {
 	private List<ConfigLightEntry> settings;
 
 	@FXML
-	Button btnReceiveMidi, btnCancel, btnSave;
+	Button btnCancel, btnSave;
 	
 	@FXML
-	TextField txtMidiValue, txtPlay, txtStop, txtRecord, txtOffset1, txtOffset2,
+	TextField txtPlay, txtStop, txtRecord, txtOffset1, txtOffset2,
 		txtParamOffset1, txtParamOffset2;
 	
 	@FXML
-	ComboBox<String> midiCommandCombo, comboPlay, comboStop, comboRecord, 
+	ComboBox<String> comboPlay, comboStop, comboRecord, 
 		comboOffset1, comboOffset2;
+	
+	@FXML
+	AnchorPane paneInput;
 
-	private Stage stage; 
+	private Stage stage;
+
+	private MidiReceiver midiInputController; 
 	
 	public static List<ConfigLightEntry> show(List<ConfigLightEntry> configLightEntries) {
 		
@@ -73,7 +79,6 @@ public class ControllerSettingsController extends VisualController {
 	private void initialize() {
 		logger.debug("init");
 		
-		midiCommandCombo.setValue(ConfigEntry.MIDI_NOTE_ON);
 		comboPlay.setValue(ConfigEntry.MIDI_NOTE_ON);
 		comboStop.setValue(ConfigEntry.MIDI_NOTE_ON);
 		comboRecord.setValue(ConfigEntry.MIDI_NOTE_ON);
@@ -110,6 +115,9 @@ public class ControllerSettingsController extends VisualController {
 			// TODO: add other buttons
 			stage.close();
 		});
+		
+		midiInputController = MidiReceiver.show(paneInput);
+
     }
     
 	@Override
