@@ -59,19 +59,33 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
     	concValues = concValues.substring(1, concValues.length() - 1);
     	String[] values = concValues.split(" ");
     	if (values.length >= 1) {
-    		setValue1(values[0]);
+    		setValue1(fixEntry(values[0]));
     	}
     	if (values.length >= 2) {
-    		setValue2(values[1]);
+    		setValue2(fixEntry(values[1]));
     	}
     	if (values.length >= 3) {
-    		setValue3(values[2]);
+    		setValue3(fixEntry(values[2]));
     	}
     	if (hasFollowSignal) {
     		String followSignal = commandParts[commandParts.length -1].trim();
     		logger.debug("Follow Signal: " + followSignal);
     		setMidiFollowSignal(followSignal.substring(1, followSignal.length() - 1));
     	}
+    }
+    
+    private String fixEntry(String value) {
+
+		if (value.startsWith("'")) {
+			value = value.substring(1, value.length() -1 );
+		}
+		if (value.startsWith("[")) {
+			value = value.substring(1);
+		}
+		if (value.endsWith("]")) {
+			value = value.substring(0, value.length() -1 );
+		}
+		return value;
     }
 	
 	public ConfigMidiEntry(ConfigEntry midiInput) {
