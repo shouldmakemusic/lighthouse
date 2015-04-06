@@ -9,8 +9,8 @@ import javafx.concurrent.Task;
 
 import javax.sound.midi.InvalidMidiDataException;
 
-import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
+import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.osccontroller.AndroidController;
 import net.hirschauer.yaas.lighthouse.osccontroller.WiiController;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
@@ -95,6 +95,11 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	public void sendToYaas(OSCMessage m) throws IOException {
 		c.send(m, new InetSocketAddress("localhost", 9190));
 		logger.debug("Sent message " + m.getName() + " to YAAS");
+	}
+		
+	public void sendToYaas(net.hirschauer.yaas.lighthouse.model.osc.OSCMessage m) throws IOException {
+		c.send(m.getMessage(), new InetSocketAddress("localhost", 9190));
+		logger.debug("Sent message " + m.getMessage().getName() + " to YAAS");
 	}
 		
 	public void messageReceived(OSCMessage m, SocketAddress addr, long time) {

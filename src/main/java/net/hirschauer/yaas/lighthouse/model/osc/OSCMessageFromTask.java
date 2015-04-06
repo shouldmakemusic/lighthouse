@@ -1,4 +1,4 @@
-package net.hirschauer.yaas.lighthouse.model;
+package net.hirschauer.yaas.lighthouse.model.osc;
 
 import java.util.ArrayList;
 

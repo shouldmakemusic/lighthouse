@@ -6,8 +6,8 @@ import javax.sound.midi.InvalidMidiDataException;
 
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
-import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
+import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageFromTask;
 import de.sciss.net.OSCMessage;
 
 public abstract class OSCController {

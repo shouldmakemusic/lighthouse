@@ -3,7 +3,7 @@ package net.hirschauer.yaas.lighthouse.visual;
 import java.io.IOException;
 
 import de.sciss.net.OSCMessage;
-import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
+import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageFromTask;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

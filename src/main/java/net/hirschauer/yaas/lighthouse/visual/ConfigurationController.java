@@ -48,6 +48,8 @@ import net.hirschauer.yaas.lighthouse.model.ConfigMidiEntry;
 import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry;
 import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
 import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
+import net.hirschauer.yaas.lighthouse.model.osc.OSCMessage;
+import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageReceiveConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
 
@@ -58,7 +60,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
-import de.sciss.net.OSCMessage;
 import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.*;
 
 public class ConfigurationController extends VisualController implements IStorable {
@@ -299,8 +300,7 @@ public class ConfigurationController extends VisualController implements IStorab
     	// /yaas/controller/receive/configuration
     	LightHouseOSCServer oscServer = LightHouseOSCServer.getInstance();
     	try {
-        	Object[] args = new Object[] {"start"};
-        	OSCMessage m = new OSCMessage("/yaas/controller/receive/configuration", args);
+        	OSCMessage m = new OSCMessageReceiveConfiguration("start");
 			oscServer.sendToYaas(m);
 
 			for (ConfigMidiEntry entry : this.getConfigEntries()) {
@@ -308,25 +308,24 @@ public class ConfigurationController extends VisualController implements IStorab
 				String value1 = entry.getValue1() != null ? entry.getValue1() : "";
 				String value2 = entry.getValue2() != null ? entry.getValue2() : "";
 				String value3 = entry.getValue3() != null ? entry.getValue3() : "";
+				String[] args;
 				if (StringUtils.isEmpty(entry.getMidiFollowSignal())) {
-					args = new Object[] {entry.getMidiCommand(), entry.getMidiValue(), entry.getController(),
+					args = new String[] {entry.getMidiCommand(), entry.getMidiValue(), entry.getController(),
 	        			entry.getCommand(), value1, value2, value3};
 				} else {
-					args = new Object[] {entry.getMidiCommand(), entry.getMidiValue(), entry.getController(),
+					args = new String[] {entry.getMidiCommand(), entry.getMidiValue(), entry.getController(),
 		        			entry.getCommand(), value1, value2, value3, entry.getMidiFollowSignal()};					
 				}
-	        	m = new OSCMessage("/yaas/controller/receive/configuration", args);
+	        	m = new OSCMessageReceiveConfiguration(args);
 				oscServer.sendToYaas(m);
     		}
 			for (ConfigLightEntry entry : configLightEntries) {
 	    		
-				args = new Object[] {entry.getCommand().toString(), entry.getMidiCommand(), entry.getMidiValue()};					
-	        	m = new OSCMessage("/yaas/controller/receive/configuration", args);
+	        	m = new OSCMessageReceiveConfiguration(entry.getCommand().toString(), entry.getMidiCommand(), entry.getMidiValue());
 				oscServer.sendToYaas(m);
     		}
 			
-        	args = new Object[] {"end"};
-        	m = new OSCMessage("/yaas/controller/receive/configuration", args);
+        	m = new OSCMessageReceiveConfiguration("end");
 			oscServer.sendToYaas(m);
 			
 		} catch (IOException e) {

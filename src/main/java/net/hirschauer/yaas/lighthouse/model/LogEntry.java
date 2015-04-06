@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageFromTask;
+
 public class LogEntry {
 
 	private static final DateFormat dateFormat = new SimpleDateFormat(

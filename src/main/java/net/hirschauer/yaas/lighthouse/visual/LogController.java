@@ -10,7 +10,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.LogEntry;
-import net.hirschauer.yaas.lighthouse.model.OSCMessageFromTask;
+import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageFromTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
