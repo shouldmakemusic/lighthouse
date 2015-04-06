@@ -70,6 +70,7 @@ public class YaasLogController extends VisualController implements IStorable {
 	private TextInputControl txtYaasLocation;
 
 	private static final Logger logger = LoggerFactory.getLogger(YaasLogController.class);
+	private Thread errorLogChangeListenerThread;
 	
 	@StoredProperty
 	private String fileName;
@@ -290,8 +291,13 @@ public class YaasLogController extends VisualController implements IStorable {
 	public void setErrorFile(String fileName) {
 		logger.debug("setting error file to watch: " + fileName);
 				
-		// TODO: only one errorchange listener should be possible
-		new Thread(errorLogChangeListener).start();
+		if (errorLogChangeListenerThread != null) {
+			errorLogChangeListenerThread.stop();
+			logger.debug("old thread stopped");	
+		}
+		errorLogChangeListenerThread = new Thread(errorLogChangeListener);
+		errorLogChangeListenerThread.start();
+		
 		errorLogChangeListener.messageProperty().addListener(new ChangeListener<String>() {
 
 			@Override
