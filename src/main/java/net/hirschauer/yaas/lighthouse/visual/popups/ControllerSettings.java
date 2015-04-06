@@ -33,8 +33,7 @@ public class ControllerSettings extends VisualController {
 	Button btnCancel, btnSave;
 	
 	@FXML
-	TextField txtPlay, txtStop, txtRecord, txtOffset1, txtOffset2,
-		txtParamOffset1, txtParamOffset2;
+	TextField txtPlay, txtStop, txtRecord, txtOffset1, txtOffset2;
 	
 	@FXML
 	ComboBox<String> comboPlay, comboStop, comboRecord, 
@@ -118,14 +117,12 @@ public class ControllerSettings extends VisualController {
 					command = new ConfigLightEntry(Command.OFFSET1);
 					command.setMidiCommand(comboOffset1.getValue());
 					command.setMidiValue(txtOffset1.getText());
-					command.setMidiFollowSignal(txtParamOffset1.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtOffset2.getText())) {
 					command = new ConfigLightEntry(Command.OFFSET2);
 					command.setMidiCommand(comboOffset2.getValue());
 					command.setMidiValue(txtOffset2.getText());
-					command.setMidiFollowSignal(txtParamOffset2.getText());
 					settings.add(command);
 				}
 				stage.close();
@@ -156,12 +153,10 @@ public class ControllerSettings extends VisualController {
 				case OFFSET1:
 					comboOffset1.setValue(entry.getMidiCommand());
 					txtOffset1.setText(entry.getMidiValue());
-					txtParamOffset1.setText(entry.getMidiFollowSignal());
 					break;
 				case OFFSET2:
 					comboOffset2.setValue(entry.getMidiCommand());
 					txtOffset2.setText(entry.getMidiValue());
-					txtParamOffset2.setText(entry.getMidiFollowSignal());
 					break;
 				case PLAY:
 					comboPlay.setValue(entry.getMidiCommand());
