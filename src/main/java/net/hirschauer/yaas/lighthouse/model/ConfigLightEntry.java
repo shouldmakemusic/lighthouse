@@ -1,14 +1,12 @@
 package net.hirschauer.yaas.lighthouse.model;
 
-import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
+import org.apache.commons.lang3.StringUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
 
 public class ConfigLightEntry extends ConfigEntry {
 
 	private static final long serialVersionUID = 6828720410040824824L;
-	private static final Logger logger = LoggerFactory.getLogger(ConfigLightEntry.class);
 	
 	public enum Command { PLAY, STOP, RECORD, OFFSET1, OFFSET2 };
 
@@ -34,7 +32,7 @@ public class ConfigLightEntry extends ConfigEntry {
     	}
     	setCommand(Command.valueOf(command));
 
-    	// ['Midi Note On' , 10],
+    	// ['Midi Note On' , 10(, 8)],
     	midiDefinition[1] = midiDefinition[1].trim();
     	String midi_command = midiDefinition[1].substring(1, midiDefinition[1].length() - 2);
     	String[] commandParts = midi_command.split(",");
@@ -52,6 +50,12 @@ public class ConfigLightEntry extends ConfigEntry {
     	commandParts[1] = commandParts[1].trim();
     	setMidiValue(commandParts[1]);
     	
+    	if (commandParts.length >= 3) {
+    		commandParts[2] = commandParts[2].trim();
+    		if (StringUtils.isNoneEmpty(commandParts[2])) {
+    			setMidiFollowSignal(commandParts[2]);
+    		}
+    	}
     }
 
 	public Command getCommand() {
@@ -71,8 +75,12 @@ public class ConfigLightEntry extends ConfigEntry {
     	sb.append("'");
     	sb.append(" : ['");
     	sb.append(getMidiCommand());
-    	sb.append("' , ");
+    	sb.append("', ");
     	sb.append(getMidiValue());
+    	if (getMidiFollowSignal() != null) {
+        	sb.append(", ");
+    		sb.append(getMidiFollowSignal());
+    	}
     	sb.append("],");
     	return sb.toString();
 

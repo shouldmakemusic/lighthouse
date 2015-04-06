@@ -50,7 +50,7 @@ import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageReceiveConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.visual.components.MidiReceiver;
-import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettingsController;
+import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettings;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -148,7 +148,7 @@ public class ConfigurationController extends VisualController implements IStorab
 		btnAdd.setOnAction(event -> addInputToTable());
 		
 		btnLightSettings.setOnAction(event -> {
-			configLightEntries = ControllerSettingsController.show(configLightEntries);
+			configLightEntries = ControllerSettings.show(configLightEntries);
 		});
 		
 		midiInputController = MidiReceiver.show(paneInput);

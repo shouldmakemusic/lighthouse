@@ -3,6 +3,8 @@ package net.hirschauer.yaas.lighthouse.visual.popups;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,9 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ControllerSettingsController extends VisualController {
+public class ControllerSettings extends VisualController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ControllerSettingsController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ControllerSettings.class);
 	
 	private List<ConfigLightEntry> settings;
 
@@ -42,13 +44,11 @@ public class ControllerSettingsController extends VisualController {
 	AnchorPane paneInput;
 
 	private Stage stage;
-
-	private MidiReceiver midiInputController; 
 	
 	public static List<ConfigLightEntry> show(List<ConfigLightEntry> configLightEntries) {
 		
 		FXMLLoader loader = new FXMLLoader(
-				ControllerSettingsController.class.getResource(
+				ControllerSettings.class.getResource(
 						"/view/popups/ControllerSettings.fxml"));
 		try {
 			AnchorPane child = (AnchorPane) loader.load();
@@ -57,14 +57,13 @@ public class ControllerSettingsController extends VisualController {
 			confStage.setTitle("Light settings");
 			Scene confScene = new Scene(child);
 			
-			ControllerSettingsController controller = loader.getController();
+			ControllerSettings controller = loader.getController();
 			controller.setStage(confStage);
 			if (configLightEntries.size() > 0) {
 				controller.setLightSettings(configLightEntries);
 			}
 
 			confStage.setScene(confScene);
-//			confStage.setAlwaysOnTop(true);
 			confStage.showAndWait();
 			
 			return controller.settings;
@@ -89,35 +88,51 @@ public class ControllerSettingsController extends VisualController {
 			stage.close();
 		});
 		
-		btnSave.setOnAction(event -> {
-			settings = new ArrayList<ConfigLightEntry>();
+		btnSave.setOnAction(new EventHandler<ActionEvent>() {
 			
-			ConfigLightEntry command;
-			
-			if (StringUtils.isNotEmpty(txtPlay.getText())) {
-				command = new ConfigLightEntry(Command.PLAY);
-				command.setMidiCommand(comboPlay.getValue());
-				command.setMidiValue(txtPlay.getText());
-				settings.add(command);
+			@Override
+			public void handle(ActionEvent event) {
+				settings = new ArrayList<ConfigLightEntry>();
+				
+				ConfigLightEntry command;
+				
+				if (StringUtils.isNotEmpty(txtPlay.getText())) {
+					command = new ConfigLightEntry(Command.PLAY);
+					command.setMidiCommand(comboPlay.getValue());
+					command.setMidiValue(txtPlay.getText());
+					settings.add(command);
+				}
+				if (StringUtils.isNotEmpty(txtStop.getText())) {
+					command = new ConfigLightEntry(Command.STOP);
+					command.setMidiCommand(comboStop.getValue());
+					command.setMidiValue(txtStop.getText());
+					settings.add(command);
+				}
+				if (StringUtils.isNotEmpty(txtRecord.getText())) {
+					command = new ConfigLightEntry(Command.RECORD);
+					command.setMidiCommand(comboRecord.getValue());
+					command.setMidiValue(txtRecord.getText());
+					settings.add(command);
+				}
+				if (StringUtils.isNotEmpty(txtOffset1.getText())) {
+					command = new ConfigLightEntry(Command.OFFSET1);
+					command.setMidiCommand(comboOffset1.getValue());
+					command.setMidiValue(txtOffset1.getText());
+					command.setMidiFollowSignal(txtParamOffset1.getText());
+					settings.add(command);
+				}
+				if (StringUtils.isNotEmpty(txtOffset2.getText())) {
+					command = new ConfigLightEntry(Command.OFFSET2);
+					command.setMidiCommand(comboOffset2.getValue());
+					command.setMidiValue(txtOffset2.getText());
+					command.setMidiFollowSignal(txtParamOffset2.getText());
+					settings.add(command);
+				}
+				stage.close();
 			}
-			if (StringUtils.isNotEmpty(txtStop.getText())) {
-				command = new ConfigLightEntry(Command.STOP);
-				command.setMidiCommand(comboStop.getValue());
-				command.setMidiValue(txtStop.getText());
-				settings.add(command);
-			}
-			if (StringUtils.isNotEmpty(txtRecord.getText())) {
-				command = new ConfigLightEntry(Command.RECORD);
-				command.setMidiCommand(comboRecord.getValue());
-				command.setMidiValue(txtRecord.getText());
-				settings.add(command);
-			}
-			// TODO: add other buttons
-			stage.close();
 		});
 		
-		midiInputController = MidiReceiver.show(paneInput);
-
+		MidiReceiver.show(paneInput);
     }
     
 	@Override
@@ -141,10 +156,12 @@ public class ControllerSettingsController extends VisualController {
 				case OFFSET1:
 					comboOffset1.setValue(entry.getMidiCommand());
 					txtOffset1.setText(entry.getMidiValue());
+					txtParamOffset1.setText(entry.getMidiFollowSignal());
 					break;
 				case OFFSET2:
 					comboOffset2.setValue(entry.getMidiCommand());
 					txtOffset2.setText(entry.getMidiValue());
+					txtParamOffset2.setText(entry.getMidiFollowSignal());
 					break;
 				case PLAY:
 					comboPlay.setValue(entry.getMidiCommand());

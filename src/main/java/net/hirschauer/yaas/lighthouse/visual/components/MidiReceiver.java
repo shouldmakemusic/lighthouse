@@ -1,18 +1,14 @@
 package net.hirschauer.yaas.lighthouse.visual.components;
 
-import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_ON;
 import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_CC;
 import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_OFF;
-
-import java.util.List;
-
+import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_ON;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -20,13 +16,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
-import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry;
-import net.hirschauer.yaas.lighthouse.model.ConfigMidiEntry;
 import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
-import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettingsController;
+import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettings;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -46,7 +39,7 @@ public class MidiReceiver {
 	public static MidiReceiver show(AnchorPane parent) {
 		
 		FXMLLoader loader = new FXMLLoader(
-				ControllerSettingsController.class.getResource(
+				ControllerSettings.class.getResource(
 						"/view/components/MidiReceiver.fxml"));
 		try {
 			AnchorPane child = (AnchorPane) loader.load();		
