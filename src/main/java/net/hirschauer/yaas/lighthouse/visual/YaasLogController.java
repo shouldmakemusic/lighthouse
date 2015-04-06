@@ -32,6 +32,7 @@ import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
+import net.hirschauer.yaas.lighthouse.util.ErrorLogListener;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.util.StoredProperty;
 
@@ -70,7 +71,7 @@ public class YaasLogController extends VisualController implements IStorable {
 	private TextInputControl txtYaasLocation;
 
 	private static final Logger logger = LoggerFactory.getLogger(YaasLogController.class);
-	private Thread errorLogChangeListenerThread;
+	private ErrorLogListener errorLogListener;
 	
 	@StoredProperty
 	private String fileName;
@@ -84,6 +85,18 @@ public class YaasLogController extends VisualController implements IStorable {
 	public YaasLogController() {
 		logger.debug("initialize yaas log controller");
 		instance = this;
+		errorLogListener = new ErrorLogListener();
+		errorLogListener.messageProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				error(newValue);
+			}
+		});
+		new Thread(errorLogListener).start();
+
+
 	}
 	
 	public static YaasLogController getInstance() {
@@ -289,77 +302,9 @@ public class YaasLogController extends VisualController implements IStorable {
 	}
 
 	public void setErrorFile(String fileName) {
-		logger.debug("setting error file to watch: " + fileName);
-				
-		if (errorLogChangeListenerThread != null) {
-			errorLogChangeListenerThread.stop();
-			logger.debug("old thread stopped");	
-		}
-		errorLogChangeListenerThread = new Thread(errorLogChangeListener);
-		errorLogChangeListenerThread.start();
-		
-		errorLogChangeListener.messageProperty().addListener(new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable,
-					String oldValue, String newValue) {
-				error(newValue);
-			}
-		});
+		logger.debug("setting error file to watch: " + fileName);				
+		errorLogListener.setErrorFile(fileName);
 	}
-
-	Task<Void> errorLogChangeListener = new Task<Void>() {
-		
-		@Override
-		protected Void call() throws Exception {
-
-			String errorFile = YaasController.getInstance().getYaasConfiguration().getYaasErrorLogFile();
-			logger.debug("started file observer for " + errorFile);
-			
-			File errorLog = new File(errorFile);
-			if (!errorLog.exists()) {
-				logger.warn("Error log is not available");
-				updateMessage("Cancelled");
-				return null;
-			}
-			long lastmodified = errorLog.lastModified();
-			//logger.debug("lastmodified " + lastmodified);
-			List<String> lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
-			int lineCount = lines.size();
-			logger.debug("starting line count " + lineCount);
-
-			while (true) {
-				// Block the thread for a short time, but be sure
-				// to check the InterruptedException for cancellation
-				try {					
-					
-					if (lastmodified != errorLog.lastModified()) {
-							
-						lines = IOUtils.readLines(new FileInputStream(errorLog), "UTF-8");
-						logger.debug("starting line count " + lineCount);
-						logger.debug("found lines " + lines.size());
-						StringBuffer sb = new StringBuffer();
-						for (int i = lineCount; i < lines.size(); i++) {
-							sb.append(lines.get(i));
-							sb.append("\n");
-						}
-						updateMessage(sb.toString());
-						lastmodified = errorLog.lastModified();
-						lineCount = lines.size();
-					}
-					
-					Thread.sleep(2000);
-	
-				} catch (InterruptedException interrupted) {
-					if (isCancelled()) {
-						updateMessage("Cancelled");
-						break;
-					}
-				}
-			}
-			return null;
-		}
-	};
 
 	public void setOscServer(LightHouseOSCServer oscServer) {
 		oscServer.messageProperty().addListener(new ChangeListener<String>() {
