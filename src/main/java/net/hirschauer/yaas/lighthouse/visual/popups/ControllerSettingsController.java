@@ -1,16 +1,20 @@
-package net.hirschauer.yaas.lighthouse.visual;
+package net.hirschauer.yaas.lighthouse.visual.popups;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
 import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry;
 import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry.Command;
+import net.hirschauer.yaas.lighthouse.visual.VisualController;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,6 +38,36 @@ public class ControllerSettingsController extends VisualController {
 		comboOffset1, comboOffset2;
 
 	private Stage stage; 
+	
+	public static List<ConfigLightEntry> show(List<ConfigLightEntry> configLightEntries) {
+		
+		FXMLLoader loader = new FXMLLoader(
+				ControllerSettingsController.class.getResource(
+						"/view/popups/ControllerSettings.fxml"));
+		try {
+			AnchorPane child = (AnchorPane) loader.load();
+			
+			Stage confStage = new Stage();	
+			confStage.setTitle("Light settings");
+			Scene confScene = new Scene(child);
+			
+			ControllerSettingsController controller = loader.getController();
+			controller.setStage(confStage);
+			if (configLightEntries.size() > 0) {
+				controller.setLightSettings(configLightEntries);
+			}
+
+			confStage.setScene(confScene);
+//			confStage.setAlwaysOnTop(true);
+			confStage.showAndWait();
+			
+			return controller.settings;
+			
+		} catch (Exception e) {
+			logger.error("Could not open controller settings", e);
+		}	
+		return null;
+	}
     
 	@FXML
 	private void initialize() {

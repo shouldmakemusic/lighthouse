@@ -1,5 +1,9 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
+import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_CC;
+import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_OFF;
+import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_ON;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,8 +24,6 @@ import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -36,22 +38,21 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
-import net.hirschauer.yaas.lighthouse.model.ConfigMidiEntry;
 import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry;
+import net.hirschauer.yaas.lighthouse.model.ConfigMidiEntry;
 import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
 import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessage;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageReceiveConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
+import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettingsController;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,8 +60,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-
-import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.*;
 
 public class ConfigurationController extends VisualController implements IStorable {
 
@@ -87,6 +86,9 @@ public class ConfigurationController extends VisualController implements IStorab
     Gson gson = new Gson();
 
 	private List<ConfigLightEntry> configLightEntries = new ArrayList<ConfigLightEntry>();
+	
+	public ConfigurationController() {
+	}
 
     @FXML
 	private void initialize() {
@@ -149,33 +151,7 @@ public class ConfigurationController extends VisualController implements IStorab
 		btnReceiveMidi.setTooltip(new Tooltip("Receive the next midi event from the controller\nselected in the Midi viewer."));
 		
 		btnLightSettings.setOnAction(event -> {
-        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ControllerSettings.fxml"));
-    		try {
-				AnchorPane child = (AnchorPane) loader.load();
-				
-				Stage confStage = new Stage();	
-				confStage.setTitle("Light settings");
-				Scene confScene = new Scene(child);
-				
-				ControllerSettingsController controller = loader.getController();
-				controller.setStage(confStage);
-				if (configLightEntries.size() > 0) {
-					controller.setLightSettings(configLightEntries);
-				}
-
-				confStage.setScene(confScene);
-//				confStage.setAlwaysOnTop(true);
-				confStage.showAndWait();
-				
-				List<ConfigLightEntry> settings = controller.getSettings();
-				if (settings != null) {
-					this.configLightEntries = settings;
-				}
-				
-			} catch (Exception e) {
-				logger.error("Could not open About", e);
-			}
-
+			configLightEntries = ControllerSettingsController.show(configLightEntries);
 		});
 		
 		initMidi();
@@ -660,7 +636,7 @@ public class ConfigurationController extends VisualController implements IStorab
 								btnReceiveMidi.setDisable(false);
 							}
 						});
-
+						
 						midi.logEntries.removeListener(this);
 					}					
 				};

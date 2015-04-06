@@ -74,8 +74,8 @@ public class LightHouseMidi implements Receiver {
 		
 	}
 
-	public void sendMidiNote(int note, int value)
-			throws InvalidMidiDataException {
+	public void sendMidiNote(int note, int value) throws InvalidMidiDataException {
+		
 		sendMidiNote(1, note, value);
 	}
 
