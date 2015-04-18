@@ -106,7 +106,14 @@ public class LightHouseMidi implements Receiver {
 
 		entry.setDescription(getNoteName(data1));
 
-		logEntries.add(entry);
+		try {
+			synchronized (logEntries) {
+				
+				logEntries.add(entry);
+			} 
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	private String getNoteName(int value) {
