@@ -143,6 +143,7 @@ public class SensorValue {
 		Float floatX = (Float) x;
 		Float floatY = (Float) y;
 		Float floatZ = (Float) z;
+		logger.debug("setValues: " + floatX + ", " + floatY + ", " + floatZ);
 		if (this.type.equals(SensorType.WII)) {
 			floatX *= 10;
 			floatY *= 10;
@@ -217,7 +218,7 @@ public class SensorValue {
 		setRoll(floatRoll.floatValue());
 		setYaw(floatYaw.floatValue());	
 		setAccel(floatAccel.floatValue());
-		logger.debug("setPry " + pitch + ", " + roll + ", " + yaw + ", " + getAccel());
+		logger.debug("setPry " + pitch + ", " + roll + ", " + yaw + ", " + accel);
 	}
 
 	public float getPitch() {

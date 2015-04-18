@@ -146,7 +146,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 				logger.error("Could not handle android message: " + m.getName(), e);
 			}
 		} else if (m.getName().startsWith("/yaas")) {
-			
+			logger.debug(m.getName() + " " + m.getArg(0));
 			try {
 				yaasController.handleMessage(m);
 			} catch (InvalidMidiDataException e) {
