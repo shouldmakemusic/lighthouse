@@ -64,7 +64,7 @@ public class LightHouse extends Application {
 	TabPane tabPane;
     @FXML
     AnchorPane logTablePane, logTableWii, logTableAndroid, yaasLogTablePane, 
-    midiLogTablePane, configurationTablePane, logTableWiiProgram;
+    midiLogTablePane, configurationTablePane;
     @FXML
     HBox topBox;
     @FXML
@@ -361,13 +361,6 @@ public class LightHouse extends Application {
 		AnchorPane childLogTable = (AnchorPane) loader.load();
         controller.setOscServer(oscServer);
         logTableWii.getChildren().add(childLogTable);
-
-        loader = new FXMLLoader(getClass().getResource("/view/LogTable.fxml"));
-		controller = new LogController(OSCMessageFromTask.TYPE_WII_EXEC);
-        loader.setController(controller);
-		AnchorPane log4jLogTable = (AnchorPane) loader.load();
-        controller.setOscServer(oscServer);
-        logTableWiiProgram.getChildren().add(log4jLogTable);
     }
 	
 	@Override
