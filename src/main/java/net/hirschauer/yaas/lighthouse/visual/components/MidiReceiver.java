@@ -84,13 +84,29 @@ public class MidiReceiver {
 							javafx.collections.ListChangeListener.Change<? extends MidiLogEntry> c) {
 						c.next();
 						MidiLogEntry nextMidi = c.getAddedSubList().get(0);
-						int status = nextMidi.getStatus();
+						int status = nextMidi.getStatus();						
 						
 						Platform.runLater(new Runnable() {
 							
 							@Override
 							public void run() {
 								
+								try {
+									Thread.sleep(100);
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+
+								MidiLogEntry lastSignal = midi.logEntries.get(midi.logEntries.size() -1);
+								if (lastSignal.getStatus() != MidiLogEntry.STATUS_NOTE_ON && 
+										lastSignal.getStatus() != MidiLogEntry.STATUS_NOTE_OFF &&
+										lastSignal.getStatus() != MidiLogEntry.STATUS_CC) {
+									txtMidiFollowSignal.setText("" + lastSignal.getStatus());
+								} else {
+									txtMidiFollowSignal.setText("");
+								}
+
 								if (status == MidiLogEntry.STATUS_CC) {
 									midiCommandCombo.setValue(MIDI_CC);
 								} else if (status == MidiLogEntry.STATUS_NOTE_OFF) {
@@ -100,7 +116,6 @@ public class MidiReceiver {
 								}
 		
 								txtMidiValue.setText(nextMidi.getData1());
-								txtMidiFollowSignal.setText("");
 								btnReceiveMidi.setDisable(false);
 							}
 						});
