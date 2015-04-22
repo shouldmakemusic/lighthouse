@@ -155,7 +155,7 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
     		}
     	}
     	if (StringUtils.isNotEmpty(getValue3())) {
-    		sb.append("', '");
+    		sb.append(", ");
     		if (!StringUtils.isNumeric(getValue3())) {
     			sb.append("'");
     		}
