@@ -1,9 +1,19 @@
 package net.hirschauer.yaas.lighthouse.visual.components;
 
+import java.util.List;
+import java.util.Map;
+
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -11,6 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.model.ConfigCommand;
+import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.RangeSlider;
@@ -33,6 +44,8 @@ public abstract class LineEditor {
 	@FXML
 	private Button btnOk, btnCancel;
 
+	private ObservableList<String> controllerEntries = FXCollections.observableArrayList();
+
 	private RangeSlider hSlider;
 	private Stage stage;
 	private ConfigCommand configCommand;
@@ -53,6 +66,17 @@ public abstract class LineEditor {
 			logger.error("Could not open controller settings", e);
 		}
 		return null;
+	}
+	
+	public void updateControllerCombo() {
+		
+		Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands; 
+		controllerEntries.clear();
+		for (String name : yaasCommands.keySet()) {
+//			logger.debug("added controller " + name);
+			controllerEntries.add(name);
+		}
+		controllerCombo.setItems(controllerEntries);
 	}
 
 	private void setEntry(ConfigCommand entry) {
@@ -96,6 +120,11 @@ public abstract class LineEditor {
 			
 			@Override
 			public void handle(ActionEvent event) {
+				
+				boolean isOk = verifyAll();
+				if (!isOk) {
+					return;
+				}
 				configCommand = getConfigEntry();
 				configCommand.setCommand(commandCombo.getValue());
 				configCommand.setController(controllerCombo.getValue());
@@ -119,7 +148,57 @@ public abstract class LineEditor {
 				stage.close();
 			}
 		});
+		
+		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
+
+			@Override
+			public void onChanged(@SuppressWarnings("rawtypes") Change change) {
+				Platform.runLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						updateControllerCombo();
+						commandCombo.setValue("");
+						commandCombo.setItems(null);
+					}
+				});				
+			}
+		});
+		
+		updateControllerCombo();
+		controllerCombo.valueProperty().addListener((ObservableValue<? extends String> observable,
+					String oldValue, String newValue) -> {
+				
+				logger.debug("selected " + newValue);
+				Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands; 				
+				ObservableList<String> commandNames = FXCollections.observableArrayList();	
+				if (yaasCommands.containsKey(newValue)) {
+					for (String name : yaasCommands.get(newValue)) {
+						logger.debug("added command " + name);
+						commandNames.add(name);
+					}
+				}
+				commandCombo.setItems(commandNames);
+		});
+
 	}
+	
+    protected boolean verifyAll() {
+    	
+    	String error = verify();
+    	if (StringUtils.isEmpty(controllerCombo.getValue())) {
+    		error += "Controller has to be set\n";
+    	}
+    	if (StringUtils.isNotEmpty(error)) {
+    		Alert alert = new Alert(AlertType.ERROR);
+    		alert.setTitle("Error Dialog");
+    		alert.setHeaderText(null);
+    		alert.setContentText(error);
+    		alert.showAndWait();    	
+    		return false;
+    	}    	
+    	return true;
+    }
 	
 	protected void initSlider(double min, double max, double low, double high) {
 		hSlider = new RangeSlider(min, max, low, high);
@@ -143,4 +222,5 @@ public abstract class LineEditor {
 	
 	protected abstract ConfigCommand getConfigEntry();
 	protected abstract void setConfigEntry(ConfigCommand entry);
+	protected abstract String verify();
 }

@@ -9,15 +9,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 
-import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
@@ -28,15 +24,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
@@ -44,6 +37,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
+import net.hirschauer.yaas.lighthouse.model.ConfigCommand;
 import net.hirschauer.yaas.lighthouse.model.ConfigLight;
 import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
@@ -53,7 +47,6 @@ import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
 import net.hirschauer.yaas.lighthouse.visual.components.LineEditor;
 import net.hirschauer.yaas.lighthouse.visual.components.MidiLineEditor;
-import net.hirschauer.yaas.lighthouse.visual.components.MidiReceiver;
 import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettings;
 
 import org.apache.commons.io.FileUtils;
@@ -67,32 +60,22 @@ public class ConfigurationController extends VisualController implements IStorab
 
 	Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
 		
-	@FXML
-	private ComboBox<String> controllerCombo, commandCombo;
    	@FXML
     private TableView<ConfigMidi> configTable;
     @FXML
     private TableColumn<ConfigMidi, String> colMidiCommand, colMidiValue, colController, 
     	colCommand, colMidiFollowSignal, colValue1, colValue2, colValue3;
     @FXML
-    private TextField txtValue1, txtValue2, txtValue3;
-    @FXML
     private Button btnAdd, btnLightSettings;
     @FXML
     private BorderPane borderPane;
-    @FXML
-    private AnchorPane paneInput;
     
 	private ObservableList<ConfigMidi> configEntries = FXCollections.observableArrayList();
-	private ObservableList<String> controllerEntries = FXCollections.observableArrayList();
-	private ObservableList<String> commandEntries = FXCollections.observableArrayList();
     
     Gson gson = new Gson();
 
 	private List<ConfigLight> configLightEntries = new ArrayList<ConfigLight>();
 
-	private MidiReceiver midiInputController;
-	
 	public ConfigurationController() {
 	}
 
@@ -103,48 +86,27 @@ public class ConfigurationController extends VisualController implements IStorab
 		setCellFactories();
 
 		configTable.setItems(getConfigEntries());
-		configTable.setEditable(true);
+		configTable.setEditable(false);
+		configTable.setRowFactory( tv -> {
+		    TableRow<ConfigMidi> row = new TableRow<>();
+		    row.setOnMouseClicked(event -> {
+		        if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+		            logger.debug("double click on row");
+		            showEditRow(row.getIndex());
+		        }
+		    });
+		    return row ;
+		});
 				
 		initMenu();
 				
-		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
-
-			@Override
-			public void onChanged(@SuppressWarnings("rawtypes") Change change) {
-				Platform.runLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						updateControllerCombo();
-						commandCombo.setValue("");
-						commandCombo.setItems(null);
-					}
-				});				
-			}
-		});
 		
-		controllerCombo.valueProperty().addListener((ObservableValue<? extends String> observable,
-					String oldValue, String newValue) -> {
-				
-				logger.debug("selected " + newValue);
-				Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands; 				
-				ObservableList<String> commandNames = FXCollections.observableArrayList();	
-				if (yaasCommands.containsKey(newValue)) {
-					for (String name : yaasCommands.get(newValue)) {
-						logger.debug("added command " + name);
-						commandNames.add(name);
-					}
-				}
-				commandCombo.setItems(commandNames);
-		});
-		
-		btnAdd.setOnAction(event -> addInputToTable());
+		//btnAdd.setOnAction(event -> addInputToTable());
 		
 		btnLightSettings.setOnAction(event -> {
 			configLightEntries = ControllerSettings.show(configLightEntries);
 		});
 		
-		midiInputController = MidiReceiver.show(paneInput);
 	}
 
 	private void initMenu() {
@@ -164,28 +126,32 @@ public class ConfigurationController extends VisualController implements IStorab
 		    @Override
 		    public void handle(ActionEvent t) {
 		        logger.debug("Edit row");
-                ConfigMidi p = configTable.getSelectionModel().getSelectedItem();
-                if (p != null) {
-                	AnchorPane root = new AnchorPane();
-    				Stage editStage = new Stage();				
-    				Scene editScene = new Scene(root);
-    				
-                    LineEditor editor = MidiLineEditor.show(root, p);
-                    editor.setStage(editStage);
-
-                    editStage.setScene(editScene);
-    				editStage.setAlwaysOnTop(true);
-    				editStage.showAndWait();
-    				
-    				int index = configTable.getSelectionModel().getSelectedIndex();
-    				configEntries.remove(index);
-    				configEntries.add(index, (ConfigMidi) editor.getEntry());
-                }
+                showEditRow(configTable.getSelectionModel().getSelectedIndex());
 		    }
 		});
 		configTable.setContextMenu(new ContextMenu(mnuEdit, mnuDel));
 	}
     
+	private void showEditRow(int index) {
+		
+		ConfigCommand p = configEntries.get(index);
+        if (p != null) {
+        	AnchorPane root = new AnchorPane();
+			Stage editStage = new Stage();				
+			Scene editScene = new Scene(root);
+			
+            LineEditor editor = MidiLineEditor.show(root, p);
+            editor.setStage(editStage);
+
+            editStage.setScene(editScene);
+			editStage.setAlwaysOnTop(true);
+			editStage.showAndWait();
+						
+			configEntries.remove(index);
+			configEntries.add(index, (ConfigMidi) editor.getEntry());
+        }
+	}
+
 	public void copy(Window window) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Confirmation Dialog");
@@ -403,42 +369,6 @@ public class ConfigurationController extends VisualController implements IStorab
 		}
 
     }
-    
-    protected void addInputToTable() {
-    	
-    	String error = midiInputController.verify();
-    	if (StringUtils.isEmpty(controllerCombo.getValue())) {
-    		error += "Controller has to be set\n";
-    	}
-    	if (StringUtils.isNotEmpty(error)) {
-    		Alert alert = new Alert(AlertType.ERROR);
-    		alert.setTitle("Error Dialog");
-    		alert.setHeaderText(null);
-    		alert.setContentText(error);
-    		alert.showAndWait();    	
-    		return;
-    	}
-    	
-    	ConfigMidi ce = midiInputController.getMidiInput();
-    	ce.setCommand(commandCombo.getValue());
-    	ce.setController(controllerCombo.getValue());
-    	ce.setValue1(txtValue1.getText());
-    	ce.setValue2(txtValue2.getText());
-    	ce.setValue3(txtValue3.getText());
-    	
-    	getConfigEntries().add(ce);
-    }
-
-	public void updateControllerCombo() {
-		
-		Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands; 
-		controllerEntries.clear();
-		for (String name : yaasCommands.keySet()) {
-//			logger.debug("added controller " + name);
-			controllerEntries.add(name);
-		}
-		controllerCombo.setItems(controllerEntries);
-	}
 
 	public ObservableList<ConfigMidi> getConfigEntries() {
 		return configEntries;
@@ -502,113 +432,13 @@ public class ConfigurationController extends VisualController implements IStorab
 	
 	private void setCellFactories() {
 		colMidiCommand.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("midiCommand"));
-		colMidiCommand.setCellFactory(TextFieldTableCell.forTableColumn());
-		colMidiCommand.setOnEditCommit(cellEditEvent -> {
-		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
-		            		cellEditEvent.getTablePosition().getRow())
-		                ).setMidiCommand(cellEditEvent.getNewValue());
-		    }
-		);
 		colMidiValue.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("midiValue"));
-		colMidiValue.setCellFactory(TextFieldTableCell.forTableColumn());
-		colMidiValue.setOnEditCommit(cellEditEvent -> {
-		        	
-		        	if (StringUtils.isNumeric(cellEditEvent.getNewValue())) {
-			            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
-			            		cellEditEvent.getTablePosition().getRow())
-			                ).setMidiValue(cellEditEvent.getNewValue());
-		        	} else {
-		        		
-		        		Alert alert = new Alert(AlertType.INFORMATION);
-		        		alert.setTitle("Information Dialog");
-		        		alert.setHeaderText(null);
-		        		alert.setContentText("Midi value has to be a integer!");
-		        		alert.showAndWait();
-		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(false);
-		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(true);		        		
-		        	}
-		    });
 		colMidiFollowSignal.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("midiFollowSignal"));
-		colMidiFollowSignal.setCellFactory(TextFieldTableCell.forTableColumn());
-		colMidiFollowSignal.setOnEditCommit(cellEditEvent -> {
-		        	
-		        	if (StringUtils.isEmpty(cellEditEvent.getNewValue()) || StringUtils.isNumeric(cellEditEvent.getNewValue())) {
-			            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
-			            		cellEditEvent.getTablePosition().getRow())
-			                ).setMidiFollowSignal(cellEditEvent.getNewValue());
-		        	} else {
-		        		
-		        		Alert alert = new Alert(AlertType.INFORMATION);
-		        		alert.setTitle("Information Dialog");
-		        		alert.setHeaderText(null);
-		        		alert.setContentText("Midi follow signal has to be a integer!");
-		        		alert.showAndWait();
-		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(false);
-		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(true);		        		
-		        	}
-		    });		
-		colMidiValue.setComparator((String o1, String o2) -> {
-				Integer i1 = Integer.parseInt(o1);
-				Integer i2 = Integer.parseInt(o2);
-				return i1.compareTo(i2);
-		});
 		colCommand.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("command"));
-		colCommand.setCellFactory(ComboBoxTableCell.forTableColumn(commandEntries));
-		colCommand.setOnEditStart(cellEditEvent -> {
-				String controller = cellEditEvent.getRowValue().getController();
-				Map<String, List<String>> yaasCommands = YaasController.getInstance().yaasCommands;
-				commandEntries.clear();
-				if (yaasCommands.containsKey(controller)) {
-					for (String name : yaasCommands.get(controller)) {
-						commandEntries.add(name);
-					}
-				}
-		});		
-		colCommand.setOnEditCommit(cellEditEvent ->  {
-		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
-		            		cellEditEvent.getTablePosition().getRow())
-		                ).setCommand(cellEditEvent.getNewValue());
-		            colCommand.setVisible(false);
-		            colCommand.setVisible(true);
-		    }
-		);
-
 		colController.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("controller"));
-		colController.setCellFactory(ComboBoxTableCell.forTableColumn(controllerEntries));
-		colController.setOnEditCommit(cellEditEvent -> {
-		            if (cellEditEvent.getNewValue() != "" && !cellEditEvent.getNewValue().equals(cellEditEvent.getRowValue().getController())) {
-		            	cellEditEvent.getRowValue().setCommand("");
-		            	configTable.getColumns().get(3).setVisible(false);
-		            	configTable.getColumns().get(3).setVisible(true);
-		            }
-		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
-		            		cellEditEvent.getTablePosition().getRow())
-			                ).setController(cellEditEvent.getNewValue());		       
-		    }
-		);
 		colValue1.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("value1"));
-		colValue1.setCellFactory(TextFieldTableCell.forTableColumn());
-		colValue1.setOnEditCommit(cellEditEvent ->  {
-		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
-		            		cellEditEvent.getTablePosition().getRow())
-		                ).setValue1(cellEditEvent.getNewValue());
-		    }
-		);
 		colValue2.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("value2"));
-		colValue2.setCellFactory(TextFieldTableCell.forTableColumn());
-		colValue2.setOnEditCommit(cellEditEvent ->  {
-		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
-		            		cellEditEvent.getTablePosition().getRow())
-		                ).setValue2(cellEditEvent.getNewValue());
-		        }
-		);
 		colValue3.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("value3"));
-		colValue3.setCellFactory(TextFieldTableCell.forTableColumn());
-		colValue3.setOnEditCommit(cellEditEvent -> {
-			((ConfigMidi) cellEditEvent.getTableView().getItems().get(
-					cellEditEvent.getTablePosition().getRow())
-		                ).setValue3(cellEditEvent.getNewValue());
-		    });
 	}
 
 	public void clear() {

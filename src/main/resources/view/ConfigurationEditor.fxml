@@ -14,56 +14,10 @@
    <children>
       <BorderPane fx:id="borderPane" prefHeight="277.0" prefWidth="711.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
-            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="118.0" prefWidth="673.0" BorderPane.alignment="CENTER">
+            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="47.0" prefWidth="855.0" BorderPane.alignment="CENTER">
                <children>
-                  <AnchorPane fx:id="paneInput" prefHeight="98.0" prefWidth="268.0" />
-                  <VBox prefHeight="98.0" prefWidth="32.0">
-                     <children>
-                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="→">
-                           <font>
-                              <Font size="46.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets top="20.0" />
-                           </VBox.margin>
-                        </Text>
-                     </children>
-                     <HBox.margin>
-                        <Insets left="10.0" right="10.0" />
-                     </HBox.margin>
-                  </VBox>
-                  <VBox prefHeight="51.0" prefWidth="198.0">
-                     <children>
-                        <Label text="Select a controller" />
-                        <ComboBox fx:id="controllerCombo" prefHeight="26.0" prefWidth="189.0" />
-                        <Label text="Select a command" />
-                        <ComboBox fx:id="commandCombo" prefHeight="26.0" prefWidth="189.0" />
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="118.0" prefWidth="112.0">
-                     <children>
-                        <Label text="Values" />
-                        <TextField fx:id="txtValue1" promptText="CURRENT" />
-                        <TextField fx:id="txtValue2" />
-                        <TextField fx:id="txtValue3" />
-                     </children>
-                     <HBox.margin>
-                        <Insets right="10.0" />
-                     </HBox.margin>
-                  </VBox>
-                  <VBox prefHeight="98.0" prefWidth="132.0">
-                     <children>
-                        <Button fx:id="btnAdd" mnemonicParsing="false" prefHeight="26.0" prefWidth="102.0" text="Add to table">
-                           <VBox.margin>
-                              <Insets bottom="5.0" top="15.0" />
-                           </VBox.margin></Button>
-                        <Button fx:id="btnLightSettings" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Light settings">
-                           <VBox.margin>
-                              <Insets top="23.0" />
-                           </VBox.margin>
-                        </Button>
-                     </children>
-                  </VBox>
+                  <Button fx:id="btnAdd" mnemonicParsing="false" prefHeight="26.0" prefWidth="102.0" text="Add to table" />
+                  <Button fx:id="btnLightSettings" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Light settings" />
                </children>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

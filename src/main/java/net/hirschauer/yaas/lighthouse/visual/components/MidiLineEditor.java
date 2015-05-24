@@ -34,4 +34,9 @@ public class MidiLineEditor extends LineEditor {
 		midiInputController.setMidiInput((ConfigMidi)entry);
 		
 	}
+
+	@Override
+	protected String verify() {
+		return midiInputController.verify();
+	}
 }

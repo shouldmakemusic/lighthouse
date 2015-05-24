@@ -132,6 +132,12 @@ public class MidiReceiver {
     	String error = "";
     	if (StringUtils.isEmpty(txtMidiValue.getText())) {
     		error = "Midi value has to be set\n";
+    	} else {
+        	if (!StringUtils.isNumeric(txtMidiValue.getText())) {
+        		
+        		error = "Midi value is not numeric";	        		
+        	}
+
     	}
     	if (StringUtils.isEmpty(midiCommandCombo.getValue())) {
     		error += "Command has to be set\n";
