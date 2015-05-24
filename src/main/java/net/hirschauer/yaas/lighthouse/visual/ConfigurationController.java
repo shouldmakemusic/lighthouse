@@ -302,7 +302,7 @@ public class ConfigurationController extends VisualController implements IStorab
     		}
 			for (ConfigLight entry : configLightEntries) {
 	    		
-	        	m = new OSCMessageReceiveConfiguration(entry.getCommand().toString(), entry.getMidiCommand(), entry.getMidiValue());
+	        	m = new OSCMessageReceiveConfiguration(entry.getLightCommand().toString(), entry.getMidiCommand(), entry.getMidiValue());
 				oscServer.sendToYaas(m);
     		}
 			
