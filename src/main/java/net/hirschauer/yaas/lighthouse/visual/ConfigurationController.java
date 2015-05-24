@@ -68,7 +68,7 @@ public class ConfigurationController extends VisualController implements IStorab
     private TableColumn<ConfigCommand, String> colMidiCommand, colMidiValue, colController, 
     	colCommand, colMidiFollowSignal, colValue1, colValue2, colValue3;
     @FXML
-    private Button btnAdd, btnLightSettings, btnSend, btnSendTemp;
+    private Button btnAdd, btnLightSettings, btnSend, btnSendTemp, btnLoad, btnSave, btnClear;
     @FXML
     private BorderPane borderPane;
     
@@ -119,10 +119,13 @@ public class ConfigurationController extends VisualController implements IStorab
 			copy(null);
 		});
 		
-		btnSend.setOnAction(event -> {
+		btnSendTemp.setOnAction(event -> {
 			sendConfigurationToYaas(null);
 		});
 		
+		btnLoad.setOnAction(event -> loadFromFile(btnLoad.getScene().getWindow()));
+		btnSave.setOnAction(event -> saveToFile(btnLoad.getScene().getWindow()));
+		btnClear.setOnAction(event -> clear());
 	}
 
 	private void initMenu() {
@@ -364,6 +367,29 @@ public class ConfigurationController extends VisualController implements IStorab
     	return commands;    	
     }
     
+    private String getStringForCommand(String configCommand) {
+    	StringBuffer sb = new StringBuffer();
+		Map<Object, List<ConfigCommand>> commandEntries = getPreparedValues(getConfigEntries(), configCommand);
+		
+		for (Object key : commandEntries.keySet()) {
+			List<ConfigCommand> commandEntryList = commandEntries.get(key);
+			
+			if (commandEntryList.size() == 1) {
+									
+				sb.append("\t" + commandEntryList.get(0).toString() + "\n");
+			} else {
+				
+				sb.append("\t" + key + ": [\n");
+				for (ConfigCommand command : commandEntryList) {
+					sb.append("\t\t" + command.getAsString() + "\n");
+				}
+				sb.append("\t],\n");
+			}
+		}				
+		sb.append("\t}\n\n");
+		return sb.toString();
+    }
+    
     private void writeToFile(File file) {
     	FileWriter fw;
 		try {
@@ -371,43 +397,14 @@ public class ConfigurationController extends VisualController implements IStorab
 			fw.write("[MidiIn]\n");
 
 			fw.write("midi_note_definitions = {\n");	
-			Map<Object, List<ConfigCommand>> commandEntries = getPreparedValues(getConfigEntries(), MIDI_NOTE_ON);
-			
-			for (Object key : commandEntries.keySet()) {
-				List<ConfigCommand> commandEntryList = commandEntries.get(key);
-				
-				if (commandEntryList.size() == 1) {
-										
-					fw.write("\t" + commandEntryList.get(0).toString() + "\n");
-				} else {
-					
-					fw.write("\t" + key + ": [\n");
-					for (ConfigCommand command : commandEntryList) {
-						fw.write("\t\t" + command.getAsString() + "\n");
-					}
-					fw.write("\t],\n");
-				}
-			}				
-			fw.write("\t}\n\n");
+			fw.write(getStringForCommand(MIDI_NOTE_ON));
 
 			fw.write("midi_note_off_definitions = {\n");				
-			for (ConfigCommand entry : getConfigEntries()) {
-				
-				if (entry.getConfigCommand().equals(MIDI_NOTE_OFF)) {
-					fw.write("\t" + entry.toString() + "\n");
-				}
-			}				
-			fw.write("\t}\n\n");
+			fw.write(getStringForCommand(MIDI_NOTE_OFF));
 
 			fw.write("[CC]\n");
 			fw.write("midi_cc_definitions = {\n");				
-			for (ConfigCommand entry : getConfigEntries()) {
-				
-				if (entry.getConfigCommand().equals(MIDI_CC)) {
-					fw.write("\t" + entry.toString() + "\n");
-				}
-			}				
-			fw.write("\t}\n\n");
+			fw.write(getStringForCommand(MIDI_CC));
 			
 //			controller_definitions
 			fw.write("[Addons]\n");
