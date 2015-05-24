@@ -55,23 +55,33 @@ public class ConfigMidi extends ConfigCommand implements Serializable {
 	}
 
 	@Override
-	protected void setAdditionalValue(String additionalValue) {
+	public void setAdditionalValue(String additionalValue) {
 		setMidiFollowSignal(additionalValue);
 	}
 
 	@Override
-	protected void setConfigValue(String configValue) {
+	public void setConfigValue(String configValue) {
 		setMidiValue(configValue);
 	}
 
 	@Override
-	protected String getAdditionalValue() {		
+	public String getAdditionalValue() {		
 		return getMidiCommand();
 	}
 
 	@Override
-	protected String getConfigValue() {
+	public String getConfigValue() {
 		return getMidiValue();
+	}
+
+	@Override
+	public void setConfigCommand(String configCommand) {
+		this.midiCommand = configCommand;
+	}
+
+	@Override
+	public String getConfigCommand() {
+		return this.midiCommand;
 	}
 
 }

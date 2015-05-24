@@ -74,10 +74,14 @@ public abstract class ConfigCommand implements Serializable {
     	}
     }
 
-	abstract protected void setAdditionalValue(String additionalValue);
-	abstract protected void setConfigValue(String configValue);
-	abstract protected String getAdditionalValue();
-	abstract protected String getConfigValue();
+	abstract public void setAdditionalValue(String additionalValue);
+	abstract public String getAdditionalValue();
+
+	abstract public void setConfigValue(String configValue);
+	abstract public String getConfigValue();
+
+	abstract public void setConfigCommand(String configCommand);
+	abstract public String getConfigCommand();
 
 	private String fixEntry(String value) {
 
