@@ -8,14 +8,14 @@ public class ConfigLight extends ConfigMidi {
 
 	private static final long serialVersionUID = 6828720410040824824L;
 	
-	public enum Command { PLAY, STOP, RECORD, OFFSET1, OFFSET2 };
+	public enum LightCommand { PLAY, STOP, RECORD, OFFSET1, OFFSET2 };
 
-	private Command command;
+	private LightCommand lightCommand;
 	
 	public ConfigLight() {}
 	
-	public ConfigLight(Command command) {
-		this.command = command;
+	public ConfigLight(LightCommand lightCommand) {
+		this.lightCommand = lightCommand;
 	}
 	
     public ConfigLight(String line) throws ConfigurationException {
@@ -30,7 +30,7 @@ public class ConfigLight extends ConfigMidi {
     	if (command.startsWith("'")) {
     		command = command.substring(1, command.length() - 1);
     	}
-    	setLightCommand(Command.valueOf(command));
+    	setLightCommand(LightCommand.valueOf(command));
 
     	// ['Midi Note On' , 10(, 8)],
     	midiDefinition[1] = midiDefinition[1].trim();
@@ -58,12 +58,12 @@ public class ConfigLight extends ConfigMidi {
     	}
     }
 
-	public Command getLightCommand() {
-		return command;
+	public LightCommand getLightCommand() {
+		return lightCommand;
 	}
 
-	public void setLightCommand(Command command) {
-		this.command = command;
+	public void setLightCommand(LightCommand lightCommand) {
+		this.lightCommand = lightCommand;
 	}
 	
 	@Override

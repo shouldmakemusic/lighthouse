@@ -39,7 +39,6 @@ import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
 import net.hirschauer.yaas.lighthouse.model.ConfigCommand;
 import net.hirschauer.yaas.lighthouse.model.ConfigLight;
-import net.hirschauer.yaas.lighthouse.model.ConfigCommand;
 import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessage;
@@ -100,9 +99,15 @@ public class ConfigurationController extends VisualController implements IStorab
 		});
 				
 		initMenu();
-				
-		
-		//btnAdd.setOnAction(event -> addInputToTable());
+						
+		btnAdd.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				configEntries.add(new ConfigMidi());
+				showEditRow(configEntries.size() -1);
+			}
+		});
 		
 		btnLightSettings.setOnAction(event -> {
 			configLightEntries = ControllerSettings.show(configLightEntries);
@@ -149,7 +154,11 @@ public class ConfigurationController extends VisualController implements IStorab
 			editStage.showAndWait();
 						
 			configEntries.remove(index);
-			configEntries.add(index, (ConfigCommand) editor.getEntry());
+			
+			ConfigCommand entry = (ConfigCommand) editor.getEntry();
+			if (entry != null) {
+				configEntries.add(index, entry);
+			}
         }
 	}
 
@@ -412,7 +421,7 @@ public class ConfigurationController extends VisualController implements IStorab
 				
 				if (entry[1].equals("config")) {
 					
-					ConfigCommand configEntry = gson.fromJson((String) (String)values.get(key), ConfigCommand.class);
+					ConfigCommand configEntry = gson.fromJson((String) (String)values.get(key), ConfigMidi.class);
 					configEntries.add(configEntry);
 					
 				} else if (entry[1].equals("light")) {

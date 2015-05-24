@@ -16,7 +16,7 @@
          <top>
             <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="47.0" prefWidth="855.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="btnAdd" mnemonicParsing="false" prefHeight="26.0" prefWidth="102.0" text="Add to table" />
+                  <Button fx:id="btnAdd" mnemonicParsing="false" prefHeight="26.0" prefWidth="121.0" text="Add new entry" />
                   <Button fx:id="btnLightSettings" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Light settings" />
                </children>
                <padding>

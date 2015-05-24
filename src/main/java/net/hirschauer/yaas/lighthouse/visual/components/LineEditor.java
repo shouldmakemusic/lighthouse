@@ -121,10 +121,18 @@ public abstract class LineEditor {
 			@Override
 			public void handle(ActionEvent event) {
 				
-				boolean isOk = verifyAll();
-				if (!isOk) {
-					return;
-				}
+				String error = verifyAll();
+		    	if (StringUtils.isNotEmpty(error)) {
+		    		Alert alert = new Alert(AlertType.ERROR);
+		    		alert.setTitle("Error Dialog");
+		    		alert.setHeaderText(null);
+		    		alert.setContentText(error);
+		    		stage.setOpacity(0);
+		    		alert.showAndWait();    	
+		    		stage.setOpacity(1);
+		    		return;
+		    	}    	
+
 				configCommand = getConfigEntry();
 				configCommand.setCommand(commandCombo.getValue());
 				configCommand.setController(controllerCombo.getValue());
@@ -183,21 +191,13 @@ public abstract class LineEditor {
 
 	}
 	
-    protected boolean verifyAll() {
+    protected String verifyAll() {
     	
     	String error = verify();
     	if (StringUtils.isEmpty(controllerCombo.getValue())) {
     		error += "Controller has to be set\n";
     	}
-    	if (StringUtils.isNotEmpty(error)) {
-    		Alert alert = new Alert(AlertType.ERROR);
-    		alert.setTitle("Error Dialog");
-    		alert.setHeaderText(null);
-    		alert.setContentText(error);
-    		alert.showAndWait();    	
-    		return false;
-    	}    	
-    	return true;
+    	return error;
     }
 	
 	protected void initSlider(double min, double max, double low, double high) {
@@ -217,7 +217,10 @@ public abstract class LineEditor {
 	
 	public ConfigCommand getEntry() {
 
-		return configCommand;
+		if (StringUtils.isEmpty(verifyAll())) {
+			return configCommand;
+		}
+		return null;
 	}
 	
 	protected abstract ConfigCommand getConfigEntry();

@@ -49,8 +49,12 @@ public class PropertiesHandler {
 	
 	public void load(IStorable... objects) {
 		for (IStorable obj : objects) {
-			obj.load(applicationProps);
-		}
+			try {
+				obj.load(applicationProps);
+			} catch (Throwable t) {
+				logger.error(t.getMessage(), t);
+			}
+ 		}
 	}
 
 	protected void loadProperties() {

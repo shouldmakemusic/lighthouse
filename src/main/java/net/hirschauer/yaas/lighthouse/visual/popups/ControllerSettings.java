@@ -14,7 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.model.ConfigLight;
-import net.hirschauer.yaas.lighthouse.model.ConfigLight.Command;
+import net.hirschauer.yaas.lighthouse.model.ConfigLight.LightCommand;
 import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 import net.hirschauer.yaas.lighthouse.visual.VisualController;
 import net.hirschauer.yaas.lighthouse.visual.components.MidiReceiver;
@@ -96,31 +96,31 @@ public class ControllerSettings extends VisualController {
 				ConfigLight command;
 				
 				if (StringUtils.isNotEmpty(txtPlay.getText())) {
-					command = new ConfigLight(Command.PLAY);
+					command = new ConfigLight(LightCommand.PLAY);
 					command.setMidiCommand(comboPlay.getValue());
 					command.setMidiValue(txtPlay.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtStop.getText())) {
-					command = new ConfigLight(Command.STOP);
+					command = new ConfigLight(LightCommand.STOP);
 					command.setMidiCommand(comboStop.getValue());
 					command.setMidiValue(txtStop.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtRecord.getText())) {
-					command = new ConfigLight(Command.RECORD);
+					command = new ConfigLight(LightCommand.RECORD);
 					command.setMidiCommand(comboRecord.getValue());
 					command.setMidiValue(txtRecord.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtOffset1.getText())) {
-					command = new ConfigLight(Command.OFFSET1);
+					command = new ConfigLight(LightCommand.OFFSET1);
 					command.setMidiCommand(comboOffset1.getValue());
 					command.setMidiValue(txtOffset1.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtOffset2.getText())) {
-					command = new ConfigLight(Command.OFFSET2);
+					command = new ConfigLight(LightCommand.OFFSET2);
 					command.setMidiCommand(comboOffset2.getValue());
 					command.setMidiValue(txtOffset2.getText());
 					settings.add(command);
