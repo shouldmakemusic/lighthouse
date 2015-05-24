@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
@@ -208,6 +210,7 @@ public class ConfigurationController extends VisualController implements IStorab
     		List<ConfigCommand> entries = new ArrayList<ConfigCommand>();
     		List<ConfigLight> lightEntries = new ArrayList<ConfigLight>();
     		
+    		String prefix = null;
     		List<String> lines = null;
         	try {
 				lines = FileUtils.readLines(file);
@@ -251,7 +254,15 @@ public class ConfigurationController extends VisualController implements IStorab
 						case 2:
 						case 3:
 							try {
-								ConfigMidi entry = new ConfigMidi(line);
+								if (line.endsWith(": [")) {
+									prefix = line.split(":")[0].trim();
+									continue;
+								}
+								if (line.equals("],")) {
+									prefix = null;
+									continue;
+								}
+								ConfigMidi entry = new ConfigMidi(line, prefix);
 								entry.setMidiCommand(MIDI_NOTE_ON);
 								if (mode == 2) {
 									entry.setMidiCommand(MIDI_CC);
@@ -338,17 +349,43 @@ public class ConfigurationController extends VisualController implements IStorab
         }
     }
     
+    private Map<Object, List<ConfigCommand>> getPreparedValues(ObservableList<ConfigCommand> entries, String configCommand) {
+    	
+    	HashMap<Object, List<ConfigCommand>> commands = new HashMap<Object, List<ConfigCommand>>();
+    	for (ConfigCommand entry : entries) {
+    		if (configCommand.equals(entry.getConfigCommand())) {
+    			Object key = entry.getConfigValue();
+    			if (!commands.containsKey(key)) {
+    				commands.put(key, new ArrayList<ConfigCommand>());
+    			}
+    			commands.get(key).add(entry);
+    		}
+    	}
+    	return commands;    	
+    }
+    
     private void writeToFile(File file) {
     	FileWriter fw;
 		try {
 			fw = new FileWriter(file, false);
 			fw.write("[MidiIn]\n");
 
-			fw.write("midi_note_definitions = {\n");				
-			for (ConfigCommand entry : getConfigEntries()) {
+			fw.write("midi_note_definitions = {\n");	
+			Map<Object, List<ConfigCommand>> commandEntries = getPreparedValues(getConfigEntries(), MIDI_NOTE_ON);
+			
+			for (Object key : commandEntries.keySet()) {
+				List<ConfigCommand> commandEntryList = commandEntries.get(key);
 				
-				if (entry.getConfigCommand().equals(MIDI_NOTE_ON)) {
-					fw.write("\t" + entry.toString() + "\n");
+				if (commandEntryList.size() == 1) {
+										
+					fw.write("\t" + commandEntryList.get(0).toString() + "\n");
+				} else {
+					
+					fw.write("\t" + key + ": [\n");
+					for (ConfigCommand command : commandEntryList) {
+						fw.write("\t\t" + command.getAsString() + "\n");
+					}
+					fw.write("\t],\n");
 				}
 			}				
 			fw.write("\t}\n\n");

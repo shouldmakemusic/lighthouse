@@ -22,16 +22,24 @@ public abstract class ConfigCommand implements Serializable {
 	public ConfigCommand() {
 	}
 	
-    public ConfigCommand(String line) throws ConfigurationException {
+	public ConfigCommand(String line, String prefix) throws ConfigurationException {
+		load(line, prefix);
+	}
+	
+    public void load(String line, String prefix) throws ConfigurationException {
     	
     	// TODO: write tests for backward compability
     	// 	8 : ['TrackController' , 'toggle_solo_track' , [0, 1]],
     	String[] midiCommand = line.split(":");
     	if (midiCommand.length < 2) {
-    		throw new ConfigurationException("Wrong length: " + line);
-    	}
+    		if (prefix == null) {
+    			throw new ConfigurationException("Wrong length: " + line);
+    		} else {
+    			midiCommand = new String[] {prefix, line};
+    		}
+    	} 
     	setConfigValue(midiCommand[0].trim());
-
+    	
     	// ['TrackController' , 'toggle_solo_track' , [0, 1]],
     	midiCommand[1] = midiCommand[1].trim();
     	String command = midiCommand[1].substring(1, midiCommand[1].length() - 2);
@@ -47,17 +55,17 @@ public abstract class ConfigCommand implements Serializable {
     	
     	// [0 1] or [0 1] [234]
     	boolean hasFollowSignal = false;
-    	String concValues = commandParts[2];
+    	String concValues = commandParts[2] + ",";
     	for (int i=3; i < commandParts.length; i++) {
     		if (commandParts[i].trim().startsWith("[")) {
     			hasFollowSignal = true;
     			break;
     		}
-    		concValues += commandParts[i];
+    		concValues += commandParts[i] + ",";
     	}
     	concValues = concValues.trim();
     	concValues = concValues.substring(1, concValues.length() - 1);
-    	String[] values = concValues.split(" ");
+    	String[] values = concValues.split(",");
     	if (values.length >= 1) {
     		setValue1(fixEntry(values[0]));
     	}
@@ -85,7 +93,11 @@ public abstract class ConfigCommand implements Serializable {
 
 	private String fixEntry(String value) {
 
-		if (value.startsWith("'")) {
+		value = value.trim();
+		if (value.endsWith("]")) {
+			value = value.substring(0, value.length() -1 );
+		}
+		if (value.startsWith("'") && !value.equals("'")) {
 			value = value.substring(1, value.length() -1 );
 		}
 		if (value.startsWith("[")) {
@@ -131,12 +143,10 @@ public abstract class ConfigCommand implements Serializable {
 		this.value3 = value3;
 	}
 	
-	@Override
-    public String toString() {
-    	StringBuffer sb = new StringBuffer();
-    	
-    	sb.append(getConfigValue());
-    	sb.append(" : ['");
+	public String getAsString() {
+		
+		StringBuffer sb = new StringBuffer();    	
+    	sb.append("['");
     	sb.append(getController());
     	sb.append("' , '");
     	sb.append(getCommand());
@@ -185,6 +195,15 @@ public abstract class ConfigCommand implements Serializable {
     		sb.append("]");
     	}
     	sb.append("],");
+    	return sb.toString();
+	}
+	
+	@Override
+    public String toString() {
+		StringBuffer sb = new StringBuffer();    	
+    	sb.append(getConfigValue());
+    	sb.append(" : ");
+    	sb.append(getAsString());
     	return sb.toString();
     }
 

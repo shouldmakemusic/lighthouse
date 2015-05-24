@@ -20,8 +20,8 @@ public class ConfigMidi extends ConfigCommand implements Serializable {
 		super();
 	}
 	
-	public ConfigMidi(String line) throws ConfigurationException {
-		super(line);
+	public ConfigMidi(String line, String prefix) throws ConfigurationException {
+		super(line, prefix);
 	}
 	
 	public void init(ConfigMidi midiInput) {
