@@ -13,9 +13,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
-import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry;
-import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry.Command;
+import net.hirschauer.yaas.lighthouse.model.ConfigLight;
+import net.hirschauer.yaas.lighthouse.model.ConfigLight.Command;
+import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 import net.hirschauer.yaas.lighthouse.visual.VisualController;
 import net.hirschauer.yaas.lighthouse.visual.components.MidiReceiver;
 
@@ -27,7 +27,7 @@ public class ControllerSettings extends VisualController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ControllerSettings.class);
 	
-	private List<ConfigLightEntry> settings;
+	private List<ConfigLight> settings;
 
 	@FXML
 	Button btnCancel, btnSave;
@@ -44,7 +44,7 @@ public class ControllerSettings extends VisualController {
 
 	private Stage stage;
 	
-	public static List<ConfigLightEntry> show(List<ConfigLightEntry> configLightEntries) {
+	public static List<ConfigLight> show(List<ConfigLight> configLightEntries) {
 		
 		FXMLLoader loader = new FXMLLoader(
 				ControllerSettings.class.getResource(
@@ -77,11 +77,11 @@ public class ControllerSettings extends VisualController {
 	private void initialize() {
 		logger.debug("init");
 		
-		comboPlay.setValue(ConfigEntry.MIDI_NOTE_ON);
-		comboStop.setValue(ConfigEntry.MIDI_NOTE_ON);
-		comboRecord.setValue(ConfigEntry.MIDI_NOTE_ON);
-		comboOffset1.setValue(ConfigEntry.MIDI_NOTE_ON);
-		comboOffset2.setValue(ConfigEntry.MIDI_NOTE_ON);
+		comboPlay.setValue(ConfigMidi.MIDI_NOTE_ON);
+		comboStop.setValue(ConfigMidi.MIDI_NOTE_ON);
+		comboRecord.setValue(ConfigMidi.MIDI_NOTE_ON);
+		comboOffset1.setValue(ConfigMidi.MIDI_NOTE_ON);
+		comboOffset2.setValue(ConfigMidi.MIDI_NOTE_ON);
 		
 		btnCancel.setOnAction(event -> {
 			stage.close();
@@ -91,36 +91,36 @@ public class ControllerSettings extends VisualController {
 			
 			@Override
 			public void handle(ActionEvent event) {
-				settings = new ArrayList<ConfigLightEntry>();
+				settings = new ArrayList<ConfigLight>();
 				
-				ConfigLightEntry command;
+				ConfigLight command;
 				
 				if (StringUtils.isNotEmpty(txtPlay.getText())) {
-					command = new ConfigLightEntry(Command.PLAY);
+					command = new ConfigLight(Command.PLAY);
 					command.setMidiCommand(comboPlay.getValue());
 					command.setMidiValue(txtPlay.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtStop.getText())) {
-					command = new ConfigLightEntry(Command.STOP);
+					command = new ConfigLight(Command.STOP);
 					command.setMidiCommand(comboStop.getValue());
 					command.setMidiValue(txtStop.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtRecord.getText())) {
-					command = new ConfigLightEntry(Command.RECORD);
+					command = new ConfigLight(Command.RECORD);
 					command.setMidiCommand(comboRecord.getValue());
 					command.setMidiValue(txtRecord.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtOffset1.getText())) {
-					command = new ConfigLightEntry(Command.OFFSET1);
+					command = new ConfigLight(Command.OFFSET1);
 					command.setMidiCommand(comboOffset1.getValue());
 					command.setMidiValue(txtOffset1.getText());
 					settings.add(command);
 				}
 				if (StringUtils.isNotEmpty(txtOffset2.getText())) {
-					command = new ConfigLightEntry(Command.OFFSET2);
+					command = new ConfigLight(Command.OFFSET2);
 					command.setMidiCommand(comboOffset2.getValue());
 					command.setMidiValue(txtOffset2.getText());
 					settings.add(command);
@@ -137,7 +137,7 @@ public class ControllerSettings extends VisualController {
 		return null;
 	}
 
-	public List<ConfigLightEntry> getSettings() {
+	public List<ConfigLight> getSettings() {
 
 		return settings;
 	}
@@ -146,10 +146,10 @@ public class ControllerSettings extends VisualController {
 		this.stage = stage;
 	}
 
-	public void setLightSettings(List<ConfigLightEntry> lightSettings) {
+	public void setLightSettings(List<ConfigLight> lightSettings) {
 		this.settings = lightSettings;
-		for (ConfigLightEntry entry : lightSettings) {
-			switch (entry.getCommand()) {
+		for (ConfigLight entry : lightSettings) {
+			switch (entry.getLightCommand()) {
 				case OFFSET1:
 					comboOffset1.setValue(entry.getMidiCommand());
 					txtOffset1.setText(entry.getMidiValue());

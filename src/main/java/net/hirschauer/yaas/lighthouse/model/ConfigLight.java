@@ -1,10 +1,10 @@
 package net.hirschauer.yaas.lighthouse.model;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
 
-public class ConfigLightEntry extends ConfigEntry {
+import org.apache.commons.lang3.StringUtils;
+
+public class ConfigLight extends ConfigMidi {
 
 	private static final long serialVersionUID = 6828720410040824824L;
 	
@@ -12,13 +12,13 @@ public class ConfigLightEntry extends ConfigEntry {
 
 	private Command command;
 	
-	public ConfigLightEntry() {}
+	public ConfigLight() {}
 	
-	public ConfigLightEntry(Command command) {
+	public ConfigLight(Command command) {
 		this.command = command;
 	}
 	
-    public ConfigLightEntry(String line) throws ConfigurationException {
+    public ConfigLight(String line) throws ConfigurationException {
     	
     	// TODO: write tests for backward compability
     	// 	'PLAY : ['Midi Note On' , 10],
@@ -30,7 +30,7 @@ public class ConfigLightEntry extends ConfigEntry {
     	if (command.startsWith("'")) {
     		command = command.substring(1, command.length() - 1);
     	}
-    	setCommand(Command.valueOf(command));
+    	setLightCommand(Command.valueOf(command));
 
     	// ['Midi Note On' , 10(, 8)],
     	midiDefinition[1] = midiDefinition[1].trim();
@@ -58,11 +58,11 @@ public class ConfigLightEntry extends ConfigEntry {
     	}
     }
 
-	public Command getCommand() {
+	public Command getLightCommand() {
 		return command;
 	}
 
-	public void setCommand(Command command) {
+	public void setLightCommand(Command command) {
 		this.command = command;
 	}
 	

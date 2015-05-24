@@ -1,8 +1,8 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
-import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_CC;
-import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_OFF;
-import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_ON;
+import static net.hirschauer.yaas.lighthouse.model.ConfigMidi.MIDI_CC;
+import static net.hirschauer.yaas.lighthouse.model.ConfigMidi.MIDI_NOTE_OFF;
+import static net.hirschauer.yaas.lighthouse.model.ConfigMidi.MIDI_NOTE_ON;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -23,6 +23,7 @@ import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -39,16 +40,19 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
-import net.hirschauer.yaas.lighthouse.model.ConfigLightEntry;
-import net.hirschauer.yaas.lighthouse.model.ConfigMidiEntry;
+import net.hirschauer.yaas.lighthouse.model.ConfigLight;
+import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessage;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageReceiveConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
+import net.hirschauer.yaas.lighthouse.visual.components.LineEditor;
+import net.hirschauer.yaas.lighthouse.visual.components.MidiLineEditor;
 import net.hirschauer.yaas.lighthouse.visual.components.MidiReceiver;
 import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettings;
 
@@ -66,9 +70,9 @@ public class ConfigurationController extends VisualController implements IStorab
 	@FXML
 	private ComboBox<String> controllerCombo, commandCombo;
    	@FXML
-    private TableView<ConfigMidiEntry> configTable;
+    private TableView<ConfigMidi> configTable;
     @FXML
-    private TableColumn<ConfigMidiEntry, String> colMidiCommand, colMidiValue, colController, 
+    private TableColumn<ConfigMidi, String> colMidiCommand, colMidiValue, colController, 
     	colCommand, colMidiFollowSignal, colValue1, colValue2, colValue3;
     @FXML
     private TextField txtValue1, txtValue2, txtValue3;
@@ -79,13 +83,13 @@ public class ConfigurationController extends VisualController implements IStorab
     @FXML
     private AnchorPane paneInput;
     
-	private ObservableList<ConfigMidiEntry> configEntries = FXCollections.observableArrayList();
+	private ObservableList<ConfigMidi> configEntries = FXCollections.observableArrayList();
 	private ObservableList<String> controllerEntries = FXCollections.observableArrayList();
 	private ObservableList<String> commandEntries = FXCollections.observableArrayList();
     
     Gson gson = new Gson();
 
-	private List<ConfigLightEntry> configLightEntries = new ArrayList<ConfigLightEntry>();
+	private List<ConfigLight> configLightEntries = new ArrayList<ConfigLight>();
 
 	private MidiReceiver midiInputController;
 	
@@ -100,19 +104,8 @@ public class ConfigurationController extends VisualController implements IStorab
 
 		configTable.setItems(getConfigEntries());
 		configTable.setEditable(true);
-		
-		MenuItem mnuDel = new MenuItem("Delete row");
-		mnuDel.setOnAction(new EventHandler<ActionEvent>() {
-		    @Override
-		    public void handle(ActionEvent t) {
-		        logger.debug("Delete row");
-                ConfigMidiEntry p = configTable.getSelectionModel().getSelectedItem();
-                if (p != null) {
-                    configEntries.remove(p);
-                }
-		    }
-		});
-		configTable.setContextMenu(new ContextMenu(mnuDel));
+				
+		initMenu();
 				
 		YaasController.getInstance().yaasCommands.addListener(new MapChangeListener<String, List<String>>() {
 
@@ -153,6 +146,45 @@ public class ConfigurationController extends VisualController implements IStorab
 		
 		midiInputController = MidiReceiver.show(paneInput);
 	}
+
+	private void initMenu() {
+		MenuItem mnuDel = new MenuItem("Delete row");
+		mnuDel.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override
+		    public void handle(ActionEvent t) {
+		        logger.debug("Delete row");
+                ConfigMidi p = configTable.getSelectionModel().getSelectedItem();
+                if (p != null) {
+                    configEntries.remove(p);
+                }
+		    }
+		});
+		MenuItem mnuEdit = new MenuItem("Edit");
+		mnuEdit.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override
+		    public void handle(ActionEvent t) {
+		        logger.debug("Edit row");
+                ConfigMidi p = configTable.getSelectionModel().getSelectedItem();
+                if (p != null) {
+                	AnchorPane root = new AnchorPane();
+    				Stage editStage = new Stage();				
+    				Scene editScene = new Scene(root);
+    				
+                    LineEditor editor = MidiLineEditor.show(root, p);
+                    editor.setStage(editStage);
+
+                    editStage.setScene(editScene);
+    				editStage.setAlwaysOnTop(true);
+    				editStage.showAndWait();
+    				
+    				int index = configTable.getSelectionModel().getSelectedIndex();
+    				configEntries.remove(index);
+    				configEntries.add(index, (ConfigMidi) editor.getEntry());
+                }
+		    }
+		});
+		configTable.setContextMenu(new ContextMenu(mnuEdit, mnuDel));
+	}
     
 	public void copy(Window window) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -189,8 +221,8 @@ public class ConfigurationController extends VisualController implements IStorab
             );
 		File file = fileChooser.showOpenDialog(window);
         if (file != null) {
-    		List<ConfigMidiEntry> entries = new ArrayList<ConfigMidiEntry>();
-    		List<ConfigLightEntry> lightEntries = new ArrayList<ConfigLightEntry>();
+    		List<ConfigMidi> entries = new ArrayList<ConfigMidi>();
+    		List<ConfigLight> lightEntries = new ArrayList<ConfigLight>();
     		
     		List<String> lines = null;
         	try {
@@ -235,7 +267,7 @@ public class ConfigurationController extends VisualController implements IStorab
 						case 2:
 						case 3:
 							try {
-								ConfigMidiEntry entry = new ConfigMidiEntry(line);
+								ConfigMidi entry = new ConfigMidi(line);
 								entry.setMidiCommand(MIDI_NOTE_ON);
 								if (mode == 2) {
 									entry.setMidiCommand(MIDI_CC);
@@ -250,7 +282,7 @@ public class ConfigurationController extends VisualController implements IStorab
 							break;
 						case 4:						
 							try {
-								ConfigLightEntry lightEntry = new ConfigLightEntry(line);
+								ConfigLight lightEntry = new ConfigLight(line);
 								lightEntries.add(lightEntry);
 							} catch (ConfigurationException e) {
 								logger.warn("Ignored line " + lineNumber, e);
@@ -276,7 +308,7 @@ public class ConfigurationController extends VisualController implements IStorab
         	OSCMessage m = new OSCMessageReceiveConfiguration("start");
 			oscServer.sendToYaas(m);
 
-			for (ConfigMidiEntry entry : this.getConfigEntries()) {
+			for (ConfigMidi entry : this.getConfigEntries()) {
 	    		
 				String value1 = entry.getValue1() != null ? entry.getValue1() : "";
 				String value2 = entry.getValue2() != null ? entry.getValue2() : "";
@@ -292,7 +324,7 @@ public class ConfigurationController extends VisualController implements IStorab
 	        	m = new OSCMessageReceiveConfiguration(args);
 				oscServer.sendToYaas(m);
     		}
-			for (ConfigLightEntry entry : configLightEntries) {
+			for (ConfigLight entry : configLightEntries) {
 	    		
 	        	m = new OSCMessageReceiveConfiguration(entry.getCommand().toString(), entry.getMidiCommand(), entry.getMidiValue());
 				oscServer.sendToYaas(m);
@@ -329,7 +361,7 @@ public class ConfigurationController extends VisualController implements IStorab
 			fw.write("[MidiIn]\n");
 
 			fw.write("midi_note_definitions = {\n");				
-			for (ConfigMidiEntry entry : getConfigEntries()) {
+			for (ConfigMidi entry : getConfigEntries()) {
 				
 				if (entry.getMidiCommand().equals(MIDI_NOTE_ON)) {
 					fw.write("\t" + entry.toString() + "\n");
@@ -338,7 +370,7 @@ public class ConfigurationController extends VisualController implements IStorab
 			fw.write("\t}\n\n");
 
 			fw.write("midi_note_off_definitions = {\n");				
-			for (ConfigMidiEntry entry : getConfigEntries()) {
+			for (ConfigMidi entry : getConfigEntries()) {
 				
 				if (entry.getMidiCommand().equals(MIDI_NOTE_OFF)) {
 					fw.write("\t" + entry.toString() + "\n");
@@ -348,7 +380,7 @@ public class ConfigurationController extends VisualController implements IStorab
 
 			fw.write("[CC]\n");
 			fw.write("midi_cc_definitions = {\n");				
-			for (ConfigMidiEntry entry : getConfigEntries()) {
+			for (ConfigMidi entry : getConfigEntries()) {
 				
 				if (entry.getMidiCommand().equals(MIDI_CC)) {
 					fw.write("\t" + entry.toString() + "\n");
@@ -359,7 +391,7 @@ public class ConfigurationController extends VisualController implements IStorab
 //			controller_definitions
 			fw.write("[Addons]\n");
 			fw.write("controller_definitions = {\n");				
-			for (ConfigLightEntry entry : configLightEntries) {
+			for (ConfigLight entry : configLightEntries) {
 				
 				fw.write("\t" + entry.toString() + "\n");
 			}				
@@ -387,7 +419,7 @@ public class ConfigurationController extends VisualController implements IStorab
     		return;
     	}
     	
-    	ConfigMidiEntry ce = new ConfigMidiEntry(midiInputController.getMidiInput());
+    	ConfigMidi ce = midiInputController.getMidiInput();
     	ce.setCommand(commandCombo.getValue());
     	ce.setController(controllerCombo.getValue());
     	ce.setValue1(txtValue1.getText());
@@ -408,11 +440,11 @@ public class ConfigurationController extends VisualController implements IStorab
 		controllerCombo.setItems(controllerEntries);
 	}
 
-	public ObservableList<ConfigMidiEntry> getConfigEntries() {
+	public ObservableList<ConfigMidi> getConfigEntries() {
 		return configEntries;
 	}
 
-	public void setConfigEntries(ObservableList<ConfigMidiEntry> configEntries) {
+	public void setConfigEntries(ObservableList<ConfigMidi> configEntries) {
 		this.configEntries = configEntries;
 	}
 
@@ -421,11 +453,11 @@ public class ConfigurationController extends VisualController implements IStorab
 		
 		String className = getClass().getName();
 		for (int i=0; i<configEntries.size(); i++) {
-			ConfigMidiEntry entry = configEntries.get(i);
+			ConfigMidi entry = configEntries.get(i);
 			values.put(className + "|config|" + i, gson.toJson(entry));
 		}
 		for (int i=0; i<configLightEntries.size(); i++) {
-			ConfigLightEntry entry = configLightEntries.get(i);
+			ConfigLight entry = configLightEntries.get(i);
 			values.put(className + "|light|" + i, gson.toJson(entry));
 		}
 		ObservableMap<String, List<String>> commands = YaasController.getInstance().yaasCommands;
@@ -449,12 +481,12 @@ public class ConfigurationController extends VisualController implements IStorab
 				
 				if (entry[1].equals("config")) {
 					
-					ConfigMidiEntry configEntry = gson.fromJson((String) (String)values.get(key), ConfigMidiEntry.class);
+					ConfigMidi configEntry = gson.fromJson((String) (String)values.get(key), ConfigMidi.class);
 					configEntries.add(configEntry);
 					
 				} else if (entry[1].equals("light")) {
 						
-					ConfigLightEntry configEntry = gson.fromJson((String) (String)values.get(key), ConfigLightEntry.class);
+					ConfigLight configEntry = gson.fromJson((String) (String)values.get(key), ConfigLight.class);
 					configLightEntries.add(configEntry);
 						
 				} else if (entry[1].equals("controller")) {
@@ -469,20 +501,20 @@ public class ConfigurationController extends VisualController implements IStorab
 	}
 	
 	private void setCellFactories() {
-		colMidiCommand.setCellValueFactory(new PropertyValueFactory<ConfigMidiEntry, String>("midiCommand"));
+		colMidiCommand.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("midiCommand"));
 		colMidiCommand.setCellFactory(TextFieldTableCell.forTableColumn());
 		colMidiCommand.setOnEditCommit(cellEditEvent -> {
-		            ((ConfigMidiEntry) cellEditEvent.getTableView().getItems().get(
+		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
 		            		cellEditEvent.getTablePosition().getRow())
 		                ).setMidiCommand(cellEditEvent.getNewValue());
 		    }
 		);
-		colMidiValue.setCellValueFactory(new PropertyValueFactory<ConfigMidiEntry, String>("midiValue"));
+		colMidiValue.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("midiValue"));
 		colMidiValue.setCellFactory(TextFieldTableCell.forTableColumn());
 		colMidiValue.setOnEditCommit(cellEditEvent -> {
 		        	
 		        	if (StringUtils.isNumeric(cellEditEvent.getNewValue())) {
-			            ((ConfigMidiEntry) cellEditEvent.getTableView().getItems().get(
+			            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
 			            		cellEditEvent.getTablePosition().getRow())
 			                ).setMidiValue(cellEditEvent.getNewValue());
 		        	} else {
@@ -496,12 +528,12 @@ public class ConfigurationController extends VisualController implements IStorab
 		        		cellEditEvent.getTableView().getColumns().get(1).setVisible(true);		        		
 		        	}
 		    });
-		colMidiFollowSignal.setCellValueFactory(new PropertyValueFactory<ConfigMidiEntry, String>("midiFollowSignal"));
+		colMidiFollowSignal.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("midiFollowSignal"));
 		colMidiFollowSignal.setCellFactory(TextFieldTableCell.forTableColumn());
 		colMidiFollowSignal.setOnEditCommit(cellEditEvent -> {
 		        	
 		        	if (StringUtils.isEmpty(cellEditEvent.getNewValue()) || StringUtils.isNumeric(cellEditEvent.getNewValue())) {
-			            ((ConfigMidiEntry) cellEditEvent.getTableView().getItems().get(
+			            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
 			            		cellEditEvent.getTablePosition().getRow())
 			                ).setMidiFollowSignal(cellEditEvent.getNewValue());
 		        	} else {
@@ -520,7 +552,7 @@ public class ConfigurationController extends VisualController implements IStorab
 				Integer i2 = Integer.parseInt(o2);
 				return i1.compareTo(i2);
 		});
-		colCommand.setCellValueFactory(new PropertyValueFactory<ConfigMidiEntry, String>("command"));
+		colCommand.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("command"));
 		colCommand.setCellFactory(ComboBoxTableCell.forTableColumn(commandEntries));
 		colCommand.setOnEditStart(cellEditEvent -> {
 				String controller = cellEditEvent.getRowValue().getController();
@@ -533,7 +565,7 @@ public class ConfigurationController extends VisualController implements IStorab
 				}
 		});		
 		colCommand.setOnEditCommit(cellEditEvent ->  {
-		            ((ConfigMidiEntry) cellEditEvent.getTableView().getItems().get(
+		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
 		            		cellEditEvent.getTablePosition().getRow())
 		                ).setCommand(cellEditEvent.getNewValue());
 		            colCommand.setVisible(false);
@@ -541,7 +573,7 @@ public class ConfigurationController extends VisualController implements IStorab
 		    }
 		);
 
-		colController.setCellValueFactory(new PropertyValueFactory<ConfigMidiEntry, String>("controller"));
+		colController.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("controller"));
 		colController.setCellFactory(ComboBoxTableCell.forTableColumn(controllerEntries));
 		colController.setOnEditCommit(cellEditEvent -> {
 		            if (cellEditEvent.getNewValue() != "" && !cellEditEvent.getNewValue().equals(cellEditEvent.getRowValue().getController())) {
@@ -549,31 +581,31 @@ public class ConfigurationController extends VisualController implements IStorab
 		            	configTable.getColumns().get(3).setVisible(false);
 		            	configTable.getColumns().get(3).setVisible(true);
 		            }
-		            ((ConfigMidiEntry) cellEditEvent.getTableView().getItems().get(
+		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
 		            		cellEditEvent.getTablePosition().getRow())
 			                ).setController(cellEditEvent.getNewValue());		       
 		    }
 		);
-		colValue1.setCellValueFactory(new PropertyValueFactory<ConfigMidiEntry, String>("value1"));
+		colValue1.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("value1"));
 		colValue1.setCellFactory(TextFieldTableCell.forTableColumn());
 		colValue1.setOnEditCommit(cellEditEvent ->  {
-		            ((ConfigMidiEntry) cellEditEvent.getTableView().getItems().get(
+		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
 		            		cellEditEvent.getTablePosition().getRow())
 		                ).setValue1(cellEditEvent.getNewValue());
 		    }
 		);
-		colValue2.setCellValueFactory(new PropertyValueFactory<ConfigMidiEntry, String>("value2"));
+		colValue2.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("value2"));
 		colValue2.setCellFactory(TextFieldTableCell.forTableColumn());
 		colValue2.setOnEditCommit(cellEditEvent ->  {
-		            ((ConfigMidiEntry) cellEditEvent.getTableView().getItems().get(
+		            ((ConfigMidi) cellEditEvent.getTableView().getItems().get(
 		            		cellEditEvent.getTablePosition().getRow())
 		                ).setValue2(cellEditEvent.getNewValue());
 		        }
 		);
-		colValue3.setCellValueFactory(new PropertyValueFactory<ConfigMidiEntry, String>("value3"));
+		colValue3.setCellValueFactory(new PropertyValueFactory<ConfigMidi, String>("value3"));
 		colValue3.setCellFactory(TextFieldTableCell.forTableColumn());
 		colValue3.setOnEditCommit(cellEditEvent -> {
-			((ConfigMidiEntry) cellEditEvent.getTableView().getItems().get(
+			((ConfigMidi) cellEditEvent.getTableView().getItems().get(
 					cellEditEvent.getTablePosition().getRow())
 		                ).setValue3(cellEditEvent.getNewValue());
 		    });

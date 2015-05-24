@@ -2,7 +2,9 @@ package net.hirschauer.yaas.lighthouse.model;
 
 import java.io.Serializable;
 
-public class ConfigEntry implements Serializable {
+import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
+
+public class ConfigMidi extends ConfigCommand implements Serializable {
 
 	private static final long serialVersionUID = 554632560561838564L;
 	
@@ -14,8 +16,18 @@ public class ConfigEntry implements Serializable {
 	protected String midiValue;
 	protected String midiFollowSignal;
 
-	public ConfigEntry() {
+	public ConfigMidi() {
 		super();
+	}
+	
+	public ConfigMidi(String line) throws ConfigurationException {
+		super(line);
+	}
+	
+	public void init(ConfigMidi midiInput) {
+		this.midiCommand = midiInput.midiCommand;
+		this.midiFollowSignal = midiInput.midiFollowSignal;
+		this.midiValue = midiInput.midiValue;
 	}
 
 	public String getMidiCommand() {
@@ -40,6 +52,26 @@ public class ConfigEntry implements Serializable {
 
 	public void setMidiFollowSignal(String midiFollowSignal) {
 		this.midiFollowSignal = midiFollowSignal;
+	}
+
+	@Override
+	protected void setAdditionalValue(String additionalValue) {
+		setMidiFollowSignal(additionalValue);
+	}
+
+	@Override
+	protected void setConfigValue(String configValue) {
+		setMidiValue(configValue);
+	}
+
+	@Override
+	protected String getAdditionalValue() {		
+		return getMidiCommand();
+	}
+
+	@Override
+	protected String getConfigValue() {
+		return getMidiValue();
 	}
 
 }

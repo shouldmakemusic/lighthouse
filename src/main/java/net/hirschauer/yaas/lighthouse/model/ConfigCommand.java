@@ -8,10 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigMidiEntry extends ConfigEntry implements Serializable {
+public abstract class ConfigCommand implements Serializable {
 
 	private static final long serialVersionUID = 8907267743815270553L;
-	private static final Logger logger = LoggerFactory.getLogger(ConfigMidiEntry.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConfigCommand.class);
 
 	private String controller;
 	private String command;
@@ -19,10 +19,10 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
 	private String value2;
 	private String value3;
 	
-	public ConfigMidiEntry() {
+	public ConfigCommand() {
 	}
 	
-    public ConfigMidiEntry(String line) throws ConfigurationException {
+    public ConfigCommand(String line) throws ConfigurationException {
     	
     	// TODO: write tests for backward compability
     	// 	8 : ['TrackController' , 'toggle_solo_track' , [0, 1]],
@@ -30,7 +30,7 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
     	if (midiCommand.length < 2) {
     		throw new ConfigurationException("Wrong length: " + line);
     	}
-    	setMidiValue(midiCommand[0].trim());
+    	setConfigValue(midiCommand[0].trim());
 
     	// ['TrackController' , 'toggle_solo_track' , [0, 1]],
     	midiCommand[1] = midiCommand[1].trim();
@@ -70,11 +70,16 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
     	if (hasFollowSignal) {
     		String followSignal = commandParts[commandParts.length -1].trim();
     		logger.debug("Follow Signal: " + followSignal);
-    		setMidiFollowSignal(followSignal.substring(1, followSignal.length() - 1));
+    		setAdditionalValue(followSignal.substring(1, followSignal.length() - 1));
     	}
     }
-    
-    private String fixEntry(String value) {
+
+	abstract protected void setAdditionalValue(String additionalValue);
+	abstract protected void setConfigValue(String configValue);
+	abstract protected String getAdditionalValue();
+	abstract protected String getConfigValue();
+
+	private String fixEntry(String value) {
 
 		if (value.startsWith("'")) {
 			value = value.substring(1, value.length() -1 );
@@ -88,10 +93,7 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
 		return value;
     }
 	
-	public ConfigMidiEntry(ConfigEntry midiInput) {
-		this.midiCommand = midiInput.midiCommand;
-		this.midiFollowSignal = midiInput.midiFollowSignal;
-		this.midiValue = midiInput.midiValue;
+	public ConfigCommand(ConfigCommand midiInput) {
 	}
 
 	public String getController() {
@@ -129,7 +131,7 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
     public String toString() {
     	StringBuffer sb = new StringBuffer();
     	
-    	sb.append(getMidiValue());
+    	sb.append(getConfigValue());
     	sb.append(" : ['");
     	sb.append(getController());
     	sb.append("' , '");
@@ -165,9 +167,9 @@ public class ConfigMidiEntry extends ConfigEntry implements Serializable {
     		}
     	}
     	sb.append("]");
-    	if (StringUtils.isNotEmpty(getMidiFollowSignal())) {
+    	if (StringUtils.isNotEmpty(getAdditionalValue())) {
     		sb.append(", [");
-    		sb.append(getMidiFollowSignal());
+    		sb.append(getAdditionalValue());
     		sb.append("]");
     	}
     	sb.append("],");

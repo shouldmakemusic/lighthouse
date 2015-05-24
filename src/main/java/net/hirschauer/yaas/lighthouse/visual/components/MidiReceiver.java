@@ -1,8 +1,8 @@
 package net.hirschauer.yaas.lighthouse.visual.components;
 
-import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_CC;
-import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_OFF;
-import static net.hirschauer.yaas.lighthouse.model.ConfigEntry.MIDI_NOTE_ON;
+import static net.hirschauer.yaas.lighthouse.model.ConfigMidi.MIDI_CC;
+import static net.hirschauer.yaas.lighthouse.model.ConfigMidi.MIDI_NOTE_OFF;
+import static net.hirschauer.yaas.lighthouse.model.ConfigMidi.MIDI_NOTE_ON;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
@@ -17,7 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
-import net.hirschauer.yaas.lighthouse.model.ConfigEntry;
+import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
 import net.hirschauer.yaas.lighthouse.visual.popups.ControllerSettings;
 
@@ -139,12 +139,19 @@ public class MidiReceiver {
     	return error;
     }
     
-    public ConfigEntry getMidiInput() {
-    	ConfigEntry ce = new ConfigEntry();
+    public ConfigMidi getMidiInput() {
+    	ConfigMidi ce = new ConfigMidi();
     	ce.setMidiCommand(midiCommandCombo.getValue());
     	ce.setMidiValue(txtMidiValue.getText());
     	ce.setMidiFollowSignal(txtMidiFollowSignal.getText());
     	return ce;
+    }
+
+    public void setMidiInput(ConfigMidi ce) {
+
+    	midiCommandCombo.setValue(ce.getMidiCommand());
+    	txtMidiFollowSignal.setText(ce.getMidiFollowSignal());
+    	txtMidiValue.setText(ce.getMidiValue());
     }
 
 }
