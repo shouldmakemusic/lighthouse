@@ -47,7 +47,7 @@ public abstract class LineEditor {
 	private ObservableList<String> controllerEntries = FXCollections.observableArrayList();
 
 	private RangeSlider hSlider;
-	private Stage stage;
+	protected Stage stage;
 	private ConfigCommand configCommand;
 
 	public static LineEditor show(AnchorPane parent, ConfigCommand entry) {
@@ -110,7 +110,7 @@ public abstract class LineEditor {
 		
 		logger.debug("init");
 		
-		initSlider(0, 100, 0, 100);		
+		initSlider(0, 127, 0, 127);		
 		
 		btnCancel.setOnAction(event -> {
 			stage.close();

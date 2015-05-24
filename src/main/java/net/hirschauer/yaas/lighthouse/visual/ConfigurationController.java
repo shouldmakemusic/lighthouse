@@ -66,7 +66,7 @@ public class ConfigurationController extends VisualController implements IStorab
     private TableColumn<ConfigCommand, String> colMidiCommand, colMidiValue, colController, 
     	colCommand, colMidiFollowSignal, colValue1, colValue2, colValue3;
     @FXML
-    private Button btnAdd, btnLightSettings;
+    private Button btnAdd, btnLightSettings, btnSend, btnSendTemp;
     @FXML
     private BorderPane borderPane;
     
@@ -111,6 +111,14 @@ public class ConfigurationController extends VisualController implements IStorab
 		
 		btnLightSettings.setOnAction(event -> {
 			configLightEntries = ControllerSettings.show(configLightEntries);
+		});
+		
+		btnSend.setOnAction(event -> {
+			copy(null);
+		});
+		
+		btnSend.setOnAction(event -> {
+			sendConfigurationToYaas(null);
 		});
 		
 	}

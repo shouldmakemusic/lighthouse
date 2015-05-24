@@ -16,6 +16,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
 import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
@@ -35,6 +36,8 @@ public class MidiReceiver {
     private TextField txtMidiValue, txtMidiFollowSignal;
     @FXML
     private Button btnReceiveMidi;
+
+	private Stage stage;
     
 	public static MidiReceiver show(AnchorPane parent) {
 		
@@ -44,7 +47,7 @@ public class MidiReceiver {
 		try {
 			AnchorPane child = (AnchorPane) loader.load();		
 			parent.getChildren().add(child);
-			MidiReceiver controller = loader.getController();			
+			MidiReceiver controller = loader.getController();
 			return controller;
 			
 		} catch (Exception e) {
@@ -73,7 +76,9 @@ public class MidiReceiver {
 					Alert alert = new Alert(AlertType.ERROR);
 					alert.setTitle("Midi device not set");
 					alert.setContentText("You have to go to the \"Midi viewer\" and select the device first");
-					alert.show();
+		    		stage.setOpacity(0);
+					alert.showAndWait();
+		    		stage.setOpacity(1);
 					return;
 				}
 				btnReceiveMidi.setDisable(true);
@@ -160,4 +165,7 @@ public class MidiReceiver {
     	txtMidiValue.setText(ce.getMidiValue());
     }
 
+	public void setStage(Stage stage) {
+		this.stage = stage;
+	}
 }

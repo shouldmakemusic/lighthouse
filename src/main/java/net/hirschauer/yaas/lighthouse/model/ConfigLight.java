@@ -71,7 +71,7 @@ public class ConfigLight extends ConfigMidi {
     	StringBuffer sb = new StringBuffer();
     	
     	sb.append("'");
-    	sb.append(getCommand());
+    	sb.append(getLightCommand());
     	sb.append("'");
     	sb.append(" : ['");
     	sb.append(getMidiCommand());

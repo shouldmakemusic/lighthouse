@@ -66,7 +66,7 @@ public class ConfigMidi extends ConfigCommand implements Serializable {
 
 	@Override
 	public String getAdditionalValue() {		
-		return getMidiCommand();
+		return getMidiFollowSignal();
 	}
 
 	@Override

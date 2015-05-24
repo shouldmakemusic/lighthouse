@@ -150,25 +150,33 @@ public abstract class ConfigCommand implements Serializable {
     			sb.append("'");
     		}
     	}
-    	if (StringUtils.isNotEmpty(getValue2())) {
-    		sb.append(", ");
-    		if (!StringUtils.isNumeric(getValue2())) {
-    			sb.append("'");
+    	if (StringUtils.isNotEmpty(getValue2()) || StringUtils.isNotEmpty(getValue3())) {
+    		
+    		if (StringUtils.isEmpty(getValue1())) {
+    			sb.append("' '");
     		}
-    		sb.append(getValue2());
-    		if (!StringUtils.isNumeric(getValue2())) {
-    			sb.append("'");
-    		}
-    	}
-    	if (StringUtils.isNotEmpty(getValue3())) {
-    		sb.append(", ");
-    		if (!StringUtils.isNumeric(getValue3())) {
-    			sb.append("'");
-    		}
-    		sb.append(getValue3());
-    		if (!StringUtils.isNumeric(getValue3())) {
-    			sb.append("'");
-    		}
+			sb.append(", ");
+	    	if (StringUtils.isNotEmpty(getValue2())) {
+	    		if (!StringUtils.isNumeric(getValue2())) {
+	    			sb.append("'");
+	    		}
+	    		sb.append(getValue2());
+	    		if (!StringUtils.isNumeric(getValue2())) {
+	    			sb.append("'");
+	    		}
+	    	} else {
+	    		sb.append("' '");
+	    	}
+	    	if (StringUtils.isNotEmpty(getValue3())) {
+				sb.append(", ");
+	    		if (!StringUtils.isNumeric(getValue3())) {
+	    			sb.append("'");
+	    		}
+	    		sb.append(getValue3());
+	    		if (!StringUtils.isNumeric(getValue3())) {
+	    			sb.append("'");
+	    		}
+	    	}
     	}
     	sb.append("]");
     	if (StringUtils.isNotEmpty(getAdditionalValue())) {

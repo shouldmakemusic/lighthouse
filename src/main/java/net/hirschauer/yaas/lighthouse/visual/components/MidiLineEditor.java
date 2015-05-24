@@ -20,6 +20,7 @@ public class MidiLineEditor extends LineEditor {
 		logger.debug("init");
 		
 		midiInputController = MidiReceiver.show(paneInput);
+		midiInputController.setStage(stage);
 	}
 	
 	@Override
