@@ -20,7 +20,6 @@ import javafx.stage.Stage;
 import net.hirschauer.yaas.lighthouse.LightHouseMidi;
 import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 import net.hirschauer.yaas.lighthouse.model.MidiLogEntry;
-import net.hirschauer.yaas.lighthouse.visual.popups.LightSettingsPopup;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -42,7 +41,7 @@ public class MidiReceiver {
 	public static MidiReceiver show(AnchorPane parent) {
 		
 		FXMLLoader loader = new FXMLLoader(
-				LightSettingsPopup.class.getResource(
+				LightSettings.class.getResource(
 						"/view/components/MidiReceiver.fxml"));
 		try {
 			AnchorPane child = (AnchorPane) loader.load();		
