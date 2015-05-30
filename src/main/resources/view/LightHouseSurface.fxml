@@ -127,20 +127,9 @@
                     </content>
                   </Tab>
                   <Tab text="Wii">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                 <center>
-                                    <AnchorPane fx:id="logTableWii" BorderPane.alignment="CENTER" />
-                                 </center>
-                                 <top>
-                                    <AnchorPane fx:id="paneWiiChart" prefHeight="99.0" prefWidth="850.0" BorderPane.alignment="CENTER" />
-                                 </top>
-                              </BorderPane>
-                           </children>
-                        </AnchorPane>
-                    </content>
+                     <content>
+                        <AnchorPane fx:id="tabContentWii" />
+                     </content>
                   </Tab>
                   <Tab text="LightHouse Log">
                     <content>

@@ -1,19 +1,39 @@
 package net.hirschauer.yaas.lighthouse.visual.components;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.layout.AnchorPane;
 import net.hirschauer.yaas.lighthouse.model.ConfigCommand;
 import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MidiLineEditor extends LineEditor {
+public class MidiRowEditor extends RowEditor {
 	
 	private static final Logger logger = LoggerFactory
-			.getLogger(LineEditor.class);
+			.getLogger(RowEditor.class);
 	
 	private MidiReceiver midiInputController;
 
+	public static RowEditor show(AnchorPane parent, ConfigCommand entry) {
+
+		FXMLLoader loader = new FXMLLoader(
+				RowEditor.class
+						.getResource("/view/components/MidiRowEditor.fxml"));
+		try {
+			AnchorPane child = (AnchorPane) loader.load();
+			parent.getChildren().add(child);
+			RowEditor controller = loader.getController();
+			controller.setEntry(entry);
+			return controller;
+
+		} catch (Exception e) {
+			logger.error("Could not open controller settings", e);
+		}
+		return null;
+	}
+	
 	@FXML
 	protected void initialize() {
 		super.initialize();

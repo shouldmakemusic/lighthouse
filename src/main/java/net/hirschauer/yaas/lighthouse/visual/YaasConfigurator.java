@@ -9,28 +9,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
 import net.hirschauer.yaas.lighthouse.model.ConfigCommand;
 import net.hirschauer.yaas.lighthouse.model.ConfigLight;
 import net.hirschauer.yaas.lighthouse.model.ConfigMidi;
+import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessage;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageReceiveConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.visual.components.ConfigTable;
 import net.hirschauer.yaas.lighthouse.visual.components.LightSettings;
-import net.hirschauer.yaas.lighthouse.visual.components.LineEditor;
-import net.hirschauer.yaas.lighthouse.visual.components.MidiLineEditor;
+import net.hirschauer.yaas.lighthouse.visual.components.RowEditor;
+import net.hirschauer.yaas.lighthouse.visual.components.MidiRowEditor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +52,16 @@ public class YaasConfigurator extends Configurator {
 	private List<ConfigLight> backupConfigLightEntries = new ArrayList<ConfigLight>();
 	private ConfigTable configController;
 	
+	public static YaasConfigurator show(AnchorPane configurationTablePane) throws IOException {
+		
+		FXMLLoader loader = new FXMLLoader(YaasConfigurator.class.getResource("/view/configurators/YaasConfigurator.fxml"));
+		AnchorPane tabContent = (AnchorPane) loader.load();
+
+		YaasConfigurator yaasConfigurator = loader.getController();        
+        configurationTablePane.getChildren().add(tabContent);
+        return yaasConfigurator;
+	}
+	
 	public YaasConfigurator() {
 		super();
 	}
@@ -62,13 +70,8 @@ public class YaasConfigurator extends Configurator {
     public void initialize() throws IOException {
 		logger.debug("init");
 
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/configurators/ConfigTable.fxml"));
-		AnchorPane configTable = (AnchorPane) loader.load();
-
-		configController = loader.getController();
+		configController = ConfigTable.show(configTablePane);
 		configController.setConfigurator(this);
-		
-		configTablePane.getChildren().add(configTable);
 
 		btnAdd.setOnAction(new EventHandler<ActionEvent>() {
 			
@@ -98,8 +101,8 @@ public class YaasConfigurator extends Configurator {
 	}
 
 	@Override
-	public LineEditor getLineEditor(AnchorPane root, ConfigCommand configEntry) {
-		LineEditor editor = MidiLineEditor.show(root, configEntry);
+	public RowEditor getLineEditor(AnchorPane root, ConfigCommand configEntry) {
+		RowEditor editor = MidiRowEditor.show(root, configEntry);
 		return editor;
 	}
 
@@ -217,15 +220,10 @@ public class YaasConfigurator extends Configurator {
 		}
 
 	}
-
-	public static YaasConfigurator show(AnchorPane configurationTablePane) throws IOException {
-		
-		FXMLLoader loader = new FXMLLoader(YaasConfigurator.class.getResource("/view/configurators/YaasConfigurator.fxml"));
-		AnchorPane tabContent = (AnchorPane) loader.load();
-
-        // Give the controller access to the main app
-		YaasConfigurator yaasConfigurator = loader.getController();        
-        configurationTablePane.getChildren().add(tabContent);
-        return yaasConfigurator;
+	
+	@Override
+	String getConfigFileName() {
+		YaasConfiguration config = YaasController.getInstance().yaasConfigurationProperty.get();
+		return config.getYaasConfigFile();
 	}
 }

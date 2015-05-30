@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="104.0" prefWidth="461.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.components.WiiReceiver">
+   <children>
+      <HBox layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="104.0" prefWidth="447.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox prefHeight="94.0" prefWidth="146.0">
+               <children>
+                  <Label text="Wii" />
+                  <ComboBox fx:id="comboWiiSelector" prefWidth="137.0">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="/wii/1" />
+                        </FXCollections>
+                     </items>
+                  </ComboBox>
+               </children>
+            </VBox>
+            <VBox prefHeight="94.0" prefWidth="137.0">
+               <children>
+                  <Label text="Message" />
+                  <TextField fx:id="txtMessage" prefHeight="26.0" prefWidth="150.0">
+                     <VBox.margin>
+                        <Insets right="10.0" />
+                     </VBox.margin></TextField>
+                  <Label prefHeight="16.0" prefWidth="32.0" />
+                  <Button fx:id="btnReceiveWiiSignal" mnemonicParsing="false" text="Receive Wii Signal">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Button>
+               </children>
+            </VBox>
+            <VBox prefHeight="94.0" prefWidth="137.0">
+               <children>
+                  <Label text="Act when in mode" />
+                  <ComboBox fx:id="comboMode" prefWidth="150.0" >
+                  		<items>
+                        <FXCollections fx:factory="observableArrayList">
+                        	<String fx:value="Default" />
+                        </FXCollections>
+                     </items>
+                  </ComboBox>
+                  <Label text="Switch to mode" />
+                  <TextField fx:id="txtSwitchToMode" />
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" />
+         </padding>
+      </HBox>
+   </children>
+</AnchorPane>

@@ -11,7 +11,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -28,10 +27,10 @@ import org.controlsfx.control.RangeSlider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class LineEditor {
+public abstract class RowEditor {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(LineEditor.class);
+			.getLogger(RowEditor.class);
 
 	@FXML
 	private ComboBox<String> controllerCombo, commandCombo;
@@ -49,24 +48,6 @@ public abstract class LineEditor {
 	private RangeSlider hSlider;
 	protected Stage stage;
 	private ConfigCommand configCommand;
-
-	public static LineEditor show(AnchorPane parent, ConfigCommand entry) {
-
-		FXMLLoader loader = new FXMLLoader(
-				LineEditor.class
-						.getResource("/view/components/LineEditor.fxml"));
-		try {
-			AnchorPane child = (AnchorPane) loader.load();
-			parent.getChildren().add(child);
-			LineEditor controller = loader.getController();
-			controller.setEntry(entry);
-			return controller;
-
-		} catch (Exception e) {
-			logger.error("Could not open controller settings", e);
-		}
-		return null;
-	}
 	
 	public void updateControllerCombo() {
 		
@@ -79,7 +60,7 @@ public abstract class LineEditor {
 		controllerCombo.setItems(controllerEntries);
 	}
 
-	private void setEntry(ConfigCommand entry) {
+	protected void setEntry(ConfigCommand entry) {
 		
 		this.txtValue1.setText(entry.getValue1());
 		this.txtValue2.setText(entry.getValue2());

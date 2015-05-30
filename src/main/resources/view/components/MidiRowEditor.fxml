@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="375.0" prefWidth="493.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.components.MidiLineEditor">
+<AnchorPane prefHeight="375.0" prefWidth="493.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.hirschauer.yaas.lighthouse.visual.components.MidiRowEditor">
    <children>
       <Pane prefHeight="184.0" prefWidth="306.0">
          <children>

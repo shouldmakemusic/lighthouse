@@ -36,6 +36,7 @@ import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.OSCLogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
 import net.hirschauer.yaas.lighthouse.visual.VisualController;
+import net.hirschauer.yaas.lighthouse.visual.WiiConfigurator;
 import net.hirschauer.yaas.lighthouse.visual.YaasConfigurator;
 import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
@@ -59,11 +60,12 @@ public class LightHouse extends Application {
     
 	private SensorController sensorController;
 	private YaasConfigurator yaasConfigurator;
-    
+	private WiiConfigurator wiiConfigurator;
+
 	@FXML
 	TabPane tabPane;
     @FXML
-    AnchorPane logTablePane, logTableWii, logTableAndroid, yaasLogTablePane, 
+    AnchorPane logTablePane, tabContentWii, logTableAndroid, yaasLogTablePane, 
     midiLogTablePane, configurationTablePane;
     @FXML
     HBox topBox;
@@ -137,7 +139,7 @@ public class LightHouse extends Application {
         showMidiLogTable();
         showConfigurationEditor();        
         
-        properties.load(yaasLogController, yaasConfigurator, midiLogController);
+        properties.load(yaasLogController, yaasConfigurator, midiLogController, wiiConfigurator);
         
 	}
 
@@ -339,32 +341,27 @@ public class LightHouse extends Application {
 		sensorController = loader.getController();	 
 		paneAndroidChart.getChildren().add(page);
 		sensorController.listenTo(oscServer, SensorType.ANDROID);
-		topBox.getChildren().get(0).getStyleClass().add("series-android");
-		
+		topBox.getChildren().get(0).getStyleClass().add("series-android");		
     }
     
     protected void showWiiTab() throws IOException {
     	
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SensorBarChart.fxml"));	   
-		AnchorPane page = (AnchorPane) loader.load();			
-		sensorController = loader.getController();	 
-		paneWiiChart.getChildren().add(page);	
-		sensorController.listenTo(oscServer, SensorType.WII);
-		topBox.getChildren().get(1).getStyleClass().add("series-wii");
-		
-        loader = new FXMLLoader(getClass().getResource("/view/LogTable.fxml"));
-        LogController controller = new LogController(OSCMessageFromTask.TYPE_WII);
-        loader.setController(controller);
-		AnchorPane childLogTable = (AnchorPane) loader.load();
-        controller.setOscServer(oscServer);
-        logTableWii.getChildren().add(childLogTable);
+    	wiiConfigurator = WiiConfigurator.show(tabContentWii);
+    	
+    	tabControllers.put("Wii", wiiConfigurator);
+//        loader = new FXMLLoader(getClass().getResource("/view/LogTable.fxml"));
+//        LogController controller = new LogController(OSCMessageFromTask.TYPE_WII);
+//        loader.setController(controller);
+//		AnchorPane childLogTable = (AnchorPane) loader.load();
+//        controller.setOscServer(oscServer);
+        
     }
 	
 	@Override
 	public void stop() throws Exception {		
 		super.stop();
 
-		properties.store(yaasLogController, yaasConfigurator, midiLogController);
+		properties.store(yaasLogController, yaasConfigurator, midiLogController, wiiConfigurator);
 		LightHouseMidi.getInstance().close();
 		
 		if (oscServer != null) {

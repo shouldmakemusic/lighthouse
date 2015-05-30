@@ -5,10 +5,13 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
 import javax.sound.midi.InvalidMidiDataException;
 
+import net.hirschauer.yaas.lighthouse.model.LogEntry;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageFromTask;
 import net.hirschauer.yaas.lighthouse.osccontroller.AndroidController;
@@ -36,6 +39,9 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 	
 	private static LightHouseOSCServer instance;
 	
+	public ObservableList<LogEntry> logEntries;
+
+	
 	SimpleIntegerProperty port = new SimpleIntegerProperty(9050);
 	
 	private LightHouseOSCServer() {
@@ -45,6 +51,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 		wiiController = new WiiController(this, midi);
 		androidController = new AndroidController(this, midi);
 		port.set(9050);
+		logEntries = FXCollections.observableArrayList();
 	}
 	
 	public static LightHouseOSCServer getInstance() {
@@ -135,6 +142,7 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 			
 			try {
 				wiiController.handleMessage(m);
+				updateMessage(m);
 			} catch (InvalidMidiDataException e) {
 				logger.error("Could not handle wii message: " + m.getName(), e);
 			}
@@ -161,6 +169,15 @@ public class LightHouseOSCServer extends Task<SensorValue> implements OSCListene
 
 			logger.debug("Received message: " + m.getName() + " " + args + " from " + addr);
 			updateMessage(m);
+		}
+		
+		try {
+			synchronized (logEntries) {
+				
+				logEntries.add(new LogEntry(new OSCMessageFromTask(m)));
+			} 
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 	

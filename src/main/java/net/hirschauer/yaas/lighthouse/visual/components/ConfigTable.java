@@ -1,8 +1,11 @@
 package net.hirschauer.yaas.lighthouse.visual.components;
 
+import java.io.IOException;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -27,7 +30,7 @@ public class ConfigTable {
    	protected TableView<ConfigCommand> configTable;
    	
     @FXML
-    protected TableColumn<ConfigCommand, String> colMidiCommand, colMidiValue, colController, 
+    protected TableColumn<ConfigCommand, String> colConfigCommand, colConfigValue, colController, 
     	colCommand, colMidiFollowSignal, colValue1, colValue2, colValue3;
     
     @FXML
@@ -41,6 +44,16 @@ public class ConfigTable {
     	this.configurator = configurator;
 		configTable.setItems(configurator.getConfigEntries());
     }
+    
+	public static ConfigTable show(AnchorPane configTablePane) throws IOException {
+		
+		FXMLLoader loader = new FXMLLoader(ConfigTable.class.getResource("/view/configurators/ConfigTable.fxml"));
+		AnchorPane configTable = (AnchorPane) loader.load();
+		configTablePane.getChildren().add(configTable);
+		
+		ConfigTable configController = loader.getController();		
+		return configController;
+	}
 
     @FXML
     public void initialize() {
@@ -94,7 +107,7 @@ public class ConfigTable {
 			Stage editStage = new Stage();				
 			Scene editScene = new Scene(root);
 			
-            LineEditor editor = configurator.getLineEditor(root, configEntry);
+            RowEditor editor = configurator.getLineEditor(root, configEntry);
             editor.setStage(editStage);
 
             editStage.setScene(editScene);
@@ -111,8 +124,8 @@ public class ConfigTable {
 	}
 
 	private void setCellFactories() {
-		colMidiCommand.setCellValueFactory(new PropertyValueFactory<ConfigCommand, String>("midiCommand"));
-		colMidiValue.setCellValueFactory(new PropertyValueFactory<ConfigCommand, String>("midiValue"));
+		colConfigCommand.setCellValueFactory(new PropertyValueFactory<ConfigCommand, String>("configCommand"));
+		colConfigValue.setCellValueFactory(new PropertyValueFactory<ConfigCommand, String>("configValue"));
 		colMidiFollowSignal.setCellValueFactory(new PropertyValueFactory<ConfigCommand, String>("midiFollowSignal"));
 		colCommand.setCellValueFactory(new PropertyValueFactory<ConfigCommand, String>("command"));
 		colController.setCellValueFactory(new PropertyValueFactory<ConfigCommand, String>("controller"));
@@ -125,5 +138,4 @@ public class ConfigTable {
 		configTable.setVisible(false);
 		configTable.setVisible(true);
 	}
-
 }

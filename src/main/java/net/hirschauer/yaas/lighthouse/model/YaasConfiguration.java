@@ -14,6 +14,7 @@ public class YaasConfiguration {
 	private String yaasConfigFile;
 	private String yaasLocation;
 	private String name;
+	private String wiiConfigFile;
 	
 	public YaasConfiguration(String yaasLocation) {
 		logger.info("Create yaas configuration for " + yaasLocation);
@@ -42,6 +43,14 @@ public class YaasConfiguration {
 				logger.debug("Config file: " + config.getAbsolutePath());
 			}
 			config = null;
+			
+			File wii = new File(dir.getAbsolutePath() + File.separatorChar + 
+					"config" + File.separatorChar + "wii_mapping.cfg");
+			if (wii.exists()) {
+				wiiConfigFile = wii.getAbsolutePath();
+				logger.debug("Config file: " + wiiConfigFile);
+			}
+			wii = null;
 			
 			this.name = dir.getName();
 			dir = null;
@@ -86,5 +95,9 @@ public class YaasConfiguration {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getWiiConfigFile() {
+		return wiiConfigFile;
 	}
 }

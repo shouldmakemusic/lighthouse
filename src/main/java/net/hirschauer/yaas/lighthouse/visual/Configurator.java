@@ -22,12 +22,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.ConfigCommand;
-import net.hirschauer.yaas.lighthouse.model.YaasConfiguration;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessage;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageReceiveConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.IStorable;
-import net.hirschauer.yaas.lighthouse.visual.components.LineEditor;
+import net.hirschauer.yaas.lighthouse.visual.components.RowEditor;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,14 +45,17 @@ public abstract class Configurator extends VisualController implements IStorable
 	public Configurator() { }
 
 	abstract String getFileString();
-	abstract void clearConfig();
-	abstract void restoreConfig();
 	abstract void handleConfigurationLine(String mode, String line, String prefix, int lineNumber);
-	abstract void sendIndividualConfiguration(LightHouseOSCServer oscServer) throws IOException;
-	public abstract LineEditor getLineEditor(AnchorPane root, ConfigCommand configEntry);
-	abstract void storeIndividualCommands(Properties values);
+	public abstract RowEditor getLineEditor(AnchorPane root, ConfigCommand configEntry);
 	abstract void loadCommands(String value, String[] entry);
+	abstract String getConfigFileName();
+
+	protected void storeIndividualCommands(Properties values) {}
+	protected void sendIndividualConfiguration(LightHouseOSCServer oscServer) throws IOException {}
 	
+	public void clearConfig() {}
+	public void restoreConfig() {}
+
 	public void copy(Window window) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Confirmation Dialog");
@@ -62,8 +64,7 @@ public abstract class Configurator extends VisualController implements IStorable
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK) {
-			YaasConfiguration config = YaasController.getInstance().yaasConfigurationProperty.get();
-		    File file = new File(config.getYaasConfigFile());
+		    File file = new File(getConfigFileName());
 		    if (!file.exists()) {
 		    	try {
 					file.createNewFile();

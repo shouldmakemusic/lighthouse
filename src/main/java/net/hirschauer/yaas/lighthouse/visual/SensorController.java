@@ -1,5 +1,6 @@
 package net.hirschauer.yaas.lighthouse.visual;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import javafx.beans.value.ChangeListener;
@@ -7,10 +8,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
+import javafx.scene.layout.AnchorPane;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.model.SensorValue;
 import net.hirschauer.yaas.lighthouse.model.SensorValue.SensorType;
@@ -31,6 +34,17 @@ public class SensorController extends VisualController implements ChangeListener
     private ObservableList<String> sensorNames = FXCollections.observableArrayList();
 
 	private SensorType type;
+	
+	public static SensorController show(AnchorPane sensorPane) throws IOException {
+		FXMLLoader loader = new FXMLLoader(SensorController.class.getResource("/view/SensorBarChart.fxml"));	   
+		AnchorPane page = (AnchorPane) loader.load();			
+		sensorPane.getChildren().add(page);	
+
+		SensorController sensorController = loader.getController();	 		
+		LightHouseOSCServer oscServer = LightHouseOSCServer.getInstance();
+		sensorController.listenTo(oscServer, SensorType.WII);
+		return sensorController;
+	}
    
     /**
      * Initializes the controller class. This method is automatically called
