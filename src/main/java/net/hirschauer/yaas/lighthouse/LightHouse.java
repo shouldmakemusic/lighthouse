@@ -31,12 +31,12 @@ import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.util.CopyYaas;
 import net.hirschauer.yaas.lighthouse.util.PropertiesHandler;
 import net.hirschauer.yaas.lighthouse.util.TextAreaAppender;
-import net.hirschauer.yaas.lighthouse.visual.ConfigurationController;
 import net.hirschauer.yaas.lighthouse.visual.LogController;
 import net.hirschauer.yaas.lighthouse.visual.MidiLogController;
 import net.hirschauer.yaas.lighthouse.visual.OSCLogController;
 import net.hirschauer.yaas.lighthouse.visual.SensorController;
 import net.hirschauer.yaas.lighthouse.visual.VisualController;
+import net.hirschauer.yaas.lighthouse.visual.YaasConfigurator;
 import net.hirschauer.yaas.lighthouse.visual.YaasLogController;
 
 import org.apache.commons.io.IOUtils;
@@ -58,7 +58,7 @@ public class LightHouse extends Application {
     private AnchorPane rootLayout;
     
 	private SensorController sensorController;
-	private ConfigurationController configurationController;
+	private YaasConfigurator yaasConfigurator;
     
 	@FXML
 	TabPane tabPane;
@@ -137,7 +137,7 @@ public class LightHouse extends Application {
         showMidiLogTable();
         showConfigurationEditor();        
         
-        properties.load(yaasLogController, configurationController, midiLogController);
+        properties.load(yaasLogController, yaasConfigurator, midiLogController);
         
 	}
 
@@ -219,11 +219,11 @@ public class LightHouse extends Application {
 				    }
 				}
 			});
-		menuOpen.setOnAction(event -> configurationController.loadFromFile(primaryStage));
-		menuSave.setOnAction(event -> configurationController.saveToFile(primaryStage));
-		menuSendPermanently.setOnAction(event -> configurationController.copy(primaryStage));
-		menuSendTemporarily.setOnAction(event -> configurationController.sendConfigurationToYaas(primaryStage));
-		menuClearEntries.setOnAction(event -> configurationController.clear());
+		menuOpen.setOnAction(event -> yaasConfigurator.loadFromFile(primaryStage));
+		menuSave.setOnAction(event -> yaasConfigurator.saveToFile(primaryStage));
+		menuSendPermanently.setOnAction(event -> yaasConfigurator.copy(primaryStage));
+		menuSendTemporarily.setOnAction(event -> yaasConfigurator.sendConfigurationToYaas(primaryStage));
+		menuClearEntries.setOnAction(event -> yaasConfigurator.clear());
 		
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -278,11 +278,11 @@ public class LightHouse extends Application {
 	}
 	
 	private void showConfigurationEditor() throws IOException {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ConfigurationEditor.fxml"));
-		AnchorPane childLogTable = (AnchorPane) loader.load();
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/configurators/YaasConfigurator.fxml"));
+		AnchorPane tabContent = (AnchorPane) loader.load();
 
         // Give the controller access to the main app
-		configurationController = loader.getController();
+		yaasConfigurator = loader.getController();
         
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
@@ -297,8 +297,8 @@ public class LightHouse extends Application {
 				}				
 			}
 		});
-        configurationTablePane.getChildren().add(childLogTable);
-        tabControllers.put("YAAS config", configurationController);
+        configurationTablePane.getChildren().add(tabContent);
+        tabControllers.put("YAAS config", yaasConfigurator);
 
 	}
 	
@@ -367,7 +367,7 @@ public class LightHouse extends Application {
 	public void stop() throws Exception {		
 		super.stop();
 
-		properties.store(yaasLogController, configurationController, midiLogController);
+		properties.store(yaasLogController, yaasConfigurator, midiLogController);
 		LightHouseMidi.getInstance().close();
 		
 		if (oscServer != null) {

@@ -23,9 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ControllerSettings extends VisualController {
+public class LightSettingsPopup extends VisualController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ControllerSettings.class);
+	private static final Logger logger = LoggerFactory.getLogger(LightSettingsPopup.class);
 	
 	private List<ConfigLight> settings;
 
@@ -47,8 +47,8 @@ public class ControllerSettings extends VisualController {
 	public static List<ConfigLight> show(List<ConfigLight> configLightEntries) {
 		
 		FXMLLoader loader = new FXMLLoader(
-				ControllerSettings.class.getResource(
-						"/view/popups/ControllerSettings.fxml"));
+				LightSettingsPopup.class.getResource(
+						"/view/popups/LightSettings.fxml"));
 		try {
 			AnchorPane child = (AnchorPane) loader.load();
 			
@@ -56,7 +56,7 @@ public class ControllerSettings extends VisualController {
 			confStage.setTitle("Light settings");
 			Scene confScene = new Scene(child);
 			
-			ControllerSettings controller = loader.getController();
+			LightSettingsPopup controller = loader.getController();
 			controller.setStage(confStage);
 			if (configLightEntries.size() > 0) {
 				controller.setLightSettings(configLightEntries);
