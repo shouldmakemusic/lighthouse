@@ -9,12 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import net.hirschauer.yaas.lighthouse.LightHouseOSCServer;
 import net.hirschauer.yaas.lighthouse.exceptions.ConfigurationException;
@@ -25,9 +28,9 @@ import net.hirschauer.yaas.lighthouse.model.osc.OSCMessage;
 import net.hirschauer.yaas.lighthouse.model.osc.OSCMessageReceiveConfiguration;
 import net.hirschauer.yaas.lighthouse.osccontroller.YaasController;
 import net.hirschauer.yaas.lighthouse.visual.components.ConfigTable;
+import net.hirschauer.yaas.lighthouse.visual.components.LightSettings;
 import net.hirschauer.yaas.lighthouse.visual.components.LineEditor;
 import net.hirschauer.yaas.lighthouse.visual.components.MidiLineEditor;
-import net.hirschauer.yaas.lighthouse.visual.popups.LightSettingsPopup;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +80,7 @@ public class YaasConfigurator extends Configurator {
 		});
 		
 		btnLightSettings.setOnAction(event -> {
-			configLightEntries = LightSettingsPopup.show(configLightEntries);
+			configLightEntries = LightSettings.show(configLightEntries);
 		});
 		
 		btnSend.setOnAction(event -> {
@@ -213,5 +216,16 @@ public class YaasConfigurator extends Configurator {
 			commands.get(entry[2]).add(value);
 		}
 
+	}
+
+	public static YaasConfigurator show(AnchorPane configurationTablePane) throws IOException {
+		
+		FXMLLoader loader = new FXMLLoader(YaasConfigurator.class.getResource("/view/configurators/YaasConfigurator.fxml"));
+		AnchorPane tabContent = (AnchorPane) loader.load();
+
+        // Give the controller access to the main app
+		YaasConfigurator yaasConfigurator = loader.getController();        
+        configurationTablePane.getChildren().add(tabContent);
+        return yaasConfigurator;
 	}
 }

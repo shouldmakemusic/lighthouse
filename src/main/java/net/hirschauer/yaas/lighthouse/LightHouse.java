@@ -278,12 +278,9 @@ public class LightHouse extends Application {
 	}
 	
 	private void showConfigurationEditor() throws IOException {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/configurators/YaasConfigurator.fxml"));
-		AnchorPane tabContent = (AnchorPane) loader.load();
-
-        // Give the controller access to the main app
-		yaasConfigurator = loader.getController();
-        
+		
+		yaasConfigurator = YaasConfigurator.show(configurationTablePane);
+		
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 
 			@Override
@@ -297,7 +294,7 @@ public class LightHouse extends Application {
 				}				
 			}
 		});
-        configurationTablePane.getChildren().add(tabContent);
+
         tabControllers.put("YAAS config", yaasConfigurator);
 
 	}
